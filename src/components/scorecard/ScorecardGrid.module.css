@@ -1,0 +1,89 @@
+.wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  max-width: 100%;
+}
+
+.table {
+  border-collapse: collapse;
+  font-size: 13px;
+  width: max-content;
+}
+
+.table th,
+.table td {
+  padding: 8px 6px;
+  text-align: center;
+  min-width: 32px;
+  border-bottom: 1px solid var(--border);
+}
+
+.table thead th {
+  background: color-mix(in srgb, var(--text) 88%, var(--bg) 12%);
+  color: var(--bg);
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.rowLabel {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  text-align: left;
+  padding-left: 10px;
+  background: var(--bg);
+  border-right: 1px solid var(--border);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+thead .rowLabel {
+  background: color-mix(in srgb, var(--text) 88%, var(--bg) 12%);
+}
+
+.totalCell {
+  position: sticky;
+  right: 0;
+  z-index: 2;
+  background: var(--bg);
+  border-left: 1px solid var(--border);
+  font-weight: 700;
+}
+
+thead .totalCell {
+  background: color-mix(in srgb, var(--text) 88%, var(--bg) 12%);
+}
+
+.pending {
+  opacity: 0.35;
+}
+
+.mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  font-weight: 600;
+  margin: 0 auto;
+}
+
+.markBirdie {
+  border-radius: 50%;
+  border: 2px solid var(--tier-green);
+  color: var(--tier-green);
+}
+
+.markEagle {
+  border-radius: 50%;
+  background: var(--tier-gold);
+  color: #fff;
+}
+
+.markBogey {
+  border-radius: 4px;
+  border: 2px solid var(--tier-red);
+  color: var(--tier-red);
+}

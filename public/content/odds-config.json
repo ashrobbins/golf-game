@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "outcomeTiers": ["hole_in_one", "eagle", "birdie", "par", "bogey_plus"],
+  "byParType": {
+    "3": {
+      "matched":   { "hole_in_one": 0.02,  "eagle": 0,     "birdie": 0.30, "par": 0.55, "bogey_plus": 0.13 },
+      "unmatched": { "hole_in_one": 0.005, "eagle": 0,     "birdie": 0.15, "par": 0.55, "bogey_plus": 0.295 }
+    },
+    "4": {
+      "matched":   { "hole_in_one": 0, "eagle": 0.02,  "birdie": 0.25, "par": 0.55, "bogey_plus": 0.18 },
+      "unmatched": { "hole_in_one": 0, "eagle": 0.005, "birdie": 0.12, "par": 0.55, "bogey_plus": 0.325 }
+    },
+    "5": {
+      "matched":   { "hole_in_one": 0, "eagle": 0.10, "birdie": 0.35, "par": 0.45, "bogey_plus": 0.10 },
+      "unmatched": { "hole_in_one": 0, "eagle": 0.02, "birdie": 0.20, "par": 0.55, "bogey_plus": 0.23 }
+    }
+  }
+}

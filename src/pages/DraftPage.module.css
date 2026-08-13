@@ -1,0 +1,16 @@
+.spinPrompt {
+  text-align: center;
+}
+
+.pickerStack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.roster {
+  margin-top: 40px;
+  display: flex;
+  justify-content: center;
+}

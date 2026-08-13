@@ -1,0 +1,25 @@
+.wrapper {
+  position: relative;
+  max-width: 280px;
+  margin: 0 auto;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--bg) 96%, var(--text) 4%);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.flag {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.name {
+  white-space: nowrap;
+}

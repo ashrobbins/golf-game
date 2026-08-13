@@ -1,0 +1,57 @@
+{
+  "version": 2,
+  "courses": [
+    {
+      "id": "augusta-national",
+      "name": "Augusta National",
+      "location": "Augusta, Georgia, USA",
+      "par": 72,
+      "holes": [
+        { "number": 1, "par": 4, "yardage": 445, "archetype": "precision_iron", "name": "Tea Olive" },
+        { "number": 2, "par": 5, "yardage": 585, "archetype": "long_hitter", "name": "Pink Dogwood" },
+        { "number": 3, "par": 4, "yardage": 350, "archetype": "scrambler", "name": "Flowering Peach" },
+        { "number": 4, "par": 3, "yardage": 240, "archetype": "short_game_specialist", "name": "Flowering Crab Apple" },
+        { "number": 5, "par": 4, "yardage": 495, "archetype": "precision_iron", "name": "Magnolia" },
+        { "number": 6, "par": 3, "yardage": 180, "archetype": "short_game_specialist", "name": "Juniper" },
+        { "number": 7, "par": 4, "yardage": 450, "archetype": "scrambler", "name": "Pampas" },
+        { "number": 8, "par": 5, "yardage": 570, "archetype": "long_hitter", "name": "Yellow Jasmine" },
+        { "number": 9, "par": 4, "yardage": 460, "archetype": "precision_iron", "name": "Carolina Cherry" },
+        { "number": 10, "par": 4, "yardage": 495, "archetype": "scrambler", "name": "Camellia" },
+        { "number": 11, "par": 4, "yardage": 520, "archetype": "precision_iron", "name": "White Dogwood" },
+        { "number": 12, "par": 3, "yardage": 155, "archetype": "short_game_specialist", "name": "Golden Bell" },
+        { "number": 13, "par": 5, "yardage": 545, "archetype": "long_hitter", "name": "Azalea" },
+        { "number": 14, "par": 4, "yardage": 440, "archetype": "scrambler", "name": "Chinese Fir" },
+        { "number": 15, "par": 5, "yardage": 550, "archetype": "long_hitter", "name": "Firethorn" },
+        { "number": 16, "par": 3, "yardage": 170, "archetype": "closer", "name": "Redbud" },
+        { "number": 17, "par": 4, "yardage": 440, "archetype": "closer", "name": "Nandina" },
+        { "number": 18, "par": 4, "yardage": 465, "archetype": "closer", "name": "Holly" }
+      ]
+    },
+    {
+      "id": "carnoustie",
+      "name": "Carnoustie",
+      "location": "Carnoustie, Angus, Scotland",
+      "par": 71,
+      "holes": [
+        { "number": 1, "par": 4, "yardage": 401, "archetype": "precision_iron", "name": "Cup" },
+        { "number": 2, "par": 4, "yardage": 435, "archetype": "scrambler", "name": "Gulley" },
+        { "number": 3, "par": 4, "yardage": 345, "archetype": "precision_iron", "name": "Jockie's Burn" },
+        { "number": 4, "par": 4, "yardage": 375, "archetype": "scrambler", "name": "Hillocks" },
+        { "number": 5, "par": 4, "yardage": 387, "archetype": "precision_iron", "name": "Brae" },
+        { "number": 6, "par": 5, "yardage": 520, "archetype": "long_hitter", "name": "Hogan's Alley" },
+        { "number": 7, "par": 4, "yardage": 394, "archetype": "scrambler", "name": "Plantation" },
+        { "number": 8, "par": 3, "yardage": 167, "archetype": "short_game_specialist", "name": "Short" },
+        { "number": 9, "par": 4, "yardage": 416, "archetype": "precision_iron", "name": "Railway" },
+        { "number": 10, "par": 4, "yardage": 446, "archetype": "scrambler", "name": "South America" },
+        { "number": 11, "par": 4, "yardage": 362, "archetype": "precision_iron", "name": "John Philip" },
+        { "number": 12, "par": 4, "yardage": 479, "archetype": "scrambler", "name": "Southward Ho" },
+        { "number": 13, "par": 3, "yardage": 161, "archetype": "short_game_specialist", "name": "Whins" },
+        { "number": 14, "par": 5, "yardage": 476, "archetype": "long_hitter", "name": "Spectacles" },
+        { "number": 15, "par": 4, "yardage": 459, "archetype": "precision_iron", "name": "Lucky Slap" },
+        { "number": 16, "par": 3, "yardage": 245, "archetype": "closer", "name": "Barry Burn" },
+        { "number": 17, "par": 4, "yardage": 433, "archetype": "closer", "name": "Island" },
+        { "number": 18, "par": 4, "yardage": 444, "archetype": "closer", "name": "Home" }
+      ]
+    }
+  ]
+}
