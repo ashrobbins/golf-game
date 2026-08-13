@@ -6,7 +6,7 @@ import { Reel } from './Reel'
 import { buildLoopingStrip, shuffle } from './stripBuilders'
 import styles from './GolferReels.module.css'
 
-const REEL_ITEM_HEIGHT = 128
+const REEL_ITEM_HEIGHT = 136
 const BASE_DURATION_MS = 750
 const STAGGER_MS = 225
 const LOOPS = 3

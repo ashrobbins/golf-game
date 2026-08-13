@@ -58,26 +58,16 @@
   max-width: 100%;
 }
 
-/* Reserved for exactly two rows — a golfer with a single archetype leaves
-   the second row blank rather than shrinking the card. */
+/* Reserved height covers the worst case in real content: two archetypes
+   where one wraps to two lines (e.g. scrambler + short game wizard) — a
+   golfer with shorter tags just leaves blank space rather than shrinking
+   the card, so every card in a reel still lines up. */
 .chips {
-  height: 40px;
+  height: 48px;
   margin-top: 4px;
   display: flex;
   flex-direction: column;
   gap: 4px;
   align-items: center;
-}
-
-.chip {
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  padding: 2px 6px;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--text) 12%, transparent);
-  white-space: nowrap;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  text-align: center;
 }

@@ -1,11 +1,13 @@
+/* inline-block (not inline-flex) so the label can wrap onto a second line
+   in a narrow container — the leading dot rides along via vertical-align
+   instead of a flex layout, which would refuse to wrap at all. */
 .badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+  display: inline-block;
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.03em;
+  line-height: 1.3;
   color: var(--badge-color);
 }
 
@@ -14,6 +16,9 @@
   display: inline-block;
   width: 8px;
   height: 8px;
+  margin-right: 6px;
+  margin-bottom: 1px;
   border-radius: 50%;
   background: var(--badge-color);
+  vertical-align: middle;
 }

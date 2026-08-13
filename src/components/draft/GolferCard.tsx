@@ -1,6 +1,6 @@
-import { formatArchetypeLabel } from '../../content/formatArchetype'
 import { splitName } from '../../content/formatName'
 import type { Golfer } from '../../content/types'
+import { ArchetypeBadge } from '../ui/ArchetypeBadge'
 import styles from './GolferCard.module.css'
 
 export function GolferCard({ golfer }: { golfer: Golfer }) {
@@ -15,9 +15,7 @@ export function GolferCard({ golfer }: { golfer: Golfer }) {
       <div className={styles.era}>{golfer.era ?? ' '}</div>
       <div className={styles.chips}>
         {golfer.archetypes.map((tag) => (
-          <span key={tag} className={styles.chip}>
-            {formatArchetypeLabel(tag)}
-          </span>
+          <ArchetypeBadge key={tag} tag={tag} />
         ))}
       </div>
     </div>
