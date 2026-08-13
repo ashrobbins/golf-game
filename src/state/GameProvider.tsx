@@ -39,10 +39,14 @@ export function GameProvider({ children }: { children: ReactNode }) {
       if (!selected) return
       setCourse(selected)
       setSimulationResult(undefined)
-      setView('draft')
+      setView('course-info')
     },
     [content],
   )
+
+  const beginDraft = useCallback(() => {
+    setView('draft')
+  }, [])
 
   const finishDraft = useCallback(
     (picks: DraftPick[]) => {
@@ -61,8 +65,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const value = useMemo<GameContextValue>(
-    () => ({ content, view, course, simulationResult, startRound, finishDraft, playAgain }),
-    [content, view, course, simulationResult, startRound, finishDraft, playAgain],
+    () => ({ content, view, course, simulationResult, startRound, beginDraft, finishDraft, playAgain }),
+    [content, view, course, simulationResult, startRound, beginDraft, finishDraft, playAgain],
   )
 
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>

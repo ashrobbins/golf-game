@@ -14,3 +14,18 @@ const ARCHETYPE_LABELS: Record<ArchetypeTag, string> = {
 export function formatArchetypeLabel(tag: ArchetypeTag): string {
   return ARCHETYPE_LABELS[tag]
 }
+
+// 'closer' deliberately reuses the gold tier color (clutch/premium moments,
+// same association as an eagle/ace elsewhere in the app) rather than adding
+// a fifth one-off color.
+const ARCHETYPE_COLOR_VARS: Record<ArchetypeTag, string> = {
+  long_hitter: 'var(--archetype-long-hitter)',
+  precision_iron: 'var(--archetype-precision-iron)',
+  short_game_specialist: 'var(--archetype-short-game)',
+  scrambler: 'var(--archetype-scrambler)',
+  closer: 'var(--tier-gold)',
+}
+
+export function archetypeColorVar(tag: ArchetypeTag): string {
+  return ARCHETYPE_COLOR_VARS[tag]
+}

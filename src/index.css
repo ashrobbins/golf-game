@@ -12,6 +12,10 @@
   --tier-green: #2e8b57;
   --tier-grey: #b8b8bd;
   --tier-red: #d1483f;
+  --archetype-long-hitter: #3b6fd6;
+  --archetype-precision-iron: #2f9e8f;
+  --archetype-short-game: #a855c9;
+  --archetype-scrambler: #d98c2b;
   color-scheme: light dark;
   color: var(--text);
   background: var(--bg);
@@ -34,6 +38,10 @@
     --tier-green: #4caf78;
     --tier-grey: #565863;
     --tier-red: #e0645a;
+    --archetype-long-hitter: #6d95e6;
+    --archetype-precision-iron: #4dbcac;
+    --archetype-short-game: #c583de;
+    --archetype-scrambler: #e6a850;
   }
 }
 

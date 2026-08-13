@@ -1,4 +1,4 @@
-import { formatArchetypeLabel } from '../../content/formatArchetype'
+import { ArchetypeBadge } from '../ui/ArchetypeBadge'
 import type { Hole } from '../../content/types'
 import styles from './HoleHeader.module.css'
 
@@ -14,9 +14,11 @@ export function HoleHeader({ courseName, hole, totalHoles }: HoleHeaderProps) {
       <h2 className={styles.title}>
         {courseName} — Hole {hole.number} / {totalHoles}
       </h2>
+      {hole.name && <p className={styles.holeName}>{hole.name}</p>}
       <p className={styles.details}>
-        Par {hole.par} · {hole.yardage} yds · {formatArchetypeLabel(hole.archetype)}
+        Par {hole.par} · {hole.yardage} yds
       </p>
+      <ArchetypeBadge tag={hole.archetype} />
     </div>
   )
 }

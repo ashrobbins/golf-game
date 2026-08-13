@@ -1,0 +1,26 @@
+.wrapper {
+  max-width: 620px;
+  width: 100%;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.title {
+  font-size: 34px;
+  margin-bottom: 4px;
+}
+
+.subtitle {
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.par {
+  color: var(--text-muted);
+  margin: 4px 0 0;
+  font-size: 14px;
+}
+
+.cta {
+  margin: 24px 0;
+}

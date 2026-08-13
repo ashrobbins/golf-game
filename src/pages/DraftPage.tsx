@@ -3,7 +3,6 @@ import { CountryPicker } from '../components/picker/CountryPicker'
 import { GolferReels } from '../components/picker/GolferReels'
 import { DraftRoster } from '../components/draft/DraftRoster'
 import { HoleHeader } from '../components/draft/HoleHeader'
-import { Button } from '../components/ui/Button'
 import type { CountriesContent, Country, Course, Golfer } from '../content/types'
 import type { DraftPick } from '../game/draft/types'
 import { useDraftGame } from '../hooks/useDraftGame'
@@ -47,16 +46,16 @@ function DraftPageInner({
     if (state.status === 'complete') onComplete(state.picks)
   }, [state.status, state.picks, onComplete])
 
-  // After a pick, auto-spin for the next hole rather than waiting for a
-  // manual click — the only manual "Spin" is the very first one, before any
-  // pick has been made. useLayoutEffect (not useEffect) so the transition to
-  // 'spinning' happens before paint, avoiding a one-frame flash of the
-  // "Spin" button between holes.
+  // Auto-spin every hole, including the first — the course preview page's
+  // own "Let's Go" button is the user's one manual kick-off, so the draft
+  // itself never waits for another click. useLayoutEffect (not useEffect) so
+  // the transition to 'spinning' happens before paint, avoiding a one-frame
+  // flash of a "ready to spin" state between holes.
   useLayoutEffect(() => {
-    if (state.status === 'ready_to_spin' && state.picks.length > 0) {
+    if (state.status === 'ready_to_spin') {
       spin()
     }
-  }, [state.status, state.picks.length, spin])
+  }, [state.status, spin])
 
   if (state.status === 'complete') return <p>Draft complete, simulating…</p>
 
@@ -66,12 +65,6 @@ function DraftPageInner({
   return (
     <div>
       <HoleHeader courseName={course.name} hole={hole} totalHoles={course.holes.length} />
-
-      {state.status === 'ready_to_spin' && (
-        <div className={styles.spinPrompt}>
-          <Button onClick={spin}>Let's go</Button>
-        </div>
-      )}
 
       {(state.status === 'spinning' || state.status === 'awaiting_pick') &&
         state.pendingSpinCountryId && (

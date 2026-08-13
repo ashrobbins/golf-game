@@ -1,4 +1,5 @@
 import { NavBar } from './components/nav/NavBar'
+import { CoursePreviewPage } from './pages/CoursePreviewPage'
 import { DraftPage } from './pages/DraftPage'
 import { HomePage } from './pages/HomePage'
 import { ResultsPage } from './pages/ResultsPage'
@@ -12,6 +13,8 @@ function GameView() {
   switch (view) {
     case 'home':
       return <HomePage />
+    case 'course-info':
+      return <CoursePreviewPage />
     case 'draft':
       return <DraftPage />
     case 'results':
