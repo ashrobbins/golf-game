@@ -18,6 +18,24 @@
   opacity: 0.55;
 }
 
+/* Same 3-column grid as .row, so "Player"/"Hole" land directly above the
+   columns they label. */
+.columnHeader {
+  display: grid;
+  grid-template-columns: 1fr 52px 52px;
+  column-gap: 6px;
+  padding: 0 6px 4px;
+}
+
+.columnLabel {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  text-align: center;
+  opacity: 0.5;
+}
+
 .list {
   list-style: none;
   padding: 0;
@@ -28,29 +46,65 @@
   gap: 2px;
 }
 
+/* Fixed-width archetype columns (2nd/3rd) so a new pick never reflows the
+   row — the golfer column is the only one allowed to grow/shrink, and even
+   it doesn't reflow neighboring columns: a long name just wraps to a
+   second line within its own cell (see .golferName). */
 .row {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 52px 52px;
+  column-gap: 6px;
   align-items: center;
-  gap: 10px;
-  padding: 8px;
+  padding: 8px 6px;
   border-bottom: 1px solid var(--border);
   text-align: left;
   font-size: 14px;
 }
 
+/* Subtle legend-tier marker — an inset gold edge rather than a badge icon,
+   so it doesn't disturb row alignment or add another visual element. */
+.legendRow {
+  box-shadow: inset 3px 0 0 var(--tier-gold);
+}
+
+.golferCell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
 .holeNumber {
-  width: 20px;
+  flex: 0 0 auto;
   opacity: 0.5;
   font-size: 12px;
 }
 
-.golferName {
-  flex: 1;
-  text-align: left;
+.flag {
+  flex: 0 0 auto;
+  font-size: 16px;
+  line-height: 1;
 }
 
-.country {
-  font-size: 12px;
-  opacity: 0.75;
-  white-space: nowrap;
+/* No truncation — a long name wraps onto a second line within the column
+   instead of being cut off, so the full name is always readable. */
+.golferName {
+  flex: 1 1 auto;
+  min-width: 0;
+  text-align: left;
+  overflow-wrap: break-word;
+}
+
+.archetypeCell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+/* Sized to roughly match the archetype badge's 11px text height. */
+.archetypeIcon {
+  width: 11px;
+  height: 11px;
+  flex: 0 0 auto;
 }

@@ -16,6 +16,7 @@
   --archetype-precision-iron: #2f9e8f;
   --archetype-short-game: #a855c9;
   --archetype-scrambler: #d98c2b;
+  --archetype-closer: #c23a5e;
   color-scheme: light dark;
   color: var(--text);
   background: var(--bg);
@@ -42,6 +43,7 @@
     --archetype-precision-iron: #4dbcac;
     --archetype-short-game: #c583de;
     --archetype-scrambler: #e6a850;
+    --archetype-closer: #e0678c;
   }
 }
 

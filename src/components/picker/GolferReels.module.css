@@ -28,6 +28,13 @@
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+/* Subtle legend-tier marker — a gold border around the whole card
+   (including the Select button), not just the name/archetype content. */
+.legend {
+  border: 2px solid var(--tier-gold);
+  padding: 9px 7px;
+}
+
 .column:hover {
   transform: translateY(-2px);
   box-shadow:

@@ -20,3 +20,10 @@
   opacity: 0.65;
   font-size: 14px;
 }
+
+/* Bumped up from the badge's default 11px so the hole's archetype — the
+   single most useful piece of info when picking a golfer — reads as more
+   prominent than a routine metadata badge. */
+.archetype {
+  font-size: 15px;
+}

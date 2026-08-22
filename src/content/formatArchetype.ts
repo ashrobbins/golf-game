@@ -15,15 +15,27 @@ export function formatArchetypeLabel(tag: ArchetypeTag): string {
   return ARCHETYPE_LABELS[tag]
 }
 
-// 'closer' deliberately reuses the gold tier color (clutch/premium moments,
-// same association as an eagle/ace elsewhere in the app) rather than adding
-// a fifth one-off color.
+// 3-letter abbreviations — used only in the draft roster's archetype
+// pairing, where the full labels caused the row layout to shift/wrap
+// unpredictably as picks came in.
+const ARCHETYPE_ABBREVIATIONS: Record<ArchetypeTag, string> = {
+  long_hitter: 'LNG',
+  precision_iron: 'IRN',
+  short_game_specialist: 'SGW',
+  scrambler: 'SCR',
+  closer: 'CLO',
+}
+
+export function formatArchetypeAbbreviation(tag: ArchetypeTag): string {
+  return ARCHETYPE_ABBREVIATIONS[tag]
+}
+
 const ARCHETYPE_COLOR_VARS: Record<ArchetypeTag, string> = {
   long_hitter: 'var(--archetype-long-hitter)',
   precision_iron: 'var(--archetype-precision-iron)',
   short_game_specialist: 'var(--archetype-short-game)',
   scrambler: 'var(--archetype-scrambler)',
-  closer: 'var(--tier-gold)',
+  closer: 'var(--archetype-closer)',
 }
 
 export function archetypeColorVar(tag: ArchetypeTag): string {

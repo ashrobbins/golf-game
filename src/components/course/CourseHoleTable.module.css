@@ -72,6 +72,10 @@
   display: none;
 }
 
+.archetypeCell {
+  text-align: left;
+}
+
 .numberCell {
   text-align: center;
   font-variant-numeric: tabular-nums;

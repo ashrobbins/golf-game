@@ -25,7 +25,7 @@ interface GolferReelsProps {
 // internal state, rather than resetting it here via an effect.
 export function GolferReels({ country, targets, spinToken, onPick }: GolferReelsProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null)
-  const [settledCount, setSettledCount] = useState(0)
+  const [settledIndices, setSettledIndices] = useState<Set<number>>(() => new Set())
 
   const strips = useMemo(
     () => targets.map((target) => buildLoopingStrip(shuffle(country.golfers), target, LOOPS)),
@@ -33,35 +33,53 @@ export function GolferReels({ country, targets, spinToken, onPick }: GolferReels
     [spinToken],
   )
 
-  const allSettled = settledCount >= targets.length
+  const allSettled = settledIndices.size >= targets.length
   const selectedGolfer = targets.find((g) => g.id === selectedId)
 
   return (
     <div className={styles.wrapper}>
       <div className={styles.reels}>
-        {targets.map((golfer, i) => (
-          <div key={golfer.id} className={styles.column}>
-            <Reel
-              items={strips[i]}
-              itemHeight={REEL_ITEM_HEIGHT}
-              durationMs={BASE_DURATION_MS + i * STAGGER_MS}
-              spinToken={spinToken}
-              edgeFade={false}
-              getKey={(g, idx) => `${g.id}-${idx}`}
-              onSettled={() => setSettledCount((c) => c + 1)}
-              renderItem={(g) => <GolferCard golfer={g} />}
-            />
-            {allSettled && (
-              <Button
-                variant={selectedId === golfer.id ? 'primary' : 'secondary'}
-                fullWidth
-                onClick={() => setSelectedId(golfer.id)}
-              >
-                {selectedId === golfer.id ? 'Selected' : 'Select'}
-              </Button>
-            )}
-          </div>
-        ))}
+        {targets.map((golfer, i) => {
+          // Gate the legend border on this specific reel having settled —
+          // targets are known from the start, so applying it unconditionally
+          // would give away a legend pick while it's still spinning.
+          const showLegendBorder = settledIndices.has(i) && golfer.skill === 'legend'
+
+          return (
+            <div
+              key={golfer.id}
+              className={showLegendBorder ? `${styles.column} ${styles.legend}` : styles.column}
+            >
+              <Reel
+                items={strips[i]}
+                itemHeight={REEL_ITEM_HEIGHT}
+                durationMs={BASE_DURATION_MS + i * STAGGER_MS}
+                spinToken={spinToken}
+                edgeFade={false}
+                getKey={(g, idx) => `${g.id}-${idx}`}
+                onSettled={() =>
+                  setSettledIndices((prev) => {
+                    const next = new Set(prev)
+                    next.add(i)
+                    return next
+                  })
+                }
+                renderItem={(g) => (
+                  <GolferCard golfer={g} onClick={allSettled ? () => setSelectedId(golfer.id) : undefined} />
+                )}
+              />
+              {allSettled && (
+                <Button
+                  variant={selectedId === golfer.id ? 'primary' : 'secondary'}
+                  fullWidth
+                  onClick={() => setSelectedId(golfer.id)}
+                >
+                  {selectedId === golfer.id ? 'Selected' : 'Select'}
+                </Button>
+              )}
+            </div>
+          )
+        })}
       </div>
       {allSettled && selectedGolfer && (
         <Button onClick={() => onPick(selectedGolfer.id)}>Draft {selectedGolfer.name}</Button>

@@ -89,10 +89,17 @@
   text-align: left;
 }
 
+/* Fixed width (wide enough for the longest label, "Hole-in-one!") so the
+   column never wraps and stays aligned from row to row regardless of which
+   outcome landed. */
 .tier {
+  flex: 0 0 100px;
+  width: 100px;
   font-weight: 600;
   font-size: 12px;
   text-transform: uppercase;
+  text-align: right;
+  white-space: nowrap;
   opacity: 0.75;
 }
 

@@ -1,8 +1,20 @@
 import type { CountriesContent, Course, Golfer, OddsConfig, OutcomeDistribution, OutcomeTier } from '../../content/types'
 import type { DraftPick } from '../draft/types'
 import type { Rng } from '../rng'
+import { golferHoleFitWeight } from './affinity'
 import { applySkillShift } from './skill'
 import type { HoleResult, SimulationResult } from './types'
+
+// Blends two distributions by fit weight — 0 is fully `a` (unmatched), 1 is
+// fully `b` (matched), and everything between is a smooth archetype-fit
+// gradient rather than a hard matched/unmatched switch.
+function lerpDistribution(a: OutcomeDistribution, b: OutcomeDistribution, t: number): OutcomeDistribution {
+  const result = {} as OutcomeDistribution
+  for (const tier of Object.keys(a) as OutcomeTier[]) {
+    result[tier] = a[tier] + (b[tier] - a[tier]) * t
+  }
+  return result
+}
 
 export function resolveOutcomeTier(
   distribution: OutcomeDistribution,
@@ -68,11 +80,10 @@ export function simulateRound(
       }
 
       const archetypeMatched = golfer.archetypes.includes(hole.archetype)
-      const fitDistribution =
-        odds.byParType[String(hole.par) as '3' | '4' | '5'][
-          archetypeMatched ? 'matched' : 'unmatched'
-        ]
-      const distribution = applySkillShift(fitDistribution, golfer.skill)
+      const { matched, unmatched } = odds.byParType[String(hole.par) as '3' | '4' | '5']
+      const fitWeight = golferHoleFitWeight(golfer, hole.archetype)
+      const fitDistribution = lerpDistribution(unmatched, matched, fitWeight)
+      const distribution = applySkillShift(fitDistribution, golfer.skill, fitWeight)
       const outcomeTier = resolveOutcomeTier(distribution, odds.outcomeTiers, rng)
 
       return {

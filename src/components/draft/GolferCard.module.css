@@ -8,6 +8,15 @@
   box-sizing: border-box;
 }
 
+.clickable {
+  cursor: pointer;
+}
+
+.clickable:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 /* Fixed-height name block: first name always on its own line, surname
    always underneath — reserved space stays constant whether the surname
    is one short word or wraps to two, so every card lines up. */
@@ -22,8 +31,9 @@
 .firstName {
   height: 16px;
   line-height: 16px;
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 600;
+  opacity: 0.75;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -33,9 +43,8 @@
 .surname {
   height: 32px;
   line-height: 16px;
-  font-size: 12px;
-  font-weight: 600;
-  opacity: 0.85;
+  font-size: 14px;
+  font-weight: 800;
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;

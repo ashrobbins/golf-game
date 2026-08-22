@@ -18,7 +18,7 @@ export function HoleHeader({ courseName, hole, totalHoles }: HoleHeaderProps) {
       <p className={styles.details}>
         Par {hole.par} · {hole.yardage} yds
       </p>
-      <ArchetypeBadge tag={hole.archetype} />
+      <ArchetypeBadge tag={hole.archetype} className={styles.archetype} />
     </div>
   )
 }

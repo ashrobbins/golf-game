@@ -9,12 +9,13 @@ import {
 } from './types'
 import type { DraftState } from './types'
 
-// Dev-time safeguard: with a 3-pick-per-country cap, the draft can only ever
-// complete if total capacity across all countries is at least TOTAL_HOLES.
-// A too-thin content set should fail loudly at load time, not stall mid-draft.
+// Dev-time safeguard: with each country capped at its repeatCap (or the
+// REPEAT_CAP default), the draft can only ever complete if total capacity
+// across all countries is at least TOTAL_HOLES. A too-thin content set
+// should fail loudly at load time, not stall mid-draft.
 export function assertWheelHasCapacity(content: CountriesContent): void {
   const capacity = content.countries.reduce(
-    (sum, country) => sum + Math.min(REPEAT_CAP, country.golfers.length),
+    (sum, country) => sum + Math.min(country.repeatCap ?? REPEAT_CAP, country.golfers.length),
     0,
   )
   if (capacity < TOTAL_HOLES) {
@@ -31,10 +32,12 @@ export function createInitialDraftState(
 ): DraftState {
   const countryBenches: Record<string, string[]> = {}
   const countryDraftCounts: Record<string, number> = {}
+  const countryRepeatCaps: Record<string, number> = {}
 
   for (const country of content.countries) {
     countryBenches[country.id] = country.golfers.map((g) => g.id)
     countryDraftCounts[country.id] = 0
+    countryRepeatCaps[country.id] = country.repeatCap ?? REPEAT_CAP
   }
 
   const wheelCountryIds = content.countries
@@ -47,6 +50,7 @@ export function createInitialDraftState(
     picks: [],
     draftedGolferIds: new Set(),
     countryDraftCounts,
+    countryRepeatCaps,
     countryBenches,
     wheelCountryIds,
     status: 'ready_to_spin',
@@ -107,7 +111,8 @@ export function applyPick(state: DraftState, golferId: string): DraftState {
   const newDraftCount = state.countryDraftCounts[countryId] + 1
 
   const stillEligible =
-    newDraftCount < REPEAT_CAP && remainingBench.length >= MIN_BENCH_TO_STAY_ON_WHEEL
+    newDraftCount < state.countryRepeatCaps[countryId] &&
+    remainingBench.length >= MIN_BENCH_TO_STAY_ON_WHEEL
 
   const wheelCountryIds = stillEligible
     ? state.wheelCountryIds

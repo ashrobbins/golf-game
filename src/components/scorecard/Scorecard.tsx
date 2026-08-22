@@ -1,7 +1,12 @@
 import { useMemo } from 'react'
 import type { CountriesContent, Course, Golfer } from '../../content/types'
 import { generateHoleCommentary } from '../../game/simulation/commentary'
-import { formatBogeyFreeHeadline, formatRelativeScore, formatTierLabel } from '../../game/simulation/formatTier'
+import {
+  formatBogeyFreeHeadline,
+  formatRelativeScore,
+  formatTierLabel,
+  tierColorVar,
+} from '../../game/simulation/formatTier'
 import type { SimulationResult } from '../../game/simulation/types'
 import { Confetti } from './Confetti'
 import { ScorecardGrid } from './ScorecardGrid'
@@ -54,7 +59,9 @@ export function Scorecard({ course, countries, result }: ScorecardProps) {
               <span className={styles.golferName}>
                 {golferIndex.get(hole.golferId)?.name ?? hole.golferId}
               </span>
-              <span className={styles.tier}>{formatTierLabel(hole.outcomeTier)}</span>
+              <span className={styles.tier} style={{ color: tierColorVar(hole.outcomeTier) }}>
+                {formatTierLabel(hole.outcomeTier)}
+              </span>
             </div>
             <p className={styles.commentary}>{commentaryByHole[i]}</p>
           </li>

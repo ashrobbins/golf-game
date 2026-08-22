@@ -104,6 +104,52 @@ describe('resolveOutcomeTier', () => {
   })
 })
 
+describe('legend + matched archetype par-or-better rate', () => {
+  const parTypes = ['3', '4', '5'] as const
+
+  it('lands a legend on their exact archetype at roughly a 95% par-or-better rate', () => {
+    for (const parType of parTypes) {
+      const course: Course = {
+        id: 'fixture-course',
+        name: 'Fixture Course',
+        par: 72,
+        holes: [{ number: 1, par: Number(parType) as 3 | 4 | 5, yardage: 400, archetype: 'closer' }],
+      }
+      const content = {
+        version: 1,
+        countries: [
+          {
+            id: 'fixture-country',
+            name: 'Fixture',
+            isoCode: 'XX',
+            golfers: [
+              {
+                id: 'legend',
+                name: 'Legend Golfer',
+                archetypes: ['closer'] as ['closer'],
+                skill: 'legend' as const,
+              },
+            ],
+          },
+        ],
+      }
+      const picks: DraftPick[] = [{ holeNumber: 1, countryId: 'fixture-country', golferId: 'legend' }]
+      const rng = mulberry32(11)
+      const trials = 5000
+      let parOrBetter = 0
+
+      for (let i = 0; i < trials; i++) {
+        const result = simulateRound(picks, course, content, realOddsConfig, rng)
+        if (result.holeResults[0].outcomeTier !== 'bogey_plus') parOrBetter++
+      }
+
+      const rate = parOrBetter / trials
+      expect(rate).toBeGreaterThan(0.9)
+      expect(rate).toBeLessThan(1)
+    }
+  })
+})
+
 describe('simulateRound derived stats', () => {
   const course: Course = {
     id: 'fixture-course',

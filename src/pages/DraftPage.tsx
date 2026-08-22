@@ -91,6 +91,7 @@ function DraftPageInner({
       <div className={styles.roster}>
         <DraftRoster
           picks={state.picks}
+          holes={course.holes}
           countryIndex={countryIndex}
           golferIndex={golferIndex}
           totalHoles={course.holes.length}

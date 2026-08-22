@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "countries": [
     {
       "id": "usa",
@@ -81,8 +81,56 @@
             "precision_iron"
           ],
           "skill": "elite"
+        },
+        {
+          "id": "usa-scheffler",
+          "name": "Scottie Scheffler",
+          "era": "2020s",
+          "archetypes": [
+            "precision_iron",
+            "long_hitter"
+          ],
+          "skill": "elite"
+        },
+        {
+          "id": "usa-schauffele",
+          "name": "Xander Schauffele",
+          "era": "2010s-20s",
+          "archetypes": [
+            "precision_iron"
+          ],
+          "skill": "elite"
+        },
+        {
+          "id": "usa-fowler",
+          "name": "Rickie Fowler",
+          "era": "2010s-20s",
+          "archetypes": [
+            "short_game_specialist"
+          ]
+        },
+        {
+          "id": "usa-mickelson",
+          "name": "Phil Mickelson",
+          "era": "1990s-2020s",
+          "archetypes": [
+            "short_game_specialist",
+            "closer"
+          ],
+          "skill": "legend"
+        },
+        {
+          "id": "usa-couples",
+          "name": "Fred Couples",
+          "era": "1980s-90s",
+          "archetypes": [
+            "long_hitter",
+            "closer"
+          ],
+          "skill": "legend"
         }
-      ]
+      ],
+      "repeatCap": 5
     },
     {
       "id": "scotland",
@@ -123,7 +171,7 @@
           "archetypes": [
             "precision_iron"
           ],
-          "skill": "elite"
+          "skill": "legend"
         },
         {
           "id": "sco-lawrie",
@@ -139,8 +187,7 @@
           "name": "Bob MacIntyre",
           "era": "2020s",
           "archetypes": [
-            "scrambler",
-            "short_game_specialist"
+            "scrambler"
           ]
         }
       ]
@@ -168,7 +215,7 @@
             "precision_iron",
             "long_hitter"
           ],
-          "skill": "elite"
+          "skill": "legend"
         },
         {
           "id": "rsa-goosen",
@@ -262,8 +309,37 @@
           "archetypes": [
             "short_game_specialist"
           ]
+        },
+        {
+          "id": "eng-fitzpatrick",
+          "name": "Matt Fitzpatrick",
+          "era": "2010s-20s",
+          "archetypes": [
+            "precision_iron"
+          ],
+          "skill": "elite"
+        },
+        {
+          "id": "eng-hatton",
+          "name": "Tyrrell Hatton",
+          "era": "2010s-20s",
+          "archetypes": [
+            "closer",
+            "scrambler"
+          ],
+          "skill": "elite"
+        },
+        {
+          "id": "eng-donald",
+          "name": "Luke Donald",
+          "era": "2000s-10s",
+          "archetypes": [
+            "short_game_specialist"
+          ],
+          "skill": "elite"
         }
-      ]
+      ],
+      "repeatCap": 5
     },
     {
       "id": "spain",
@@ -445,6 +521,14 @@
           "era": "1990s",
           "archetypes": [
             "precision_iron"
+          ]
+        },
+        {
+          "id": "aus-lee",
+          "name": "Min Woo Lee",
+          "era": "2020s",
+          "archetypes": [
+            "long_hitter"
           ]
         }
       ]
@@ -872,67 +956,6 @@
       ]
     },
     {
-      "id": "argentina",
-      "name": "Argentina",
-      "isoCode": "AR",
-      "golfers": [
-        {
-          "id": "arg-cabrera",
-          "name": "Angel Cabrera",
-          "era": "2000s-10s",
-          "archetypes": [
-            "long_hitter",
-            "closer"
-          ],
-          "skill": "elite"
-        },
-        {
-          "id": "arg-devicenzo",
-          "name": "Roberto De Vicenzo",
-          "era": "1950s-70s",
-          "archetypes": [
-            "precision_iron"
-          ],
-          "skill": "legend"
-        },
-        {
-          "id": "arg-romero-e",
-          "name": "Eduardo Romero",
-          "era": "1980s-2000s",
-          "archetypes": [
-            "scrambler"
-          ],
-          "skill": "journeyman"
-        },
-        {
-          "id": "arg-grillo",
-          "name": "Emiliano Grillo",
-          "era": "2010s-20s",
-          "archetypes": [
-            "precision_iron"
-          ]
-        },
-        {
-          "id": "arg-romero-a",
-          "name": "Andres Romero",
-          "era": "2000s-10s",
-          "archetypes": [
-            "long_hitter"
-          ],
-          "skill": "journeyman"
-        },
-        {
-          "id": "arg-coceres",
-          "name": "Jose Coceres",
-          "era": "1990s-2000s",
-          "archetypes": [
-            "scrambler"
-          ],
-          "skill": "journeyman"
-        }
-      ]
-    },
-    {
       "id": "south-korea",
       "name": "South Korea",
       "isoCode": "KR",
@@ -1114,127 +1137,6 @@
       ]
     },
     {
-      "id": "france",
-      "name": "France",
-      "isoCode": "FR",
-      "golfers": [
-        {
-          "id": "fra-vandevelde",
-          "name": "Jean van de Velde",
-          "era": "1990s-2000s",
-          "archetypes": [
-            "scrambler"
-          ],
-          "skill": "journeyman"
-        },
-        {
-          "id": "fra-levet",
-          "name": "Thomas Levet",
-          "era": "2000s",
-          "archetypes": [
-            "precision_iron"
-          ],
-          "skill": "journeyman"
-        },
-        {
-          "id": "fra-dubuisson",
-          "name": "Victor Dubuisson",
-          "era": "2010s",
-          "archetypes": [
-            "scrambler",
-            "short_game_specialist"
-          ]
-        },
-        {
-          "id": "fra-levy",
-          "name": "Alexander Levy",
-          "era": "2010s-20s",
-          "archetypes": [
-            "long_hitter"
-          ],
-          "skill": "journeyman"
-        },
-        {
-          "id": "fra-langasque",
-          "name": "Romain Langasque",
-          "era": "2020s",
-          "archetypes": [
-            "precision_iron"
-          ],
-          "skill": "journeyman"
-        },
-        {
-          "id": "fra-rozner",
-          "name": "Antoine Rozner",
-          "era": "2020s",
-          "archetypes": [
-            "long_hitter"
-          ],
-          "skill": "journeyman"
-        }
-      ]
-    },
-    {
-      "id": "netherlands",
-      "name": "Netherlands",
-      "isoCode": "NL",
-      "golfers": [
-        {
-          "id": "nld-luiten",
-          "name": "Joost Luiten",
-          "era": "2010s-20s",
-          "archetypes": [
-            "precision_iron"
-          ]
-        },
-        {
-          "id": "nld-derksen",
-          "name": "Robert-Jan Derksen",
-          "era": "2000s-10s",
-          "archetypes": [
-            "scrambler"
-          ],
-          "skill": "journeyman"
-        },
-        {
-          "id": "nld-besseling",
-          "name": "Wil Besseling",
-          "era": "2010s",
-          "archetypes": [
-            "long_hitter"
-          ],
-          "skill": "journeyman"
-        },
-        {
-          "id": "nld-lafeber",
-          "name": "Maarten Lafeber",
-          "era": "2000s-10s",
-          "archetypes": [
-            "precision_iron"
-          ],
-          "skill": "journeyman"
-        },
-        {
-          "id": "nld-huizing",
-          "name": "Daan Huizing",
-          "era": "2010s-20s",
-          "archetypes": [
-            "scrambler"
-          ],
-          "skill": "journeyman"
-        },
-        {
-          "id": "nld-vandervalk",
-          "name": "Guido van der Valk",
-          "era": "2010s",
-          "archetypes": [
-            "short_game_specialist"
-          ],
-          "skill": "journeyman"
-        }
-      ]
-    },
-    {
       "id": "mexico",
       "name": "Mexico",
       "isoCode": "MX",
@@ -1295,123 +1197,55 @@
       ]
     },
     {
-      "id": "india",
-      "name": "India",
-      "isoCode": "IN",
+      "id": "others",
+      "name": "Others",
+      "isoCode": "OTH",
       "golfers": [
         {
-          "id": "ind-lahiri",
-          "name": "Anirban Lahiri",
-          "era": "2010s-20s",
+          "id": "oth-singh",
+          "name": "Vijay Singh",
+          "era": "1990s-2000s",
+          "archetypes": [
+            "precision_iron",
+            "long_hitter"
+          ],
+          "skill": "legend"
+        },
+        {
+          "id": "oth-hovland",
+          "name": "Viktor Hovland",
+          "era": "2020s",
           "archetypes": [
             "precision_iron"
           ],
           "skill": "elite"
         },
         {
-          "id": "ind-singh",
-          "name": "Jeev Milkha Singh",
-          "era": "2000s-10s",
+          "id": "oth-niemann",
+          "name": "Joaquin Niemann",
+          "era": "2020s",
+          "archetypes": [
+            "long_hitter"
+          ]
+        },
+        {
+          "id": "oth-colsaerts",
+          "name": "Nicolas Colsaerts",
+          "era": "2010s",
+          "archetypes": [
+            "long_hitter"
+          ],
+          "skill": "journeyman"
+        },
+        {
+          "id": "oth-price",
+          "name": "Nick Price",
+          "era": "1990s",
           "archetypes": [
             "precision_iron",
             "closer"
           ],
-          "skill": "elite"
-        },
-        {
-          "id": "ind-sharma",
-          "name": "Shubhankar Sharma",
-          "era": "2010s-20s",
-          "archetypes": [
-            "long_hitter"
-          ],
-          "skill": "journeyman"
-        },
-        {
-          "id": "ind-chawrasia",
-          "name": "S.S.P. Chawrasia",
-          "era": "2010s",
-          "archetypes": [
-            "scrambler"
-          ],
-          "skill": "journeyman"
-        },
-        {
-          "id": "ind-bhullar",
-          "name": "Gaganjeet Bhullar",
-          "era": "2010s-20s",
-          "archetypes": [
-            "precision_iron"
-          ],
-          "skill": "journeyman"
-        },
-        {
-          "id": "ind-atwal",
-          "name": "Arjun Atwal",
-          "era": "2000s-10s",
-          "archetypes": [
-            "long_hitter"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "thailand",
-      "name": "Thailand",
-      "isoCode": "TH",
-      "golfers": [
-        {
-          "id": "tha-jaidee",
-          "name": "Thongchai Jaidee",
-          "era": "2000s-10s",
-          "archetypes": [
-            "scrambler",
-            "closer"
-          ],
-          "skill": "elite"
-        },
-        {
-          "id": "tha-aphibarnrat",
-          "name": "Kiradech Aphibarnrat",
-          "era": "2010s-20s",
-          "archetypes": [
-            "long_hitter"
-          ]
-        },
-        {
-          "id": "tha-marksaeng",
-          "name": "Prayad Marksaeng",
-          "era": "2000s-10s",
-          "archetypes": [
-            "short_game_specialist"
-          ],
-          "skill": "journeyman"
-        },
-        {
-          "id": "tha-nirat",
-          "name": "Chapchai Nirat",
-          "era": "2010s",
-          "archetypes": [
-            "precision_iron"
-          ],
-          "skill": "journeyman"
-        },
-        {
-          "id": "tha-janewattananond",
-          "name": "Jazz Janewattananond",
-          "era": "2010s-20s",
-          "archetypes": [
-            "long_hitter"
-          ]
-        },
-        {
-          "id": "tha-pittayarat",
-          "name": "Panuphol Pittayarat",
-          "era": "2010s-20s",
-          "archetypes": [
-            "scrambler"
-          ],
-          "skill": "journeyman"
+          "skill": "legend"
         }
       ]
     }

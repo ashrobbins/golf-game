@@ -23,6 +23,12 @@ export interface Country {
   name: string
   isoCode: string
   golfers: Golfer[]
+  // Max times this country can be drafted into a single 18-hole bag. Omit
+  // for the ordinary cap (REPEAT_CAP in game/draft/types.ts) — only used to
+  // raise the limit for countries with an unusually deep bench of marquee
+  // names (e.g. USA, England), so those names can show up more than once
+  // without needing a bigger bench-exhaustion floor.
+  repeatCap?: number
 }
 
 export interface CountriesContent {

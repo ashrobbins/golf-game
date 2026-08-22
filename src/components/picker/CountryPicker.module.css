@@ -1,7 +1,8 @@
 .wrapper {
   position: relative;
-  max-width: 280px;
+  max-width: 168px;
   margin: 0 auto;
+  padding: 0 6px;
   border: 1px solid var(--border);
   border-radius: 12px;
   background: color-mix(in srgb, var(--bg) 96%, var(--text) 4%);
@@ -10,13 +11,13 @@
 .row {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 18px;
+  gap: 6px;
+  font-size: 11px;
   font-weight: 600;
 }
 
 .flag {
-  font-size: 24px;
+  font-size: 14px;
   line-height: 1;
 }
 

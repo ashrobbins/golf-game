@@ -12,6 +12,7 @@ export interface DraftState {
   picks: DraftPick[]
   draftedGolferIds: Set<string>
   countryDraftCounts: Record<string, number>
+  countryRepeatCaps: Record<string, number>
   countryBenches: Record<string, string[]>
   wheelCountryIds: string[]
   pendingSpinCountryId?: string

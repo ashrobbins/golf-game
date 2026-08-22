@@ -10,7 +10,7 @@ import {
 } from './engine'
 import { REPEAT_CAP, TOTAL_HOLES } from './types'
 
-function makeCountry(id: string, benchSize: number) {
+function makeCountry(id: string, benchSize: number, repeatCap?: number) {
   return {
     id,
     name: id,
@@ -20,13 +20,14 @@ function makeCountry(id: string, benchSize: number) {
       name: `${id} golfer ${i}`,
       archetypes: ['long_hitter'] as ['long_hitter'],
     })),
+    ...(repeatCap !== undefined ? { repeatCap } : {}),
   }
 }
 
-function makeContent(countrySpecs: Array<[string, number]>): CountriesContent {
+function makeContent(countrySpecs: Array<[string, number, number?]>): CountriesContent {
   return {
     version: 1,
-    countries: countrySpecs.map(([id, size]) => makeCountry(id, size)),
+    countries: countrySpecs.map(([id, size, repeatCap]) => makeCountry(id, size, repeatCap)),
   }
 }
 
@@ -80,6 +81,50 @@ describe('repeat cap', () => {
     expect(state.countryBenches['deep'].length).toBe(8 - REPEAT_CAP)
     // Restore 'other' to the wheel to check 'deep' was dropped, not just this snapshot.
     expect(state.wheelCountryIds).not.toContain('deep')
+  })
+})
+
+describe('per-country repeat cap override', () => {
+  it('lets a country with a raised repeatCap be drafted more than the default REPEAT_CAP times', () => {
+    const content = makeContent([
+      ['marquee', 10, 5],
+      ['ordinary', 8],
+      ['other', 6],
+    ])
+    let state = createInitialDraftState(dummyCourse, content)
+    const rng = mulberry32(3)
+
+    expect(state.countryRepeatCaps['marquee']).toBe(5)
+    expect(state.countryRepeatCaps['ordinary']).toBe(REPEAT_CAP)
+
+    // Force spins onto 'marquee' for 5 holes — past the default REPEAT_CAP.
+    // It stays on the wheel across all 5 picks on its own (stillEligible
+    // keeps re-including it) since its own cap is 5, not REPEAT_CAP.
+    state = { ...state, wheelCountryIds: ['marquee'] }
+    for (let i = 0; i < 5; i++) {
+      state = driveOneHole(state, rng)
+    }
+
+    expect(state.countryDraftCounts['marquee']).toBe(5)
+    expect(state.countryBenches['marquee'].length).toBe(10 - 5)
+    expect(state.wheelCountryIds).not.toContain('marquee')
+  })
+
+  it('still caps a default-cap country at REPEAT_CAP in the same run as a raised-cap one', () => {
+    const content = makeContent([
+      ['marquee', 10, 5],
+      ['ordinary', 10],
+    ])
+    let state = createInitialDraftState(dummyCourse, content)
+    const rng = mulberry32(4)
+
+    state = { ...state, wheelCountryIds: ['ordinary'] }
+    for (let i = 0; i < REPEAT_CAP; i++) {
+      state = driveOneHole(state, rng)
+    }
+
+    expect(state.countryDraftCounts['ordinary']).toBe(REPEAT_CAP)
+    expect(state.wheelCountryIds).not.toContain('ordinary')
   })
 })
 
