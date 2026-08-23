@@ -1,0 +1,39 @@
+.mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  font-weight: 600;
+  font-size: 13px;
+  margin: 0 auto;
+}
+
+.birdie {
+  border-radius: 50%;
+  border: 2px solid var(--tier-green);
+  color: var(--tier-green);
+}
+
+/* Double ring via border + an offset outline — outline follows
+   border-radius, so this reads as a true double circle without a second
+   DOM element. */
+.eagle {
+  border-radius: 50%;
+  border: 2px solid var(--tier-green);
+  outline: 2px solid var(--tier-green);
+  outline-offset: 2px;
+  color: var(--tier-green);
+}
+
+.bogeyPlus {
+  border-radius: 4px;
+  border: 2px solid var(--tier-red);
+  color: var(--tier-red);
+}
+
+.holeInOne {
+  border-radius: 50%;
+  background: var(--tier-gold);
+  color: #fff;
+}

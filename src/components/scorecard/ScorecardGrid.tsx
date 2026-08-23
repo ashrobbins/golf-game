@@ -1,28 +1,7 @@
-import type { Hole, OutcomeTier } from '../../content/types'
+import type { Hole } from '../../content/types'
 import type { HoleResult } from '../../game/simulation/types'
+import { ScoreMark } from './ScoreMark'
 import styles from './ScorecardGrid.module.css'
-
-type MarkKind = 'eagle' | 'birdie' | 'bogey'
-
-function markKindFor(tier: OutcomeTier): MarkKind | null {
-  switch (tier) {
-    case 'hole_in_one':
-    case 'eagle':
-      return 'eagle'
-    case 'birdie':
-      return 'birdie'
-    case 'bogey_plus':
-      return 'bogey'
-    case 'par':
-      return null
-  }
-}
-
-const MARK_CLASS: Record<MarkKind, string> = {
-  eagle: styles.markEagle,
-  birdie: styles.markBirdie,
-  bogey: styles.markBogey,
-}
 
 interface ScorecardGridProps {
   // Full course holes, ordered 1..N — gives the Par row and each hole's par
@@ -84,12 +63,9 @@ export function ScorecardGrid({ holes, holeResults, revealedCount }: ScorecardGr
                 )
               }
               const gross = hole.par + result.relativeScore
-              const mark = markKindFor(result.outcomeTier)
               return (
                 <td key={hole.number}>
-                  <span className={mark ? `${styles.mark} ${MARK_CLASS[mark]}` : styles.mark}>
-                    {gross}
-                  </span>
+                  <ScoreMark gross={gross} tier={result.outcomeTier} />
                 </td>
               )
             })}

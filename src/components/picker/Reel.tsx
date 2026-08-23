@@ -71,16 +71,22 @@ export function Reel<T>({
     track.style.transition = 'none'
     track.style.transform = 'translateY(0px)'
 
-    const raf = requestAnimationFrame(() => {
-      track.style.transition = `transform ${durationMs}ms cubic-bezier(0.12, 0.83, 0.24, 1)`
-      track.style.transform = `translateY(${restingOffset}px)`
-    })
+    // Force a synchronous layout flush so the browser actually commits the
+    // transition:none + transform:0 state before the transition is
+    // re-enabled below. Without this, iOS Safari (both Chrome and Safari
+    // there use WebKit) can coalesce both style writes into a single
+    // frame and skip the animation entirely, jumping straight to the
+    // resting position — a single requestAnimationFrame isn't a strong
+    // enough guarantee on that engine.
+    void track.offsetHeight
+
+    track.style.transition = `transform ${durationMs}ms cubic-bezier(0.12, 0.83, 0.24, 1)`
+    track.style.transform = `translateY(${restingOffset}px)`
 
     // Fallback in case 'transitionend' doesn't fire (e.g. backgrounded tab).
     const timeout = window.setTimeout(settleOnce, durationMs + 150)
 
     return () => {
-      cancelAnimationFrame(raf)
       window.clearTimeout(timeout)
     }
     // restingOffset is derived from items/spinToken together; re-running on

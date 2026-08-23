@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
 import { loadCountries, loadCourses, loadOddsConfig } from '../content/loadContent'
+import { MOCK_COURSE_ID, MOCK_SIMULATION_RESULT } from '../content/mockSimulationResult'
 import type { Course } from '../content/types'
 import { assertWheelHasCapacity } from '../game/draft/engine'
 import type { DraftPick } from '../game/draft/types'
@@ -22,6 +23,19 @@ export function GameProvider({ children }: { children: ReactNode }) {
         if (cancelled) return
         assertWheelHasCapacity(countries)
         setContent({ status: 'ready', countries, courses, odds })
+
+        // Debug-only shortcut (?simResults) — jumps straight to the results
+        // page with hand-crafted, not-simulated data so every outcome tier
+        // can be checked without playing a full round. Never touches real
+        // game state beyond this one-time initial jump.
+        if (new URLSearchParams(window.location.search).has('simResults')) {
+          const mockCourse = courses.courses.find((c) => c.id === MOCK_COURSE_ID)
+          if (mockCourse) {
+            setCourse(mockCourse)
+            setSimulationResult(MOCK_SIMULATION_RESULT)
+            setView('results')
+          }
+        }
       })
       .catch((err: Error) => {
         if (cancelled) return

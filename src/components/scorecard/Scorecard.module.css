@@ -62,16 +62,31 @@
   gap: 2px;
 }
 
+/* 2-column grid — text column (name + commentary, stacked) on the left,
+   score mark spanning both rows on the right. A real grid track, not just
+   float/padding, so wrapped commentary text is physically confined to the
+   left column and can never flow under the mark. */
 .row {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+  display: grid;
+  grid-template-columns: 1fr 40px;
+  grid-template-rows: auto auto;
+  column-gap: 10px;
+  row-gap: 2px;
   padding: 8px;
   border-bottom: 1px solid var(--border);
   text-align: left;
 }
 
+/* Subtle legend-tier marker — an inset gold edge rather than a border, so
+   it doesn't disturb the row's grid columns. Matches the same treatment on
+   the "Your bag" list during the draft. */
+.legendRow {
+  box-shadow: inset 3px 0 0 var(--tier-gold);
+}
+
 .rowHeader {
+  grid-column: 1;
+  grid-row: 1;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -84,26 +99,31 @@
   font-size: 12px;
 }
 
+.flag {
+  flex: 0 0 auto;
+  font-size: 16px;
+  line-height: 1;
+}
+
 .golferName {
   flex: 1;
   text-align: left;
 }
 
-/* Fixed width (wide enough for the longest label, "Hole-in-one!") so the
-   column never wraps and stays aligned from row to row regardless of which
-   outcome landed. */
-.tier {
-  flex: 0 0 100px;
-  width: 100px;
-  font-weight: 600;
-  font-size: 12px;
-  text-transform: uppercase;
-  text-align: right;
-  white-space: nowrap;
-  opacity: 0.75;
+/* Spans both grid rows so it sits beside the name AND the commentary below
+   it, staying in its own column the whole time rather than just the top
+   line. */
+.tierMark {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  display: flex;
+  justify-content: center;
+  padding-top: 2px;
 }
 
 .commentary {
+  grid-column: 1;
+  grid-row: 2;
   margin: 0;
   padding-left: 30px;
   font-size: 13px;

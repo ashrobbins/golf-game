@@ -1,6 +1,6 @@
+import { useEffect } from 'react'
 import { RevealSequence } from '../components/scorecard/RevealSequence'
 import { Scorecard } from '../components/scorecard/Scorecard'
-import { ShareCard } from '../components/share/ShareCard'
 import { Button } from '../components/ui/Button'
 import { useHoleRevealSequencer } from '../hooks/useHoleRevealSequencer'
 import { useGame } from '../state/useGame'
@@ -10,6 +10,15 @@ export function ResultsPage() {
   const { revealedCount, isComplete, skipToEnd } = useHoleRevealSequencer(
     simulationResult?.holeResults ?? [],
   )
+
+  // The ?simResults debug shortcut should land straight on the finished
+  // scorecard, not replay the hole-by-hole reveal.
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).has('simResults')) {
+      skipToEnd()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   if (content.status !== 'ready' || !course || !simulationResult) return null
 
@@ -22,9 +31,6 @@ export function ResultsPage() {
           </div>
           <Scorecard course={course} countries={content.countries} result={simulationResult} />
           <div style={{ textAlign: 'center', marginTop: 24 }}>
-            <ShareCard course={course} result={simulationResult} />
-          </div>
-          <div style={{ textAlign: 'center', marginTop: 16 }}>
             <Button onClick={playAgain}>Play again</Button>
           </div>
         </>
