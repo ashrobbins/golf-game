@@ -1,4 +1,5 @@
 import { useGame } from '../../state/useGame'
+import { ThemeToggle } from './ThemeToggle'
 import styles from './NavBar.module.css'
 
 export function NavBar() {
@@ -10,6 +11,7 @@ export function NavBar() {
         <span className={styles.logoMark}>⛳</span>
         Beating Bogey
       </button>
+      <ThemeToggle />
     </header>
   )
 }

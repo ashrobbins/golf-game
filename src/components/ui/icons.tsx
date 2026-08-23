@@ -2,14 +2,40 @@ import type { SVGProps } from 'react'
 
 // Small monochrome icons (sourced as flat single-color SVGs, re-exported as
 // React components with `currentColor` swapped in so each can pick up
-// whatever color its caller sets) — used to visually distinguish the two
-// halves of the draft roster's archetype pairing (hole vs. player).
+// whatever color its caller sets). GolfFlagIcon/GolferIcon distinguish the
+// two halves of the draft roster's archetype pairing (hole vs. player);
+// Sun/MoonIcon are used by the nav's theme toggle.
 
 export function GolfFlagIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg viewBox="0 0 512 512" fill="currentColor" {...props}>
       <path d="M272,320.46V202.3l166.62-75.73a16,16,0,0,0,0-29.14l-176-80A16,16,0,0,0,240,32V191.66c0,.23,0,.47,0,.7v128.1q8-.45,16-.46T272,320.46Z" />
       <path d="M463.33,457.5c-8.56-42.85-35.11-78.74-76.78-103.8C354.05,334.15,313.88,322.4,272,320v79.75a16,16,0,1,1-32,0V320c-41.88,2.4-82.05,14.15-114.55,33.7-41.67,25.06-68.22,60.95-76.78,103.8a32.49,32.49,0,0,0,6.44,27.08C61.13,492,70,496,80,496H432c10,0,18.88-4.05,24.9-11.42A32.49,32.49,0,0,0,463.33,457.5Z" />
+    </svg>
+  )
+}
+
+export function SunIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+    </svg>
+  )
+}
+
+export function MoonIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
     </svg>
   )
 }

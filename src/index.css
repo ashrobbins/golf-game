@@ -24,8 +24,11 @@
   -webkit-font-smoothing: antialiased;
 }
 
+/* System preference — the default until the nav's theme toggle is used at
+   all (see useTheme.ts). :not([data-theme='light']) lets an explicit
+   override to light win even while the OS itself prefers dark. */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme='light']) {
     --text: #f3f4f6;
     --text-muted: #9b9ba8;
     --bg: #12131a;
@@ -45,6 +48,30 @@
     --archetype-scrambler: #e6a850;
     --archetype-closer: #e0678c;
   }
+}
+
+/* Explicit override once the user actually clicks the toggle — same dark
+   values as above, duplicated because a media query can't be combined with
+   an attribute-selector "OR" in one rule. Needed for dark-while-OS-is-light. */
+:root[data-theme='dark'] {
+  --text: #f3f4f6;
+  --text-muted: #9b9ba8;
+  --bg: #12131a;
+  --surface: #1b1c24;
+  --border: #2e303a;
+  --accent: #7c6ff0;
+  --accent-hover: #8f83f4;
+  --accent-contrast: #ffffff;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+  --tier-gold: #e0b83a;
+  --tier-green: #4caf78;
+  --tier-grey: #565863;
+  --tier-red: #e0645a;
+  --archetype-long-hitter: #6d95e6;
+  --archetype-precision-iron: #4dbcac;
+  --archetype-short-game: #c583de;
+  --archetype-scrambler: #e6a850;
+  --archetype-closer: #e0678c;
 }
 
 * {
