@@ -5,6 +5,7 @@ import { bestFitArchetype } from '../../game/simulation/affinity'
 import { CountryFlag } from '../picker/CountryFlag'
 import { ArchetypeBadge } from '../ui/ArchetypeBadge'
 import { GolfFlagIcon, GolferIcon } from '../ui/icons'
+import { DraftProgressDots } from './DraftProgressDots'
 import styles from './DraftRoster.module.css'
 
 interface DraftRosterProps {
@@ -32,6 +33,9 @@ export function DraftRoster({ picks, holes, countryIndex, golferIndex, totalHole
       <h3 className={styles.title}>
         Your bag <span className={styles.count}>{picks.length}/{totalHoles}</span>
       </h3>
+      <div className={styles.dots}>
+        <DraftProgressDots totalHoles={totalHoles} draftedCount={picks.length} />
+      </div>
       <div className={styles.columnHeader} aria-hidden="true">
         <span />
         <span className={styles.columnLabel}>Player</span>

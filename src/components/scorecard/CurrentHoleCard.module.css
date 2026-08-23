@@ -1,0 +1,38 @@
+.card {
+  padding: 14px;
+  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.holeNumber {
+  width: 14px;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.flag {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.name {
+  flex: 1;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.commentary {
+  margin: 8px 0 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.4;
+}

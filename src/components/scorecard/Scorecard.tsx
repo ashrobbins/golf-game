@@ -1,11 +1,10 @@
 import { useMemo } from 'react'
 import type { CountriesContent, Country, Course, Golfer } from '../../content/types'
 import { generateHoleCommentary } from '../../game/simulation/commentary'
-import { formatBogeyFreeHeadline, formatRelativeScore } from '../../game/simulation/formatTier'
 import type { SimulationResult } from '../../game/simulation/types'
-import { CountryFlag } from '../picker/CountryFlag'
 import { Confetti } from './Confetti'
-import { ScoreMark } from './ScoreMark'
+import { HoleResultRow } from './HoleResultRow'
+import { RoundHero } from './RoundHero'
 import { ScorecardGrid } from './ScorecardGrid'
 import styles from './Scorecard.module.css'
 
@@ -47,36 +46,27 @@ export function Scorecard({ course, countries, result }: ScorecardProps) {
   return (
     <div className={styles.wrapper}>
       {result.isBogeyFreeRound && <Confetti />}
-      <h2 className={styles.title}>{course.name}</h2>
-      <p className={result.isBogeyFreeRound ? styles.headlineCelebratory : styles.headline}>
-        {result.isBogeyFreeRound && <span className={styles.trophy}>🏆</span>}
-        {formatBogeyFreeHeadline(result.bogeyFreeThroughHole, result.isBogeyFreeRound, course.holes.length)}
-      </p>
-      <p className={styles.total}>Total: {formatRelativeScore(result.totalStrokesToPar)}</p>
-
+      <RoundHero courseName={course.name} holes={course.holes} holeResults={result.holeResults} />
       <ScorecardGrid holes={course.holes} holeResults={result.holeResults} />
 
       <ul className={styles.list}>
         {result.holeResults.map((hole, i) => {
+          const golfer = golferIndex.get(hole.golferId)
           const country = countryIndex.get(hole.countryId)
           const holeInfo = holeIndex.get(hole.holeNumber)
-          const gross = holeInfo ? holeInfo.par + hole.relativeScore : undefined
-          const isLegend = golferIndex.get(hole.golferId)?.skill === 'legend'
+          if (!golfer || !holeInfo) return null
 
           return (
-            <li key={hole.holeNumber} className={isLegend ? `${styles.row} ${styles.legendRow}` : styles.row}>
-              <div className={styles.rowHeader}>
-                <span className={styles.holeNumber}>{hole.holeNumber}</span>
-                {country && <CountryFlag isoCode={country.isoCode} className={styles.flag} ariaHidden />}
-                <span className={styles.golferName}>
-                  {golferIndex.get(hole.golferId)?.name ?? hole.golferId}
-                </span>
-              </div>
-              <p className={styles.commentary}>{commentaryByHole[i]}</p>
-              <span className={styles.tierMark}>
-                {gross !== undefined && <ScoreMark gross={gross} tier={hole.outcomeTier} />}
-              </span>
-            </li>
+            <HoleResultRow
+              key={hole.holeNumber}
+              holeNumber={hole.holeNumber}
+              isoCode={country?.isoCode}
+              golferName={golfer.name}
+              commentary={commentaryByHole[i]}
+              gross={holeInfo.par + hole.relativeScore}
+              tier={hole.outcomeTier}
+              isLegend={golfer.skill === 'legend'}
+            />
           )
         })}
       </ul>

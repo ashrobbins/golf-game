@@ -1,0 +1,43 @@
+/* Dots keep a fixed 9px size (verified against the hero card's real inner
+   content width — see PROJECT_CONTEXT.md fix #2 — so they never overflow
+   even on a 320px viewport); `justify-content: space-between` spreads the
+   *gaps* out to fill however much wider the card actually is, rather than
+   bunching all 18 dots against the left edge. `gap` sets a floor so they
+   never collapse tighter than that on an unrealistically narrow card. */
+.strip {
+  display: flex;
+  justify-content: space-between;
+  gap: 4px;
+  flex-wrap: nowrap;
+}
+
+.dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--border);
+  flex: 0 0 auto;
+}
+
+.par {
+  background: var(--tier-grey);
+}
+
+.birdie {
+  background: var(--tier-green);
+}
+
+.bogey {
+  background: var(--tier-red);
+}
+
+.ace {
+  background: var(--tier-gold);
+}
+
+/* Reused by DraftProgressDots (src/components/draft/) for the draft
+   screen's simpler two-state variant of this same dot strip — a hole is
+   either drafted or not, there's no outcome to color by yet. */
+.picked {
+  background: var(--accent);
+}

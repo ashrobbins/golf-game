@@ -27,7 +27,9 @@ export function ResultsPage() {
       {isComplete ? (
         <>
           <div style={{ textAlign: 'center', marginBottom: 16 }}>
-            <Button onClick={playAgain}>Play again</Button>
+            <Button variant="secondary" onClick={playAgain}>
+              Play again
+            </Button>
           </div>
           <Scorecard course={course} countries={content.countries} result={simulationResult} />
           <div style={{ textAlign: 'center', marginTop: 24 }}>
@@ -41,7 +43,6 @@ export function ResultsPage() {
           holeResults={simulationResult.holeResults}
           countries={content.countries}
           revealedCount={revealedCount}
-          isComplete={isComplete}
           onSkip={skipToEnd}
         />
       )}

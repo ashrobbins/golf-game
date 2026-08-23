@@ -18,6 +18,10 @@
   opacity: 0.55;
 }
 
+.dots {
+  margin: 0 0 12px;
+}
+
 /* Same 3-column grid as .row, so "Player"/"Hole" land directly above the
    columns they label. */
 .columnHeader {
@@ -55,14 +59,19 @@
   grid-template-columns: 1fr 52px 52px;
   column-gap: 6px;
   align-items: center;
-  padding: 8px 6px;
+  padding: 8px 6px 8px 14px;
   border-bottom: 1px solid var(--border);
   text-align: left;
   font-size: 14px;
+  /* Every row gets the same inset bar + left padding as a legend row, just
+     in a neutral grey — so a legend row's gold edge doesn't shift its
+     content out of alignment with the rows around it (see the equivalent
+     fix on HoleResultRow). */
+  box-shadow: inset 3px 0 0 var(--border);
 }
 
-/* Subtle legend-tier marker — an inset gold edge rather than a badge icon,
-   so it doesn't disturb row alignment or add another visual element. */
+/* Gold edge for a legend-tier golfer — just swaps the colour of the same
+   inset bar every row already has, so alignment never shifts. */
 .legendRow {
   box-shadow: inset 3px 0 0 var(--tier-gold);
 }

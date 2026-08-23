@@ -1,0 +1,74 @@
+.row {
+  display: grid;
+  grid-template-columns: 16px auto 1fr 28px;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 9px 4px 9px 14px;
+  border-bottom: 1px solid var(--border);
+  list-style: none;
+  /* Every row gets the same inset bar + left padding as a legend row, just
+     in a neutral grey — so a legend row's gold edge doesn't shift its
+     content out of alignment with the rows around it. */
+  box-shadow: inset 3px 0 0 var(--border);
+}
+
+/* Inset gold edge for a legend-tier golfer. Padding-left already matches
+   the base row (see .row) so it doesn't sit flush against the row's own
+   content — validated against the mockup at real size. See PROJECT_CONTEXT
+   fix #3. */
+.legend {
+  box-shadow: inset 3px 0 0 var(--tier-gold);
+}
+
+.number {
+  padding-top: 2px;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.flag {
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.body {
+  min-width: 0;
+}
+
+.name {
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.commentary {
+  margin: 2px 0 0;
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.mark {
+  justify-self: end;
+}
+
+.animateIn {
+  animation: rowIn 0.4s ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animateIn {
+    animation: none;
+  }
+}
+
+@keyframes rowIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

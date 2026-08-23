@@ -1,9 +1,11 @@
 import { useMemo } from 'react'
-import type { CountriesContent, Golfer, Hole } from '../../content/types'
+import type { CountriesContent, Country, Golfer, Hole } from '../../content/types'
 import { generateHoleCommentary } from '../../game/simulation/commentary'
-import { formatTierLabel } from '../../game/simulation/formatTier'
 import type { HoleResult } from '../../game/simulation/types'
 import { Button } from '../ui/Button'
+import { CurrentHoleCard } from './CurrentHoleCard'
+import { HoleResultRow } from './HoleResultRow'
+import { RoundHero } from './RoundHero'
 import { ScorecardGrid } from './ScorecardGrid'
 import styles from './RevealSequence.module.css'
 
@@ -13,7 +15,6 @@ interface RevealSequenceProps {
   holeResults: HoleResult[]
   countries: CountriesContent
   revealedCount: number
-  isComplete: boolean
   onSkip: () => void
 }
 
@@ -23,7 +24,6 @@ export function RevealSequence({
   holeResults,
   countries,
   revealedCount,
-  isComplete,
   onSkip,
 }: RevealSequenceProps) {
   const golferIndex = useMemo(() => {
@@ -33,6 +33,14 @@ export function RevealSequence({
     }
     return map
   }, [countries])
+
+  const countryIndex = useMemo(() => {
+    const map = new Map<string, Country>()
+    for (const country of countries.countries) map.set(country.id, country)
+    return map
+  }, [countries])
+
+  const holeIndex = new Map(holes.map((hole) => [hole.number, hole]))
 
   // Generated once per hole result (not on every re-render) so the flavor
   // text for a given hole stays put once shown.
@@ -50,26 +58,63 @@ export function RevealSequence({
 
   const currentHole = holeResults[revealedCount - 1]
   const currentGolfer = currentHole ? golferIndex.get(currentHole.golferId) : undefined
+  const currentCountry = currentHole ? countryIndex.get(currentHole.countryId) : undefined
+  const currentHoleInfo = currentHole ? holeIndex.get(currentHole.holeNumber) : undefined
+
+  // The hole currently being revealed stays solely in the spotlight card
+  // above — only holes that have already settled build up in the table
+  // below, so there's no duplication between the two.
+  const completedHoles = holeResults.slice(0, Math.max(revealedCount - 1, 0))
 
   return (
     <div className={styles.wrapper}>
+      <RoundHero courseName={courseName} holes={holes} holeResults={holeResults} revealedCount={revealedCount} />
       <ScorecardGrid holes={holes} holeResults={holeResults} revealedCount={revealedCount} />
-      <h2 className={styles.courseName}>{courseName}</h2>
-      {!isComplete && (
-        <div className={styles.status}>
-          <p className={styles.golferLine}>
-            {currentHole && currentGolfer
-              ? `Hole ${currentHole.holeNumber} · ${currentGolfer.name} · ${formatTierLabel(currentHole.outcomeTier)}`
-              : 'Simulating…'}
-          </p>
-          {currentHole && (
-            <p className={styles.commentary}>{commentaryByHole[revealedCount - 1]}</p>
-          )}
-          <Button variant="secondary" onClick={onSkip}>
-            Skip
-          </Button>
-        </div>
+
+      {currentHole && currentGolfer && currentHoleInfo && (
+        <CurrentHoleCard
+          holeNumber={currentHole.holeNumber}
+          isoCode={currentCountry?.isoCode}
+          golferName={currentGolfer.name}
+          gross={currentHoleInfo.par + currentHole.relativeScore}
+          tier={currentHole.outcomeTier}
+          commentary={commentaryByHole[revealedCount - 1]}
+        />
       )}
+
+      {completedHoles.length > 0 && (
+        <>
+          <p className={styles.eyebrow}>Holes so far</p>
+          <ul className={styles.list}>
+            {completedHoles.map((hole, i) => {
+              const golfer = golferIndex.get(hole.golferId)
+              const country = countryIndex.get(hole.countryId)
+              const holeInfo = holeIndex.get(hole.holeNumber)
+              if (!golfer || !holeInfo) return null
+
+              return (
+                <HoleResultRow
+                  key={hole.holeNumber}
+                  holeNumber={hole.holeNumber}
+                  isoCode={country?.isoCode}
+                  golferName={golfer.name}
+                  commentary={commentaryByHole[i]}
+                  gross={holeInfo.par + hole.relativeScore}
+                  tier={hole.outcomeTier}
+                  isLegend={golfer.skill === 'legend'}
+                  animateIn={i === completedHoles.length - 1}
+                />
+              )
+            })}
+          </ul>
+        </>
+      )}
+
+      <div className={styles.skipRow}>
+        <Button variant="secondary" onClick={onSkip}>
+          Skip
+        </Button>
+      </div>
     </div>
   )
 }

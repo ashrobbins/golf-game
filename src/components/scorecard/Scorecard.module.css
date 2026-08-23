@@ -1,132 +1,13 @@
 .wrapper {
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 12px;
   max-width: 480px;
   margin: 0 auto;
 }
 
-.title {
-  margin: 0;
-}
-
-.headline {
-  margin: 0;
-  font-weight: 700;
-  font-size: 18px;
-}
-
-.headlineCelebratory {
-  margin: 0;
-  font-weight: 800;
-  font-size: 24px;
-  color: var(--tier-gold);
-  text-shadow: 0 1px 0 color-mix(in srgb, var(--tier-gold) 40%, transparent);
-}
-
-.trophy {
-  display: inline-block;
-  margin-right: 8px;
-  animation: trophyBounce 1.6s ease-in-out infinite;
-}
-
-@keyframes trophyBounce {
-  0%,
-  100% {
-    transform: translateY(0) rotate(0deg);
-  }
-  50% {
-    transform: translateY(-6px) rotate(-6deg);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .trophy {
-    animation: none;
-  }
-}
-
-.total {
-  margin: 0;
-  opacity: 0.7;
-}
-
 .list {
   list-style: none;
-  padding: 0;
-  margin: 12px 0 0;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-/* 2-column grid — text column (name + commentary, stacked) on the left,
-   score mark spanning both rows on the right. A real grid track, not just
-   float/padding, so wrapped commentary text is physically confined to the
-   left column and can never flow under the mark. */
-.row {
-  display: grid;
-  grid-template-columns: 1fr 40px;
-  grid-template-rows: auto auto;
-  column-gap: 10px;
-  row-gap: 2px;
-  padding: 8px;
-  border-bottom: 1px solid var(--border);
-  text-align: left;
-}
-
-/* Subtle legend-tier marker — an inset gold edge rather than a border, so
-   it doesn't disturb the row's grid columns. Matches the same treatment on
-   the "Your bag" list during the draft. */
-.legendRow {
-  box-shadow: inset 3px 0 0 var(--tier-gold);
-}
-
-.rowHeader {
-  grid-column: 1;
-  grid-row: 1;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 14px;
-}
-
-.holeNumber {
-  width: 20px;
-  opacity: 0.5;
-  font-size: 12px;
-}
-
-.flag {
-  flex: 0 0 auto;
-  font-size: 16px;
-  line-height: 1;
-}
-
-.golferName {
-  flex: 1;
-  text-align: left;
-}
-
-/* Spans both grid rows so it sits beside the name AND the commentary below
-   it, staying in its own column the whole time rather than just the top
-   line. */
-.tierMark {
-  grid-column: 2;
-  grid-row: 1 / span 2;
-  display: flex;
-  justify-content: center;
-  padding-top: 2px;
-}
-
-.commentary {
-  grid-column: 1;
-  grid-row: 2;
   margin: 0;
-  padding-left: 30px;
-  font-size: 13px;
-  opacity: 0.75;
-  line-height: 1.35;
+  padding: 0;
 }
