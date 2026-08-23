@@ -24,11 +24,17 @@ export function GameProvider({ children }: { children: ReactNode }) {
         assertWheelHasCapacity(countries)
         setContent({ status: 'ready', countries, courses, odds })
 
-        // Debug-only shortcut (?simResults) — jumps straight to the results
-        // page with hand-crafted, not-simulated data so every outcome tier
-        // can be checked without playing a full round. Never touches real
-        // game state beyond this one-time initial jump.
-        if (new URLSearchParams(window.location.search).has('simResults')) {
+        // Debug-only shortcuts, both using the same hand-crafted, not-
+        // simulated mock bag (real golfers, every outcome tier represented)
+        // so a full round never has to be played to check something.
+        // Never touches real game state beyond this one-time initial jump.
+        //  - ?simResults jumps straight to the finished results page
+        //    (ResultsPage skips the hole-by-hole reveal entirely).
+        //  - ?simReveal jumps to the same mock bag but lands at the START
+        //    of the reveal sequence instead, for checking the reveal
+        //    animation/pacing itself without redrafting 18 holes first.
+        const params = new URLSearchParams(window.location.search)
+        if (params.has('simResults') || params.has('simReveal')) {
           const mockCourse = courses.courses.find((c) => c.id === MOCK_COURSE_ID)
           if (mockCourse) {
             setCourse(mockCourse)
@@ -77,11 +83,14 @@ export function GameProvider({ children }: { children: ReactNode }) {
     setSimulationResult(undefined)
     setView('home')
 
-    // Drop ?simResults so leaving the mock results page doesn't leave the
-    // URL pointing somewhere that'd re-trigger it on refresh/share.
-    if (new URLSearchParams(window.location.search).has('simResults')) {
+    // Drop the debug shortcut params so leaving the mock results page
+    // doesn't leave the URL pointing somewhere that'd re-trigger them on
+    // refresh/share.
+    const params = new URLSearchParams(window.location.search)
+    if (params.has('simResults') || params.has('simReveal')) {
       const url = new URL(window.location.href)
       url.searchParams.delete('simResults')
+      url.searchParams.delete('simReveal')
       window.history.replaceState({}, '', url)
     }
   }, [])

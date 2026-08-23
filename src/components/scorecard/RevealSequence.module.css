@@ -5,6 +5,11 @@
   gap: 16px;
 }
 
+.courseName {
+  margin: 0;
+  font-size: 18px;
+}
+
 .status {
   display: flex;
   flex-direction: column;

@@ -8,6 +8,7 @@ import { ScorecardGrid } from './ScorecardGrid'
 import styles from './RevealSequence.module.css'
 
 interface RevealSequenceProps {
+  courseName: string
   holes: Hole[]
   holeResults: HoleResult[]
   countries: CountriesContent
@@ -17,6 +18,7 @@ interface RevealSequenceProps {
 }
 
 export function RevealSequence({
+  courseName,
   holes,
   holeResults,
   countries,
@@ -52,6 +54,7 @@ export function RevealSequence({
   return (
     <div className={styles.wrapper}>
       <ScorecardGrid holes={holes} holeResults={holeResults} revealedCount={revealedCount} />
+      <h2 className={styles.courseName}>{courseName}</h2>
       {!isComplete && (
         <div className={styles.status}>
           <p className={styles.golferLine}>
