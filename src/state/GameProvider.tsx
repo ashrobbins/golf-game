@@ -76,6 +76,14 @@ export function GameProvider({ children }: { children: ReactNode }) {
     setCourse(undefined)
     setSimulationResult(undefined)
     setView('home')
+
+    // Drop ?simResults so leaving the mock results page doesn't leave the
+    // URL pointing somewhere that'd re-trigger it on refresh/share.
+    if (new URLSearchParams(window.location.search).has('simResults')) {
+      const url = new URL(window.location.href)
+      url.searchParams.delete('simResults')
+      window.history.replaceState({}, '', url)
+    }
   }, [])
 
   const value = useMemo<GameContextValue>(

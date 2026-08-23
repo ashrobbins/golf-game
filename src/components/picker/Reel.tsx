@@ -62,32 +62,40 @@ export function Reel<T>({
     }
 
     if (reducedMotion) {
-      track.style.transition = 'none'
       track.style.transform = `translateY(${restingOffset}px)`
       const raf = requestAnimationFrame(settleOnce)
       return () => cancelAnimationFrame(raf)
     }
 
-    track.style.transition = 'none'
+    // Web Animations API instead of a CSS transition triggered by writing
+    // two style snapshots from JS — that pattern (reset, force reflow,
+    // re-enable transition) is a well-known source of flakiness on iOS
+    // WebKit specifically (both Safari and Chrome use it there), which can
+    // coalesce the two writes into one frame and skip straight to the
+    // resting position no matter how the reflow/rAF timing is nudged.
+    // `.animate()` is driven explicitly by JS rather than relying on the
+    // browser diffing style snapshots across a paint boundary, so it
+    // sidesteps that whole bug class rather than working around it again.
     track.style.transform = 'translateY(0px)'
+    const animation = track.animate(
+      [{ transform: 'translateY(0px)' }, { transform: `translateY(${restingOffset}px)` }],
+      { duration: durationMs, easing: 'cubic-bezier(0.12, 0.83, 0.24, 1)', fill: 'forwards' },
+    )
 
-    // Force a synchronous layout flush so the browser actually commits the
-    // transition:none + transform:0 state before the transition is
-    // re-enabled below. Without this, iOS Safari (both Chrome and Safari
-    // there use WebKit) can coalesce both style writes into a single
-    // frame and skip the animation entirely, jumping straight to the
-    // resting position — a single requestAnimationFrame isn't a strong
-    // enough guarantee on that engine.
-    void track.offsetHeight
-
-    track.style.transition = `transform ${durationMs}ms cubic-bezier(0.12, 0.83, 0.24, 1)`
-    track.style.transform = `translateY(${restingOffset}px)`
-
-    // Fallback in case 'transitionend' doesn't fire (e.g. backgrounded tab).
-    const timeout = window.setTimeout(settleOnce, durationMs + 150)
+    animation.finished
+      .then(() => {
+        // fill: 'forwards' is a rendered effect, not a committed inline
+        // style — set the real style too so later reads (e.g. a resting
+        // reel remounting with the same track) see the right value.
+        track.style.transform = `translateY(${restingOffset}px)`
+        settleOnce()
+      })
+      .catch(() => {
+        // Cancelled below (unmount or a fresh spinToken) — no-op.
+      })
 
     return () => {
-      window.clearTimeout(timeout)
+      animation.cancel()
     }
     // restingOffset is derived from items/spinToken together; re-running on
     // spinToken change alone is the intent (a fresh spin), not on every
@@ -95,18 +103,12 @@ export function Reel<T>({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [spinToken, reducedMotion])
 
-  function handleTransitionEnd() {
-    if (settledRef.current) return
-    settledRef.current = true
-    onSettled?.()
-  }
-
   return (
     <div
       className={edgeFade ? `${styles.viewport} ${styles.fade}` : styles.viewport}
       style={{ height: itemHeight }}
     >
-      <div ref={trackRef} className={styles.track} onTransitionEnd={handleTransitionEnd}>
+      <div ref={trackRef} className={styles.track}>
         {items.map((item, i) => (
           <div key={getKey(item, i)} className={styles.item} style={{ height: itemHeight }}>
             {renderItem(item, i)}
