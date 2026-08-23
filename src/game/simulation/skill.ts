@@ -8,9 +8,16 @@ import type { OutcomeDistribution, SkillTier } from '../../content/types'
 // at roughly a 95% par-or-better chance against the real odds-config data,
 // per the design brief. journeyman is flat: a bad fit is already captured
 // by the archetype-fit blend, so skill alone shouldn't compound it further.
+// elite.max was raised from 0.3 to 0.5 after modeling showed a realistic
+// "always draft the matching archetype" round (the elite/solid/journeyman
+// mix you actually get, not a legend-only fantasy bag) had only a ~1-in-12
+// to 1-in-15 chance of a bogey-free round — too rare to keep players coming
+// back. 0.5 brings that to ~1-in-9 to 1-in-12 depending on course, without
+// touching legend (kept as-is) or solid (must stay a no-op — see the test
+// asserting it's the neutral baseline the odds table itself is calibrated to).
 const BOGEY_REDUCTION_RANGE: Record<SkillTier, { min: number; max: number }> = {
   legend: { min: 0.25, max: 0.65 },
-  elite: { min: 0.08, max: 0.3 },
+  elite: { min: 0.08, max: 0.5 },
   solid: { min: 0, max: 0 },
   journeyman: { min: -0.18, max: -0.18 },
 }
