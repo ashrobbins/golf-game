@@ -29,3 +29,18 @@
   width: 14px;
   height: 14px;
 }
+
+/* Below this width the site title needs the room more than this label does
+   — same breakpoint CourseHoleTable already uses for its own mobile layout
+   switch. The button shrinks to match the nav's other icon-only circles. */
+@media (max-width: 560px) {
+  .trigger {
+    width: 28px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .label {
+    display: none;
+  }
+}
