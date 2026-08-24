@@ -43,16 +43,36 @@
 .surname {
   height: 32px;
   line-height: 16px;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 800;
   max-width: 100%;
+  text-align: center;
   overflow: hidden;
   text-overflow: ellipsis;
-  word-break: break-word;
+  /* No mid-word breaking — a surname that's one long unbroken word (see
+     .surnameLong below) should shrink or ellipsize as a whole word, never
+     split into an orphan letter on its own line. Multi-word/hyphenated
+     surnames ("Tom Morris", "Cabrera-Bello") still wrap normally at the
+     space/hyphen, which is a real break opportunity, not a forced one. */
+  overflow-wrap: normal;
+  word-break: normal;
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   line-clamp: 2;
+}
+
+/* Applied when the surname's longest unbroken word is long enough to risk
+   not fitting the card's ~100px text width at the default size (see
+   GolferCard.tsx's LONG_WORD_THRESHOLD) — e.g. "Ballesteros",
+   "Montgomerie". Shrinks rather than lets overflow-wrap force an ugly
+   mid-word break. Size verified against the real roster's longest single
+   words at the card's actual rendered width, not guessed — "Montgomerie"
+   and "DeChambeau" (wide-glyph 10-11 char names) were still clipping at
+   11.5px and needed the extra nudge down to 10px + tightened tracking. */
+.surnameLong {
+  font-size: 10px;
+  letter-spacing: -0.01em;
 }
 
 .era {

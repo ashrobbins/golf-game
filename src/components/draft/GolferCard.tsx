@@ -11,8 +11,19 @@ interface GolferCardProps {
   onClick?: () => void
 }
 
+// A surname only risks an ugly mid-word wrap if it contains one long
+// unbroken word — "Tom Morris" and "Cabrera-Bello" wrap fine at their
+// natural space/hyphen, no shrinking needed. Checked against the real
+// roster's longest names (up to "Ballesteros"/"Montgomerie" at 11 chars).
+const LONG_WORD_THRESHOLD = 10
+
+function hasLongWord(surname: string): boolean {
+  return surname.split(/[\s-]+/).some((word) => word.length >= LONG_WORD_THRESHOLD)
+}
+
 export function GolferCard({ golfer, onClick }: GolferCardProps) {
   const [firstName, surname] = splitName(golfer.name)
+  const surnameClassName = hasLongWord(surname) ? `${styles.surname} ${styles.surnameLong}` : styles.surname
 
   const cardClassName = [styles.card, onClick && styles.clickable].filter(Boolean).join(' ')
 
@@ -34,7 +45,7 @@ export function GolferCard({ golfer, onClick }: GolferCardProps) {
     >
       <div className={styles.name}>
         <div className={styles.firstName}>{firstName}</div>
-        <div className={styles.surname}>{surname}</div>
+        <div className={surnameClassName}>{surname}</div>
       </div>
       <div className={styles.era}>{golfer.era ?? ' '}</div>
       <div className={styles.chips}>
