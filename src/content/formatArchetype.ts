@@ -15,6 +15,10 @@ export function formatArchetypeLabel(tag: ArchetypeTag): string {
   return ARCHETYPE_LABELS[tag]
 }
 
+// Canonical list of every archetype tag, in the order they should read in
+// any UI enumerating all of them (e.g. the How to Play drawer's legend).
+export const ALL_ARCHETYPES = Object.keys(ARCHETYPE_LABELS) as ArchetypeTag[]
+
 // 3-letter abbreviations — used only in the draft roster's archetype
 // pairing, where the full labels caused the row layout to shift/wrap
 // unpredictably as picks came in.

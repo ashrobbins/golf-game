@@ -30,3 +30,9 @@
   font-size: 20px;
   line-height: 1;
 }
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
