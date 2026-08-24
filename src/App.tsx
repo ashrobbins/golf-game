@@ -1,9 +1,11 @@
 import { HowToPlayDrawer } from './components/nav/HowToPlayDrawer'
 import { NavBar } from './components/nav/NavBar'
+import { Footer } from './components/ui/Footer'
 import { CoursePreviewPage } from './pages/CoursePreviewPage'
 import { DraftPage } from './pages/DraftPage'
 import { HomePage } from './pages/HomePage'
 import { ResultsPage } from './pages/ResultsPage'
+import { StatsPage } from './pages/StatsPage'
 import { GameProvider } from './state/GameProvider'
 import { HowToPlayProvider } from './state/HowToPlayProvider'
 import { useGame } from './state/useGame'
@@ -21,6 +23,8 @@ function GameView() {
       return <DraftPage />
     case 'results':
       return <ResultsPage />
+    case 'stats':
+      return <StatsPage />
   }
 }
 
@@ -32,6 +36,7 @@ function App() {
         <div className={styles.page}>
           <GameView />
         </div>
+        <Footer />
         <HowToPlayDrawer />
       </GameProvider>
     </HowToPlayProvider>

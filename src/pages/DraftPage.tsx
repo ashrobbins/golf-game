@@ -1,8 +1,9 @@
-import { useEffect, useLayoutEffect, useMemo } from 'react'
+import { useLayoutEffect, useMemo } from 'react'
 import { CountryPicker } from '../components/picker/CountryPicker'
 import { GolferReels } from '../components/picker/GolferReels'
 import { DraftRoster } from '../components/draft/DraftRoster'
 import { HoleHeader } from '../components/draft/HoleHeader'
+import { Button } from '../components/ui/Button'
 import type { CountriesContent, Country, Course, Golfer } from '../content/types'
 import type { DraftPick } from '../game/draft/types'
 import { useDraftGame } from '../hooks/useDraftGame'
@@ -42,10 +43,6 @@ function DraftPageInner({
     return map
   }, [countries])
 
-  useEffect(() => {
-    if (state.status === 'complete') onComplete(state.picks)
-  }, [state.status, state.picks, onComplete])
-
   // Auto-spin every hole, including the first — the course preview page's
   // own "Let's Go" button is the user's one manual kick-off, so the draft
   // itself never waits for another click. useLayoutEffect (not useEffect) so
@@ -57,7 +54,27 @@ function DraftPageInner({
     }
   }, [state.status, spin])
 
-  if (state.status === 'complete') return <p>Draft complete, simulating…</p>
+  if (state.status === 'complete') {
+    return (
+      <div>
+        <div className={styles.completeHeader}>
+          <h2 className={styles.completeTitle}>Your bag is set</h2>
+          <p className={styles.completeSubtitle}>All 18 golfers drafted. Ready to play?</p>
+          <Button onClick={() => onComplete(state.picks)}>Tee off</Button>
+        </div>
+
+        <div className={styles.roster}>
+          <DraftRoster
+            picks={state.picks}
+            holes={course.holes}
+            countryIndex={countryIndex}
+            golferIndex={golferIndex}
+            totalHoles={course.holes.length}
+          />
+        </div>
+      </div>
+    )
+  }
 
   const hole = course.holes.find((h) => h.number === state.currentHole)
   if (!hole) return null

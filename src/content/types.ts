@@ -50,6 +50,10 @@ export interface Course {
   id: string
   name: string
   location?: string
+  // ISO code for the course's home country, matching Country.isoCode — used
+  // to render a flag (e.g. on the stats page's per-course breakdown), not
+  // required for gameplay itself.
+  countryIsoCode?: string
   par: number
   holes: Hole[]
 }
