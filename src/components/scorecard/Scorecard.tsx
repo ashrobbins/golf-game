@@ -4,7 +4,7 @@ import { generateHoleCommentary } from '../../game/simulation/commentary'
 import type { SimulationResult } from '../../game/simulation/types'
 import { Confetti } from './Confetti'
 import { HoleResultRow } from './HoleResultRow'
-import { RoundHero } from './RoundHero'
+import { ResultsHero } from './ResultsHero'
 import { ScorecardGrid } from './ScorecardGrid'
 import styles from './Scorecard.module.css'
 
@@ -46,7 +46,14 @@ export function Scorecard({ course, countries, result }: ScorecardProps) {
   return (
     <div className={styles.wrapper}>
       {result.isBogeyFreeRound && <Confetti />}
-      <RoundHero courseName={course.name} holes={course.holes} holeResults={result.holeResults} />
+      <ResultsHero
+        courseName={course.name}
+        holes={course.holes}
+        holeResults={result.holeResults}
+        totalStrokesToPar={result.totalStrokesToPar}
+        bogeyFreeThroughHole={result.bogeyFreeThroughHole}
+        isBogeyFreeRound={result.isBogeyFreeRound}
+      />
       <ScorecardGrid holes={course.holes} holeResults={result.holeResults} />
 
       <ul className={styles.list}>

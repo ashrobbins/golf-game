@@ -1,0 +1,87 @@
+.hero {
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.win {
+  background: linear-gradient(160deg, color-mix(in srgb, var(--tier-gold) 14%, var(--surface)), var(--surface));
+}
+
+.eyebrow {
+  margin: 0;
+  padding: 14px 14px 0;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.panels {
+  display: flex;
+  margin-top: 10px;
+}
+
+/* Wider than the score panel — the streak is the actual goal of the game,
+   the score is supporting context. A plain flex row, so the shorter panel
+   always stretches to match the taller one for free if the streak text
+   ever wraps to two lines. */
+.streakPanel {
+  flex: 1.5;
+  padding: 14px;
+  background: color-mix(in srgb, var(--tier-green) 10%, var(--surface));
+}
+
+.scorePanel {
+  flex: 1;
+  padding: 14px 12px;
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* On a win, both panels go transparent so the card's shared gold gradient
+   reads through evenly instead of a gold streak panel against a neutral
+   score panel. */
+.win .streakPanel,
+.win .scorePanel {
+  background: transparent;
+}
+
+.label {
+  margin: 0;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.streakText {
+  margin: 5px 0 0;
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.25;
+  color: var(--tier-green);
+  text-wrap: balance;
+}
+
+.win .streakText {
+  color: var(--tier-gold);
+  font-size: 15px;
+  line-height: 1.3;
+}
+
+.scoreValue {
+  margin: 5px 0 0;
+  font-size: 26px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.dots {
+  padding: 12px 14px 14px;
+}
