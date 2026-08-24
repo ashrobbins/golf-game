@@ -5,7 +5,7 @@ import type { SVGProps } from 'react'
 // whatever color its caller sets). GolfFlagIcon/GolferIcon distinguish the
 // two halves of the draft roster's archetype pairing (hole vs. player);
 // Sun/MoonIcon are used by the nav's theme toggle; CloseIcon by the How to
-// Play drawer.
+// Play drawer; StatsIcon by the nav's stats page trigger.
 
 export function CloseIcon(props: SVGProps<SVGSVGElement>) {
   return (
@@ -52,6 +52,22 @@ export function MoonIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
       <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+    </svg>
+  )
+}
+
+export function StatsIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="M4 20V10M12 20V4M20 20v-7" />
     </svg>
   )
 }

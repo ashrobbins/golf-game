@@ -5,6 +5,20 @@
   gap: 20px;
 }
 
+.completeHeader {
+  text-align: center;
+}
+
+.completeTitle {
+  font-size: 22px;
+  margin: 0 0 4px;
+}
+
+.completeSubtitle {
+  margin: 0 0 16px;
+  color: var(--text-muted);
+}
+
 .roster {
   margin-top: 40px;
   display: flex;

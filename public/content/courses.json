@@ -5,6 +5,7 @@
       "id": "augusta-national",
       "name": "Augusta National",
       "location": "Augusta, Georgia, USA",
+      "countryIsoCode": "US",
       "par": 72,
       "holes": [
         { "number": 1, "par": 4, "yardage": 445, "archetype": "precision_iron", "name": "Tea Olive" },
@@ -31,6 +32,7 @@
       "id": "carnoustie",
       "name": "Carnoustie",
       "location": "Carnoustie, Angus, Scotland",
+      "countryIsoCode": "GB-SCT",
       "par": 71,
       "holes": [
         { "number": 1, "par": 4, "yardage": 401, "archetype": "precision_iron", "name": "Cup" },

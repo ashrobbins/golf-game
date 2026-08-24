@@ -1,0 +1,106 @@
+.empty {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  padding: 9px 4px 9px 14px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  /* Same neutral-grey inset bar as HoleResultRow/DraftRoster, so a legend
+     row's gold edge below doesn't shift content relative to the rows
+     around it — see PROJECT_CONTEXT's legend-tier indicator convention. */
+  box-shadow: inset 3px 0 0 var(--border);
+}
+
+.rowHeader {
+  display: grid;
+  grid-template-columns: 18px auto 1fr auto auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.list li:last-child {
+  border-bottom: none;
+}
+
+.legend {
+  box-shadow: inset 3px 0 0 var(--tier-gold);
+}
+
+.rank {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.flag {
+  font-size: 13px;
+  line-height: 1;
+}
+
+.name {
+  font-weight: 700;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.holes {
+  color: var(--text-muted);
+  font-size: 11.5px;
+  white-space: nowrap;
+}
+
+.points {
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  min-width: 26px;
+  text-align: right;
+}
+
+.toggle {
+  margin-top: 12px;
+}
+
+/* Indented to roughly line up under .name in .rowHeader above (rank +
+   flag + their gaps), so the breakdown reads as "belonging to" the golfer
+   above it rather than the row as a whole. */
+.breakdown {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  margin-top: 4px;
+  padding-left: 44px;
+}
+
+.tierChip {
+  font-size: 10.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.tierAce {
+  color: var(--tier-gold);
+}
+
+.tierBirdie {
+  color: var(--tier-green);
+}
+
+.tierPar {
+  color: var(--tier-grey);
+}
+
+.tierBogey {
+  color: var(--tier-red);
+}

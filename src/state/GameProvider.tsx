@@ -7,6 +7,7 @@ import { assertWheelHasCapacity } from '../game/draft/engine'
 import type { DraftPick } from '../game/draft/types'
 import { simulateRound } from '../game/simulation/engine'
 import type { SimulationResult } from '../game/simulation/types'
+import { recordRound } from '../game/stats/storage'
 import { GameContext } from './GameContext'
 import type { ContentState, GameContextValue, View } from './GameContext'
 
@@ -73,10 +74,15 @@ export function GameProvider({ children }: { children: ReactNode }) {
       if (content.status !== 'ready' || !course) return
       const result = simulateRound(picks, course, content.countries, content.odds)
       setSimulationResult(result)
+      recordRound(result)
       setView('results')
     },
     [content, course],
   )
+
+  const viewStats = useCallback(() => {
+    setView('stats')
+  }, [])
 
   const playAgain = useCallback(() => {
     setCourse(undefined)
@@ -96,8 +102,18 @@ export function GameProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const value = useMemo<GameContextValue>(
-    () => ({ content, view, course, simulationResult, startRound, beginDraft, finishDraft, playAgain }),
-    [content, view, course, simulationResult, startRound, beginDraft, finishDraft, playAgain],
+    () => ({
+      content,
+      view,
+      course,
+      simulationResult,
+      startRound,
+      beginDraft,
+      finishDraft,
+      playAgain,
+      viewStats,
+    }),
+    [content, view, course, simulationResult, startRound, beginDraft, finishDraft, playAgain, viewStats],
   )
 
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>
