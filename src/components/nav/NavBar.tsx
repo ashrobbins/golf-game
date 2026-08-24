@@ -1,5 +1,5 @@
 import { useGame } from '../../state/useGame'
-import { HowToPlayDrawer } from './HowToPlayDrawer'
+import { HowToPlayTrigger } from './HowToPlayTrigger'
 import { ThemeToggle } from './ThemeToggle'
 import styles from './NavBar.module.css'
 
@@ -13,7 +13,7 @@ export function NavBar() {
         Beating Bogey
       </button>
       <div className={styles.right}>
-        <HowToPlayDrawer />
+        <HowToPlayTrigger />
         <ThemeToggle />
       </div>
     </header>

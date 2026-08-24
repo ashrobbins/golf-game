@@ -1,29 +1,26 @@
+/* Matches RoundHero/ResultsHero's shared "hero card" language (the same
+   160deg accent-tinted wash, 1px border, 14px radius) instead of the old
+   per-course saturated gradient + white text. Every course gets this same
+   neutral treatment for now — a distinct "major" variant is planned for a
+   future season feature, but doesn't exist yet (no data model for it
+   either), so there's nothing to branch on here. */
 .card {
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   height: 140px;
-  border: none;
-  border-radius: 20px;
-  padding: 20px;
-  background-size: cover;
-  background-position: center;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 20px;
+  background: linear-gradient(160deg, color-mix(in srgb, var(--accent) 12%, var(--surface)), var(--surface));
   box-shadow: var(--shadow);
   cursor: pointer;
-  color: #fff;
+  color: var(--text);
   text-align: left;
   overflow: hidden;
   font-family: inherit;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.card::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0) 55%);
-  pointer-events: none;
 }
 
 .card:hover {
@@ -39,14 +36,12 @@
 }
 
 .par {
-  position: relative;
-  z-index: 1;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(6px);
+  background: color-mix(in srgb, var(--accent) 14%, var(--surface));
+  color: var(--accent);
   padding: 4px 10px;
   border-radius: 999px;
 }
@@ -56,17 +51,14 @@
 }
 
 .name {
-  position: relative;
-  z-index: 1;
-  font-size: 26px;
+  font-size: 24px;
   font-weight: 800;
   margin: 8px 0 2px;
   letter-spacing: -0.01em;
+  color: var(--text);
 }
 
 .location {
-  position: relative;
-  z-index: 1;
   font-size: 13px;
-  opacity: 0.85;
+  color: var(--text-muted);
 }
