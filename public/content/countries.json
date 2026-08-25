@@ -21,7 +21,8 @@
           "name": "Ben Hogan",
           "era": "1940s-50s",
           "archetypes": [
-            "precision_iron"
+            "precision_iron",
+            "closer"
           ],
           "skill": "legend"
         },
@@ -142,6 +143,7 @@
           "name": "Old Tom Morris",
           "era": "1800s",
           "archetypes": [
+            "precision_iron",
             "scrambler"
           ],
           "skill": "legend"
@@ -292,7 +294,8 @@
           "era": "2010s-20s",
           "archetypes": [
             "long_hitter"
-          ]
+          ],
+          "skill": "elite"
         },
         {
           "id": "eng-poulter",
@@ -300,7 +303,8 @@
           "era": "2000s-10s",
           "archetypes": [
             "closer"
-          ]
+          ],
+          "skill": "elite"
         },
         {
           "id": "eng-willett",
@@ -614,7 +618,8 @@
           "era": "1990s-2000s",
           "archetypes": [
             "scrambler"
-          ]
+          ],
+          "skill": "elite"
         },
         {
           "id": "swe-noren",
@@ -873,8 +878,10 @@
           "name": "Ryan Fox",
           "era": "2010s-20s",
           "archetypes": [
-            "long_hitter"
-          ]
+            "long_hitter",
+            "closer"
+          ],
+          "skill": "elite"
         },
         {
           "id": "nzl-nobilo",
@@ -1051,7 +1058,7 @@
           "archetypes": [
             "long_hitter"
           ],
-          "skill": "journeyman"
+          "skill": "elite"
         },
         {
           "id": "den-hojgaard-n",
@@ -1060,7 +1067,7 @@
           "archetypes": [
             "scrambler"
           ],
-          "skill": "journeyman"
+          "skill": "elite"
         },
         {
           "id": "den-bjerregaard",
@@ -1226,7 +1233,8 @@
           "era": "2020s",
           "archetypes": [
             "long_hitter"
-          ]
+          ],
+          "skill": "elite"
         },
         {
           "id": "oth-colsaerts",
