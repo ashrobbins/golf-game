@@ -9,10 +9,6 @@ import { formatRelativeScore } from '../game/simulation/formatTier'
 import { useGame } from '../state/useGame'
 import styles from './StatsPage.module.css'
 
-function pluralize(count: number, word: string): string {
-  return count === 1 ? word : `${word}s`
-}
-
 export function StatsPage() {
   const { content, playAgain } = useGame()
   const [stats] = useState(() => loadStats())
@@ -48,6 +44,12 @@ export function StatsPage() {
         </>
       ) : (
         <>
+          <div className={styles.cta}>
+            <Button variant="secondary" onClick={playAgain}>
+              Play a round
+            </Button>
+          </div>
+
           <section className={`${styles.card} ${styles.careerCard}`}>
             <p className={styles.careerEyebrow}>Career</p>
             <StatsGrid stats={career} large />
@@ -60,21 +62,14 @@ export function StatsPage() {
                 const courseStats = deriveStatsForCourse(rounds, courseId)
                 const isoCode = courseIsoCode(courseId)
                 return (
-                  <li key={courseId} className={styles.courseRow}>
-                    {isoCode && (
-                      <CountryFlag isoCode={isoCode} className={styles.courseFlag} ariaHidden />
-                    )}
-                    <span className={styles.courseName}>{courseName(courseId)}</span>
-                    <span className={styles.courseStats}>
-                      <b>{courseStats.roundsPlayed}</b> {pluralize(courseStats.roundsPlayed, 'round')} ·{' '}
-                      <b>{courseStats.bogeyFreeRounds}</b> bogey-free ·{' '}
-                      <b>{courseStats.lowestBogeyCount}</b> fewest bogeys ·{' '}
-                      <b>{courseStats.highestBirdieCount}</b>{' '}
-                      {pluralize(courseStats.highestBirdieCount ?? 0, 'birdie')} ·{' '}
-                      <b>{courseStats.highestEagleCount}</b>{' '}
-                      {pluralize(courseStats.highestEagleCount ?? 0, 'eagle')} ·{' '}
-                      <b>{courseStats.holeInOnes}</b> {pluralize(courseStats.holeInOnes, 'ace')}
-                    </span>
+                  <li key={courseId} className={styles.courseBlock}>
+                    <div className={styles.courseHeader}>
+                      {isoCode && (
+                        <CountryFlag isoCode={isoCode} className={styles.courseFlag} ariaHidden />
+                      )}
+                      <span className={styles.courseName}>{courseName(courseId)}</span>
+                    </div>
+                    <CourseStatsGrid stats={courseStats} />
                   </li>
                 )
               })}
@@ -89,20 +84,27 @@ export function StatsPage() {
           <section className={styles.card}>
             <h2 className={styles.cardTitle}>Round history</h2>
             <ul className={styles.history}>
-              {history.map((round) => (
-                <li key={round.id} className={styles.historyRow}>
-                  <span className={styles.historyCourse}>{courseName(round.courseId)}</span>
-                  <span className={styles.historyDate}>
-                    {new Date(round.playedAt).toLocaleDateString()}
-                  </span>
-                  <span className={styles.historyScore}>
-                    {formatRelativeScore(round.totalStrokesToPar)}
-                  </span>
-                  {round.isBogeyFreeRound && (
-                    <span className={styles.historyBadge}>Bogey-free</span>
-                  )}
-                </li>
-              ))}
+              {history.map((round) => {
+                const rowClasses = [styles.historyRow, round.isBogeyFreeRound && styles.bogeyFree]
+                  .filter(Boolean)
+                  .join(' ')
+                return (
+                  <li key={round.id} className={rowClasses}>
+                    <span className={styles.historyCourseCell}>
+                      <span className={styles.historyCourse}>{courseName(round.courseId)}</span>
+                      {round.isBogeyFreeRound && (
+                        <span className={styles.historyBadge}>Bogey-free</span>
+                      )}
+                    </span>
+                    <span className={styles.historyDate}>
+                      {new Date(round.playedAt).toLocaleDateString()}
+                    </span>
+                    <span className={styles.historyScore}>
+                      {formatRelativeScore(round.totalStrokesToPar)}
+                    </span>
+                  </li>
+                )
+              })}
             </ul>
           </section>
         </>
@@ -130,6 +132,28 @@ function StatItem({ label, value, large }: { label: string; value: number | null
     <div className={styles.statItem}>
       <dt className={large ? styles.careerStatLabel : styles.statLabel}>{label}</dt>
       <dd className={large ? styles.careerStatValue : styles.statValue}>{value ?? '—'}</dd>
+    </div>
+  )
+}
+
+function CourseStatsGrid({ stats }: { stats: DerivedStats }) {
+  return (
+    <dl className={styles.courseGrid}>
+      <CourseStatItem label="Rounds" value={stats.roundsPlayed} />
+      <CourseStatItem label="Bogey-free" value={stats.bogeyFreeRounds} />
+      <CourseStatItem label="Fewest bogeys" value={stats.lowestBogeyCount} />
+      <CourseStatItem label="Birdies" value={stats.highestBirdieCount} />
+      <CourseStatItem label="Eagles" value={stats.highestEagleCount} />
+      <CourseStatItem label="Aces" value={stats.holeInOnes} />
+    </dl>
+  )
+}
+
+function CourseStatItem({ label, value }: { label: string; value: number | null }) {
+  return (
+    <div className={styles.courseStatItem}>
+      <dt className={styles.courseStatLabel}>{label}</dt>
+      <dd className={styles.courseStatValue}>{value ?? '—'}</dd>
     </div>
   )
 }

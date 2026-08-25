@@ -82,6 +82,12 @@ export function RevealSequence({
         />
       )}
 
+      <div className={styles.skipRow}>
+        <Button variant="secondary" onClick={onSkip}>
+          Skip
+        </Button>
+      </div>
+
       {completedHoles.length > 0 && (
         <>
           <p className={styles.eyebrow}>Holes so far</p>

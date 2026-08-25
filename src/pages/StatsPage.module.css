@@ -93,8 +93,8 @@
   letter-spacing: -0.01em;
 }
 
-/* Course breakdowns collapse to one compact row per course (name + an
-   inline stat string) rather than a full card each, so together they stay
+/* Course breakdowns collapse to one block per course (header + a compact
+   stats grid) rather than a full card each, so together they stay
    visually lighter than the Career card above. */
 .courseList {
   margin: 0;
@@ -102,43 +102,62 @@
   list-style: none;
 }
 
-.courseRow {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 4px 10px;
-  padding: 10px 0;
+.courseBlock {
+  padding: 14px 0;
   border-bottom: 1px solid var(--border);
-  font-size: 12.5px;
 }
 
-.courseRow:last-child {
+.courseBlock:first-child {
+  padding-top: 0;
+}
+
+.courseBlock:last-child {
   border-bottom: none;
   padding-bottom: 0;
 }
 
+.courseHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
 .courseFlag {
-  flex: 0 0 auto;
   font-size: 15px;
   line-height: 1;
 }
 
 .courseName {
-  flex: 0 0 auto;
   font-weight: 700;
+  font-size: 13px;
 }
 
-.courseStats {
-  flex: 1 1 auto;
-  text-align: right;
+.courseGrid {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px 8px;
+}
+
+.courseStatItem {
+  margin: 0;
+}
+
+.courseStatLabel {
+  margin: 0;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
   color: var(--text-muted);
-  font-size: 11.5px;
-  font-variant-numeric: tabular-nums;
 }
 
-.courseStats b {
-  color: var(--text);
-  font-weight: 700;
+.courseStatValue {
+  margin: 3px 0 0;
+  font-size: 16px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
 }
 
 .history {
@@ -151,12 +170,16 @@
 }
 
 .historyRow {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto auto;
   align-items: center;
-  gap: 10px;
-  padding: 8px 0;
+  column-gap: 10px;
+  padding: 9px 8px 9px 14px;
   border-bottom: 1px solid var(--border);
   font-size: 13px;
+  /* Same neutral-grey/gold inset-bar convention as HoleResultRow/DraftRoster
+     — every row gets the bar, bogey-free rounds just recolour it gold. */
+  box-shadow: inset 3px 0 0 var(--border);
 }
 
 .historyRow:last-child {
@@ -164,13 +187,33 @@
   padding-bottom: 0;
 }
 
+.historyRow.bogeyFree {
+  box-shadow: inset 3px 0 0 var(--tier-gold);
+  background: color-mix(in srgb, var(--tier-gold) 8%, transparent);
+}
+
+.historyCourseCell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
 .historyCourse {
-  flex: 1 1 auto;
   font-weight: 700;
+}
+
+.historyBadge {
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--tier-gold);
 }
 
 .historyDate {
   color: var(--text-muted);
+  white-space: nowrap;
 }
 
 .historyScore {
@@ -178,12 +221,4 @@
   font-variant-numeric: tabular-nums;
   min-width: 28px;
   text-align: right;
-}
-
-.historyBadge {
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--tier-gold);
 }
