@@ -28,6 +28,7 @@ export function HomePage() {
             name={course.name}
             location={course.location}
             par={course.par}
+            countryIsoCode={course.countryIsoCode}
             onClick={() => startRound(course.id)}
           />
         ))}
