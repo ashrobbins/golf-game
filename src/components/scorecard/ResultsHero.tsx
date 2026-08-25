@@ -1,11 +1,13 @@
 import type { Hole } from '../../content/types'
 import { formatBogeyFreeHeadline, formatRelativeScore } from '../../game/simulation/formatTier'
 import type { HoleResult } from '../../game/simulation/types'
+import { CountryFlag } from '../picker/CountryFlag'
 import { HoleOutcomeDots } from './HoleOutcomeDots'
 import styles from './ResultsHero.module.css'
 
 interface ResultsHeroProps {
   courseName: string
+  countryIsoCode?: string
   holes: Hole[]
   holeResults: HoleResult[]
   totalStrokesToPar: number
@@ -21,6 +23,7 @@ interface ResultsHeroProps {
 // uses (see Scorecard.tsx's Confetti trigger).
 export function ResultsHero({
   courseName,
+  countryIsoCode,
   holes,
   holeResults,
   totalStrokesToPar,
@@ -29,7 +32,12 @@ export function ResultsHero({
 }: ResultsHeroProps) {
   return (
     <div className={isBogeyFreeRound ? `${styles.hero} ${styles.win}` : styles.hero}>
-      <p className={styles.eyebrow}>{courseName}</p>
+      <p className={styles.eyebrow}>
+        {countryIsoCode && (
+          <CountryFlag isoCode={countryIsoCode} className={styles.eyebrowFlag} ariaHidden />
+        )}
+        {courseName}
+      </p>
       <div className={styles.panels}>
         <div className={styles.streakPanel}>
           <p className={styles.label}>Streak</p>

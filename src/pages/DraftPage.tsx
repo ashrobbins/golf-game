@@ -82,7 +82,12 @@ function DraftPageInner({
 
   return (
     <div>
-      <HoleHeader courseName={course.name} hole={hole} totalHoles={course.holes.length} />
+      <HoleHeader
+        courseName={course.name}
+        countryIsoCode={course.countryIsoCode}
+        hole={hole}
+        totalHoles={course.holes.length}
+      />
 
       {(state.status === 'spinning' || state.status === 'awaiting_pick') &&
         state.pendingSpinCountryId && (

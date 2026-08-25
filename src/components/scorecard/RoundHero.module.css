@@ -14,6 +14,14 @@
   color: var(--text-muted);
 }
 
+.labelFlag {
+  display: inline-block;
+  margin-right: 5px;
+  font-size: 13px;
+  line-height: 1;
+  vertical-align: -1px;
+}
+
 .score {
   margin: 2px 0 8px;
   font-size: 42px;

@@ -10,6 +10,14 @@
   margin-bottom: 4px;
 }
 
+.titleFlag {
+  display: inline-block;
+  margin-right: 10px;
+  font-size: 28px;
+  line-height: 1;
+  vertical-align: -2px;
+}
+
 .subtitle {
   color: var(--text-muted);
   margin: 0;

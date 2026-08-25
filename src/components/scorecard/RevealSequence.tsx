@@ -11,6 +11,7 @@ import styles from './RevealSequence.module.css'
 
 interface RevealSequenceProps {
   courseName: string
+  countryIsoCode?: string
   holes: Hole[]
   holeResults: HoleResult[]
   countries: CountriesContent
@@ -20,6 +21,7 @@ interface RevealSequenceProps {
 
 export function RevealSequence({
   courseName,
+  countryIsoCode,
   holes,
   holeResults,
   countries,
@@ -68,7 +70,13 @@ export function RevealSequence({
 
   return (
     <div className={styles.wrapper}>
-      <RoundHero courseName={courseName} holes={holes} holeResults={holeResults} revealedCount={revealedCount} />
+      <RoundHero
+        courseName={courseName}
+        countryIsoCode={countryIsoCode}
+        holes={holes}
+        holeResults={holeResults}
+        revealedCount={revealedCount}
+      />
       <ScorecardGrid holes={holes} holeResults={holeResults} revealedCount={revealedCount} />
 
       {currentHole && currentGolfer && currentHoleInfo && (

@@ -9,6 +9,14 @@
   background: linear-gradient(160deg, color-mix(in srgb, var(--tier-gold) 14%, var(--surface)), var(--surface));
 }
 
+.eyebrowFlag {
+  display: inline-block;
+  margin-right: 5px;
+  font-size: 13px;
+  line-height: 1;
+  vertical-align: -1px;
+}
+
 .eyebrow {
   margin: 0;
   padding: 14px 14px 0;

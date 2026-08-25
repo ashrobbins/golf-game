@@ -39,6 +39,7 @@ export function ResultsPage() {
       ) : (
         <RevealSequence
           courseName={course.name}
+          countryIsoCode={course.countryIsoCode}
           holes={course.holes}
           holeResults={simulationResult.holeResults}
           countries={content.countries}

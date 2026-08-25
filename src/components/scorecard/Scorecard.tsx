@@ -48,6 +48,7 @@ export function Scorecard({ course, countries, result }: ScorecardProps) {
       {result.isBogeyFreeRound && <Confetti />}
       <ResultsHero
         courseName={course.name}
+        countryIsoCode={course.countryIsoCode}
         holes={course.holes}
         holeResults={result.holeResults}
         totalStrokesToPar={result.totalStrokesToPar}
