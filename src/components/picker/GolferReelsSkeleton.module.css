@@ -1,0 +1,42 @@
+.card {
+  width: 100%;
+  border-radius: 12px;
+  background: var(--border);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+/* Matches Button's real rendered height (measured: 43px, from 10px
+   padding + 15px text + 2px border, rounded up by font metrics) so
+   swapping in the real Select/Draft buttons doesn't shift anything once
+   the reel settles. */
+.button {
+  width: 100%;
+  height: 43px;
+  border-radius: 14px;
+  background: var(--border);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+/* The outer "Draft <name>" button isn't full-width in the real component
+   (only the per-column Select buttons are) — a fixed width reads closer
+   to the real thing than stretching edge to edge. */
+.outerButton {
+  width: 160px;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .button {
+    animation: none;
+  }
+}

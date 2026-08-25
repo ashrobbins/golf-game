@@ -1,6 +1,7 @@
 import { useLayoutEffect, useMemo } from 'react'
 import { CountryPicker } from '../components/picker/CountryPicker'
 import { GolferReels } from '../components/picker/GolferReels'
+import { GolferReelsSkeleton } from '../components/picker/GolferReelsSkeleton'
 import { DraftRoster } from '../components/draft/DraftRoster'
 import { HoleHeader } from '../components/draft/HoleHeader'
 import { Button } from '../components/ui/Button'
@@ -93,7 +94,7 @@ function DraftPageInner({
               onResolved={confirmSpin}
             />
 
-            {state.status === 'awaiting_pick' && state.pendingGolferOptions && (
+            {state.status === 'awaiting_pick' && state.pendingGolferOptions ? (
               <GolferReels
                 key={state.currentHole}
                 country={countryIndex.get(state.pendingSpinCountryId)!}
@@ -101,6 +102,11 @@ function DraftPageInner({
                 spinToken={state.currentHole}
                 onPick={pick}
               />
+            ) : (
+              // The country's still spinning, so the offered golfers aren't
+              // known yet — reserve the same space GolferReels will occupy
+              // rather than leaving a gap that appears once it resolves.
+              <GolferReelsSkeleton />
             )}
           </div>
         )}

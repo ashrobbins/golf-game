@@ -116,11 +116,16 @@ export function RevealSequence({
         </>
       )}
 
-      <div className={styles.skipRow}>
-        <Button variant="secondary" onClick={onSkip}>
-          Skip
-        </Button>
-      </div>
+      {/* Only worth a second skip button once the table above has some
+          real length to skip past — with 1-2 rows it just duplicates the
+          one under the commentary card right above. */}
+      {completedHoles.length >= 3 && (
+        <div className={styles.skipRow}>
+          <Button variant="secondary" onClick={onSkip}>
+            Skip
+          </Button>
+        </div>
+      )}
     </div>
   )
 }

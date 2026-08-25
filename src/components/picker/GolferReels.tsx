@@ -6,7 +6,10 @@ import { Reel } from './Reel'
 import { buildLoopingStrip, shuffle } from './stripBuilders'
 import styles from './GolferReels.module.css'
 
-const REEL_ITEM_HEIGHT = 136
+// Exported so GolferReelsSkeleton can reserve exactly this much space while
+// the real reel contents (which depend on the resolved country) aren't
+// known yet.
+export const REEL_ITEM_HEIGHT = 136
 const BASE_DURATION_MS = 750
 const STAGGER_MS = 225
 const LOOPS = 3
@@ -68,22 +71,32 @@ export function GolferReels({ country, targets, spinToken, onPick }: GolferReels
                   <GolferCard golfer={g} onClick={allSettled ? () => setSelectedId(golfer.id) : undefined} />
                 )}
               />
-              {allSettled && (
-                <Button
-                  variant={selectedId === golfer.id ? 'primary' : 'secondary'}
-                  fullWidth
-                  onClick={() => setSelectedId(golfer.id)}
-                >
-                  {selectedId === golfer.id ? 'Selected' : 'Select'}
-                </Button>
-              )}
+              {/* Always mounted (not conditional on allSettled) so its
+                  height is reserved from the reel's first render — hidden
+                  via visibility rather than left unmounted, so it never
+                  causes a layout shift when the reel finishes spinning. */}
+              <Button
+                variant={selectedId === golfer.id ? 'primary' : 'secondary'}
+                fullWidth
+                disabled={!allSettled}
+                className={allSettled ? undefined : styles.pending}
+                onClick={() => setSelectedId(golfer.id)}
+              >
+                {selectedId === golfer.id ? 'Selected' : 'Select'}
+              </Button>
             </div>
           )
         })}
       </div>
-      {allSettled && selectedGolfer && (
-        <Button onClick={() => onPick(selectedGolfer.id)}>Draft {selectedGolfer.name}</Button>
-      )}
+      {/* Same reasoning — always mounted, hidden until there's a golfer to
+          name, so picking one never shifts the roster below. */}
+      <Button
+        disabled={!selectedGolfer}
+        className={selectedGolfer ? undefined : styles.pending}
+        onClick={() => selectedGolfer && onPick(selectedGolfer.id)}
+      >
+        Draft {selectedGolfer?.name ?? ' '}
+      </Button>
     </div>
   )
 }
