@@ -83,7 +83,13 @@ body {
 }
 
 #root {
-  min-height: 100svh;
+  /* dvh (dynamic viewport height), not svh (small viewport height) — svh
+     is pinned to the viewport size with the mobile browser's address bar
+     fully expanded and never grows back, so once the bar auto-hides on
+     scroll (the real, larger viewport), #root stays sized to the smaller
+     svh value and leaves a gap of empty space below the footer. dvh
+     tracks the actual current viewport as the browser chrome shows/hides. */
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
 }

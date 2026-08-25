@@ -107,6 +107,12 @@ export function StatsPage() {
               })}
             </ul>
           </section>
+
+          <p className={styles.localNote}>
+            All stats are stored locally on this device — they won't carry over to another
+            device or browser, and will disappear if you clear your browsing data or use a
+            private/incognito window.
+          </p>
         </>
       )}
     </div>
