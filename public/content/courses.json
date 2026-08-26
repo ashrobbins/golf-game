@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "courses": [
     {
       "id": "augusta-national",
@@ -107,6 +107,60 @@
         { "number": 16, "par": 5, "yardage": 523, "archetype": "closer" },
         { "number": 17, "par": 3, "yardage": 137, "archetype": "closer" },
         { "number": 18, "par": 4, "yardage": 462, "archetype": "closer" }
+      ]
+    },
+    {
+      "id": "royal-birkdale",
+      "name": "Royal Birkdale",
+      "location": "Southport, Merseyside, England",
+      "countryIsoCode": "GB-ENG",
+      "par": 70,
+      "holes": [
+        { "number": 1, "par": 4, "yardage": 447, "archetype": "precision_iron" },
+        { "number": 2, "par": 4, "yardage": 419, "archetype": "scrambler" },
+        { "number": 3, "par": 4, "yardage": 450, "archetype": "precision_iron" },
+        { "number": 4, "par": 3, "yardage": 219, "archetype": "short_game_specialist" },
+        { "number": 5, "par": 4, "yardage": 321, "archetype": "scrambler" },
+        { "number": 6, "par": 4, "yardage": 514, "archetype": "precision_iron" },
+        { "number": 7, "par": 3, "yardage": 151, "archetype": "short_game_specialist" },
+        { "number": 8, "par": 4, "yardage": 459, "archetype": "scrambler" },
+        { "number": 9, "par": 4, "yardage": 414, "archetype": "precision_iron" },
+        { "number": 10, "par": 4, "yardage": 397, "archetype": "scrambler" },
+        { "number": 11, "par": 4, "yardage": 434, "archetype": "precision_iron" },
+        { "number": 12, "par": 3, "yardage": 186, "archetype": "short_game_specialist" },
+        { "number": 13, "par": 4, "yardage": 502, "archetype": "scrambler" },
+        { "number": 14, "par": 5, "yardage": 602, "archetype": "long_hitter" },
+        { "number": 15, "par": 3, "yardage": 241, "archetype": "short_game_specialist" },
+        { "number": 16, "par": 4, "yardage": 393, "archetype": "closer" },
+        { "number": 17, "par": 5, "yardage": 566, "archetype": "closer" },
+        { "number": 18, "par": 4, "yardage": 508, "archetype": "closer" }
+      ]
+    },
+    {
+      "id": "marco-simone",
+      "name": "Marco Simone",
+      "location": "Guidonia Montecelio, Rome, Italy",
+      "countryIsoCode": "IT",
+      "par": 72,
+      "holes": [
+        { "number": 1, "par": 4, "yardage": 445, "archetype": "precision_iron" },
+        { "number": 2, "par": 4, "yardage": 476, "archetype": "scrambler" },
+        { "number": 3, "par": 4, "yardage": 453, "archetype": "precision_iron" },
+        { "number": 4, "par": 3, "yardage": 188, "archetype": "short_game_specialist" },
+        { "number": 5, "par": 4, "yardage": 376, "archetype": "scrambler" },
+        { "number": 6, "par": 4, "yardage": 381, "archetype": "precision_iron" },
+        { "number": 7, "par": 3, "yardage": 222, "archetype": "short_game_specialist" },
+        { "number": 8, "par": 5, "yardage": 525, "archetype": "long_hitter" },
+        { "number": 9, "par": 5, "yardage": 587, "archetype": "long_hitter" },
+        { "number": 10, "par": 4, "yardage": 453, "archetype": "scrambler" },
+        { "number": 11, "par": 4, "yardage": 329, "archetype": "precision_iron" },
+        { "number": 12, "par": 5, "yardage": 546, "archetype": "long_hitter" },
+        { "number": 13, "par": 3, "yardage": 150, "archetype": "short_game_specialist" },
+        { "number": 14, "par": 4, "yardage": 509, "archetype": "scrambler" },
+        { "number": 15, "par": 4, "yardage": 479, "archetype": "precision_iron" },
+        { "number": 16, "par": 4, "yardage": 352, "archetype": "closer" },
+        { "number": 17, "par": 3, "yardage": 206, "archetype": "closer" },
+        { "number": 18, "par": 5, "yardage": 623, "archetype": "closer" }
       ]
     }
   ]
