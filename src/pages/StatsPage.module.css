@@ -104,37 +104,30 @@
   letter-spacing: -0.01em;
 }
 
-/* A golfer name (Top player) is far longer than any of the other numeric
-   stat values, so it gets its own fixed size rather than inheriting the
-   32px/22px/16px numeric scales above — same treatment in every context
-   that renders it (career, course). */
-.topGolfer {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 15px;
-  font-weight: 800;
-  letter-spacing: -0.005em;
-  line-height: 1.3;
+/* "Best round"'s value is a button (opens that round's detail drawer) but
+   needs to look exactly like the plain numeric stat values around it —
+   reset the button chrome, inherit size/weight from whichever grid renders
+   it (careerStatValue/statValue/courseStatValue all set font-size on the
+   <dd>, and this inherits it), and only hint at interactivity on
+   hover/focus so it doesn't read as a link dropped into a stats grid. */
+.bestRoundButton {
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-variant-numeric: inherit;
+  color: inherit;
+  cursor: pointer;
 }
 
-.topGolferFlag {
-  font-size: 15px;
-  line-height: 1;
-  flex-shrink: 0;
+.bestRoundButton:hover,
+.bestRoundButton:focus-visible {
+  color: var(--accent);
 }
 
-/* Same narrow-screen breakpoint as StatsTrigger/CourseHoleTable — the name +
-   flag pair is the widest thing in either stat grid, so it's the first to
-   need help on a small phone. */
-@media (max-width: 560px) {
-  .topGolfer {
-    font-size: 13px;
-  }
-
-  .topGolferFlag {
-    font-size: 13px;
-  }
+.bestRoundButton:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 /* Course breakdowns collapse to one block per course (header + a compact
@@ -213,27 +206,56 @@
   gap: 8px;
 }
 
+.historyItem {
+  border-bottom: 1px solid var(--border);
+}
+
+.historyItem:last-child {
+  border-bottom: none;
+}
+
+/* The whole row is a real <button> (opens that round's detail drawer),
+   sized/laid out identically to the old static row so this reads as no
+   visual change beyond now being clickable. */
 .historyRow {
+  width: 100%;
   display: grid;
   grid-template-columns: 1fr auto auto;
   align-items: center;
   column-gap: 10px;
   padding: 9px 8px 9px 14px;
-  border-bottom: 1px solid var(--border);
+  border: none;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
   font-size: 13px;
   /* Same neutral-grey/gold inset-bar convention as HoleResultRow/DraftRoster
      — every row gets the bar, bogey-free rounds just recolour it gold. */
   box-shadow: inset 3px 0 0 var(--border);
 }
 
-.historyRow:last-child {
-  border-bottom: none;
+.historyItem:last-child .historyRow {
   padding-bottom: 0;
+}
+
+.historyRow:hover {
+  background: color-mix(in srgb, var(--text) 4%, transparent);
+}
+
+.historyRow:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
 }
 
 .historyRow.bogeyFree {
   box-shadow: inset 3px 0 0 var(--tier-gold);
   background: color-mix(in srgb, var(--tier-gold) 8%, transparent);
+}
+
+.historyRow.bogeyFree:hover {
+  background: color-mix(in srgb, var(--tier-gold) 14%, transparent);
 }
 
 .historyCourseCell {

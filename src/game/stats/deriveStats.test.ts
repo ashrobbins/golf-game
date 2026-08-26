@@ -1,7 +1,14 @@
 import { describe, expect, it } from 'vitest'
 import type { OutcomeTier } from '../../content/types'
 import type { HoleResult } from '../simulation/types'
-import { bogeyFreeRoundCount, careerTierCount, deriveStats, deriveStatsForCourse, rankGolfers } from './deriveStats'
+import {
+  bogeyFreeRoundCount,
+  careerTierCount,
+  deriveStats,
+  deriveStatsForCourse,
+  findBestRound,
+  rankGolfers,
+} from './deriveStats'
 import type { RoundRecord } from './types'
 
 function makeHole(outcomeTier: OutcomeTier, holeNumber = 1, golferId = 'golfer'): HoleResult {
@@ -74,32 +81,23 @@ describe('deriveStats', () => {
     expect(deriveStats([])).toEqual({
       roundsPlayed: 0,
       bogeyFreeRounds: 0,
-      topGolfer: null,
+      bestRound: null,
       totalBirdieCount: 0,
       totalEagleCount: 0,
       holeInOnes: 0,
     })
   })
 
-  it('aggregates across every stored round, including a career-wide topGolfer', () => {
-    const rounds = [
-      makeRoundOf('augusta', [
-        { golferId: 'star', tier: 'par' },
-        { golferId: 'star', tier: 'birdie' },
-        { golferId: 'star', tier: 'bogey_plus' },
-      ]),
-      makeRoundOf('augusta', [
-        { golferId: 'star', tier: 'birdie' },
-        { golferId: 'other', tier: 'birdie' },
-        { golferId: 'other', tier: 'eagle' },
-        { golferId: 'other', tier: 'hole_in_one' },
-      ]),
-    ]
-    const stats = deriveStats(rounds)
+  it('aggregates across every stored round, including the best round', () => {
+    const worse = makeRound('augusta', ['par', 'birdie', 'bogey_plus'], { totalStrokesToPar: 3 })
+    const better = makeRound('augusta', ['birdie', 'birdie', 'eagle', 'hole_in_one'], {
+      totalStrokesToPar: -5,
+    })
+    const stats = deriveStats([worse, better])
     expect(stats).toEqual({
       roundsPlayed: 2,
       bogeyFreeRounds: 1,
-      topGolfer: expect.objectContaining({ golferId: 'other' }),
+      bestRound: better,
       totalBirdieCount: 3,
       totalEagleCount: 1,
       holeInOnes: 1,
@@ -116,10 +114,30 @@ describe('deriveStats', () => {
     expect(stats.totalEagleCount).toBe(1)
     expect(stats.holeInOnes).toBe(1)
   })
+})
 
-  it('leaves topGolfer null when nobody clears the holes-played threshold', () => {
-    const rounds = [makeRoundOf('augusta', [{ golferId: 'newcomer', tier: 'birdie' }])]
-    expect(deriveStats(rounds).topGolfer).toBeNull()
+describe('findBestRound', () => {
+  it('returns null for an empty list', () => {
+    expect(findBestRound([])).toBeNull()
+  })
+
+  it('picks the lowest (most under par) totalStrokesToPar', () => {
+    const par = makeRound('augusta', [], { totalStrokesToPar: 0 })
+    const underPar = makeRound('augusta', [], { totalStrokesToPar: -9 })
+    const overPar = makeRound('augusta', [], { totalStrokesToPar: 4 })
+    expect(findBestRound([par, underPar, overPar])).toBe(underPar)
+  })
+
+  it('breaks a tie by the most recently played round', () => {
+    const older = makeRound('augusta', [], {
+      totalStrokesToPar: -3,
+      playedAt: '2026-01-01T00:00:00.000Z',
+    })
+    const newer = makeRound('carnoustie', [], {
+      totalStrokesToPar: -3,
+      playedAt: '2026-02-01T00:00:00.000Z',
+    })
+    expect(findBestRound([older, newer])).toBe(newer)
   })
 })
 

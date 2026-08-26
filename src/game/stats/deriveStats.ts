@@ -13,6 +13,17 @@ export function careerTierCount(rounds: RoundRecord[], tier: OutcomeTier): numbe
   return rounds.reduce((sum, round) => sum + countTier(round, tier), 0)
 }
 
+// The round with the best (lowest/most-under-par) totalStrokesToPar in the
+// set. Ties go to whichever was played most recently. Null for an empty set.
+export function findBestRound(rounds: RoundRecord[]): RoundRecord | null {
+  if (rounds.length === 0) return null
+  return rounds.reduce((best, round) => {
+    if (round.totalStrokesToPar < best.totalStrokesToPar) return round
+    if (round.totalStrokesToPar === best.totalStrokesToPar && round.playedAt > best.playedAt) return round
+    return best
+  })
+}
+
 // Points per hole outcome for the golfer leaderboard/top-player stat below —
 // chosen so a single eagle (4) always outweighs two pars (1+1), and a
 // bogey+ actively costs a golfer points rather than just sitting neutral.
@@ -83,10 +94,9 @@ export function rankGolfers(
 export interface DerivedStats {
   roundsPlayed: number
   bogeyFreeRounds: number
-  // Highest-points golfer (same ranking/threshold as the career leaderboard
-  // below), scoped to whatever round set was passed in — null until someone
-  // clears LEADERBOARD_MIN_HOLES_PLAYED within that set.
-  topGolfer: GolferRanking | null
+  // The lowest-scoring round in this set — null until at least one round
+  // has been played.
+  bestRound: RoundRecord | null
   totalBirdieCount: number
   totalEagleCount: number
   holeInOnes: number
@@ -96,7 +106,7 @@ export function deriveStats(rounds: RoundRecord[]): DerivedStats {
   return {
     roundsPlayed: rounds.length,
     bogeyFreeRounds: bogeyFreeRoundCount(rounds),
-    topGolfer: rankGolfers(rounds)[0] ?? null,
+    bestRound: findBestRound(rounds),
     totalBirdieCount: careerTierCount(rounds, 'birdie'),
     totalEagleCount: careerTierCount(rounds, 'eagle'),
     holeInOnes: careerTierCount(rounds, 'hole_in_one'),

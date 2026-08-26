@@ -4,15 +4,17 @@ import { PlayerLeaderboard } from '../components/stats/PlayerLeaderboard'
 import { CountryFlag } from '../components/picker/CountryFlag'
 import { Button } from '../components/ui/Button'
 import { deriveStats, deriveStatsForCourse, rankGolfers } from '../game/stats/deriveStats'
-import type { DerivedStats, GolferRanking } from '../game/stats/deriveStats'
+import type { DerivedStats } from '../game/stats/deriveStats'
+import type { RoundRecord } from '../game/stats/types'
 import { loadStats } from '../game/stats/storage'
 import { formatRelativeScore } from '../game/simulation/formatTier'
 import { useGame } from '../state/useGame'
-import type { Country, Golfer } from '../content/types'
+import { useRoundDetail } from '../state/useRoundDetail'
 import styles from './StatsPage.module.css'
 
 export function StatsPage() {
   const { content, playAgain, statsOverride } = useGame()
+  const { open: openRound } = useRoundDetail()
   const [stats] = useState(() => loadStats())
   const rounds = statsOverride ?? stats.rounds
 
@@ -21,38 +23,7 @@ export function StatsPage() {
   const ranking = useMemo(() => rankGolfers(rounds), [rounds])
   const history = useMemo(() => [...rounds].reverse(), [rounds])
 
-  const golferIndex = useMemo(() => {
-    const map = new Map<string, Golfer>()
-    if (content.status === 'ready') {
-      for (const country of content.countries.countries) {
-        for (const golfer of country.golfers) map.set(golfer.id, golfer)
-      }
-    }
-    return map
-  }, [content])
-
-  const countryIndex = useMemo(() => {
-    const map = new Map<string, Country>()
-    if (content.status === 'ready') {
-      for (const country of content.countries.countries) map.set(country.id, country)
-    }
-    return map
-  }, [content])
-
   if (content.status !== 'ready') return null
-
-  function topGolferNode(topGolfer: GolferRanking | null): ReactNode {
-    if (!topGolfer) return null
-    const golfer = golferIndex.get(topGolfer.golferId)
-    if (!golfer) return null
-    const country = countryIndex.get(topGolfer.countryId)
-    return (
-      <span className={styles.topGolfer}>
-        {country && <CountryFlag isoCode={country.isoCode} className={styles.topGolferFlag} ariaHidden />}
-        {golfer.name}
-      </span>
-    )
-  }
 
   function courseName(courseId: string): string {
     if (content.status !== 'ready') return courseId
@@ -85,7 +56,7 @@ export function StatsPage() {
 
           <section className={`${styles.card} ${styles.careerCard}`}>
             <p className={styles.careerEyebrow}>Career</p>
-            <StatsGrid stats={career} large topGolferNode={topGolferNode} />
+            <StatsGrid stats={career} large onOpenRound={openRound} />
           </section>
 
           <section className={styles.card}>
@@ -102,7 +73,7 @@ export function StatsPage() {
                       )}
                       <span className={styles.courseName}>{courseName(courseId)}</span>
                     </div>
-                    <CourseStatsGrid stats={courseStats} topGolferNode={topGolferNode} />
+                    <CourseStatsGrid stats={courseStats} onOpenRound={openRound} />
                   </li>
                 )
               })}
@@ -122,19 +93,21 @@ export function StatsPage() {
                   .filter(Boolean)
                   .join(' ')
                 return (
-                  <li key={round.id} className={rowClasses}>
-                    <span className={styles.historyCourseCell}>
-                      <span className={styles.historyCourse}>{courseName(round.courseId)}</span>
-                      {round.isBogeyFreeRound && (
-                        <span className={styles.historyBadge}>Bogey-free</span>
-                      )}
-                    </span>
-                    <span className={styles.historyDate}>
-                      {new Date(round.playedAt).toLocaleDateString()}
-                    </span>
-                    <span className={styles.historyScore}>
-                      {formatRelativeScore(round.totalStrokesToPar)}
-                    </span>
+                  <li key={round.id} className={styles.historyItem}>
+                    <button type="button" className={rowClasses} onClick={() => openRound(round)}>
+                      <span className={styles.historyCourseCell}>
+                        <span className={styles.historyCourse}>{courseName(round.courseId)}</span>
+                        {round.isBogeyFreeRound && (
+                          <span className={styles.historyBadge}>Bogey-free</span>
+                        )}
+                      </span>
+                      <span className={styles.historyDate}>
+                        {new Date(round.playedAt).toLocaleDateString()}
+                      </span>
+                      <span className={styles.historyScore}>
+                        {formatRelativeScore(round.totalStrokesToPar)}
+                      </span>
+                    </button>
                   </li>
                 )
               })}
@@ -152,19 +125,41 @@ export function StatsPage() {
   )
 }
 
+// The "Best round" stat's value, in both the career and per-course grids —
+// a button rather than plain text so it doubles as a shortcut straight to
+// that round's detail in the same drawer round-history rows open.
+function BestRoundValue({
+  round,
+  onOpenRound,
+}: {
+  round: RoundRecord | null
+  onOpenRound: (round: RoundRecord) => void
+}) {
+  if (!round) return null
+  return (
+    <button type="button" className={styles.bestRoundButton} onClick={() => onOpenRound(round)}>
+      {formatRelativeScore(round.totalStrokesToPar)}
+    </button>
+  )
+}
+
 interface StatsGridProps {
   stats: DerivedStats
   large?: boolean
-  topGolferNode: (topGolfer: GolferRanking | null) => ReactNode
+  onOpenRound: (round: RoundRecord) => void
 }
 
-function StatsGrid({ stats, large, topGolferNode }: StatsGridProps) {
+function StatsGrid({ stats, large, onOpenRound }: StatsGridProps) {
   const gridClasses = [styles.grid, large && styles.careerGrid].filter(Boolean).join(' ')
   return (
     <dl className={gridClasses}>
       <StatItem label="Rounds played" value={stats.roundsPlayed} large={large} />
       <StatItem label="Bogey-free rounds" value={stats.bogeyFreeRounds} large={large} />
-      <StatItem label="Top player" value={topGolferNode(stats.topGolfer)} large={large} />
+      <StatItem
+        label="Best round"
+        value={<BestRoundValue round={stats.bestRound} onOpenRound={onOpenRound} />}
+        large={large}
+      />
       <StatItem label="Total birdies" value={stats.totalBirdieCount} large={large} />
       <StatItem label="Total eagles" value={stats.totalEagleCount} large={large} />
       <StatItem label="Hole-in-ones" value={stats.holeInOnes} large={large} />
@@ -183,15 +178,18 @@ function StatItem({ label, value, large }: { label: string; value: ReactNode; la
 
 interface CourseStatsGridProps {
   stats: DerivedStats
-  topGolferNode: (topGolfer: GolferRanking | null) => ReactNode
+  onOpenRound: (round: RoundRecord) => void
 }
 
-function CourseStatsGrid({ stats, topGolferNode }: CourseStatsGridProps) {
+function CourseStatsGrid({ stats, onOpenRound }: CourseStatsGridProps) {
   return (
     <dl className={styles.courseGrid}>
       <CourseStatItem label="Rounds" value={stats.roundsPlayed} />
       <CourseStatItem label="Bogey-free" value={stats.bogeyFreeRounds} />
-      <CourseStatItem label="Top player" value={topGolferNode(stats.topGolfer)} />
+      <CourseStatItem
+        label="Best round"
+        value={<BestRoundValue round={stats.bestRound} onOpenRound={onOpenRound} />}
+      />
       <CourseStatItem label="Birdies" value={stats.totalBirdieCount} />
       <CourseStatItem label="Eagles" value={stats.totalEagleCount} />
       <CourseStatItem label="Aces" value={stats.holeInOnes} />
