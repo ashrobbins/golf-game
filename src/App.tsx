@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { HowToPlayDrawer } from './components/nav/HowToPlayDrawer'
 import { NavBar } from './components/nav/NavBar'
 import { Footer } from './components/ui/Footer'
@@ -13,6 +14,17 @@ import styles from './App.module.css'
 
 function GameView() {
   const { view } = useGame()
+
+  // Every real navigation (course card -> preview, "Let's Go" -> draft,
+  // "Play again" -> home, etc.) goes through a `view` change, so scrolling
+  // here on every change is a single fix for all of them — a course card
+  // near the bottom of the home grid, or a "Play again" click from the
+  // bottom of a long scorecard, would otherwise land on the next page
+  // already scrolled halfway down. The in-page reveal skip (which doesn't
+  // change `view`) needs its own explicit scroll — see RevealSequence.tsx.
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [view])
 
   switch (view) {
     case 'home':

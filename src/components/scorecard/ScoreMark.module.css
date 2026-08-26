@@ -6,6 +6,14 @@
   height: 24px;
   font-weight: 600;
   font-size: 13px;
+  /* Without an explicit line-height, the number's vertical position inside
+     the circle/square depends on the font's own line-height metric and how
+     a given browser distributes its leading above vs. below the glyph —
+     that varies enough across engines to read as visibly off-center for
+     the same markup. Pinning it to 1 removes that variance so the digit
+     centers on its own ascent/descent, not on font-metric guesswork. */
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
   margin: 0 auto;
 }
 

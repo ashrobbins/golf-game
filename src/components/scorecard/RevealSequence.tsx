@@ -126,10 +126,19 @@ export function RevealSequence({
 
       {/* Only worth a second skip button once the table above has some
           real length to skip past — with 1-2 rows it just duplicates the
-          one under the commentary card right above. */}
+          one under the commentary card right above. Skipping from all the
+          way down here jumps straight to the final scorecard, which starts
+          at the top of the page — scroll there too, or it'd land mid-scroll
+          on a page the user hasn't seen yet. */}
       {completedHoles.length >= 3 && (
         <div className={styles.skipRow}>
-          <Button variant="secondary" onClick={onSkip}>
+          <Button
+            variant="secondary"
+            onClick={() => {
+              window.scrollTo(0, 0)
+              onSkip()
+            }}
+          >
             Skip
           </Button>
         </div>
