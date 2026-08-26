@@ -104,6 +104,39 @@
   letter-spacing: -0.01em;
 }
 
+/* A golfer name (Top player) is far longer than any of the other numeric
+   stat values, so it gets its own fixed size rather than inheriting the
+   32px/22px/16px numeric scales above — same treatment in every context
+   that renders it (career, course). */
+.topGolfer {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.005em;
+  line-height: 1.3;
+}
+
+.topGolferFlag {
+  font-size: 15px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+/* Same narrow-screen breakpoint as StatsTrigger/CourseHoleTable — the name +
+   flag pair is the widest thing in either stat grid, so it's the first to
+   need help on a small phone. */
+@media (max-width: 560px) {
+  .topGolfer {
+    font-size: 13px;
+  }
+
+  .topGolferFlag {
+    font-size: 13px;
+  }
+}
+
 /* Course breakdowns collapse to one block per course (header + a compact
    stats grid) rather than a full card each, so together they stay
    visually lighter than the Career card above. */

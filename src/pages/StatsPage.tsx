@@ -1,25 +1,58 @@
 import { useMemo, useState } from 'react'
+import type { ReactNode } from 'react'
 import { PlayerLeaderboard } from '../components/stats/PlayerLeaderboard'
 import { CountryFlag } from '../components/picker/CountryFlag'
 import { Button } from '../components/ui/Button'
 import { deriveStats, deriveStatsForCourse, rankGolfers } from '../game/stats/deriveStats'
-import type { DerivedStats } from '../game/stats/deriveStats'
+import type { DerivedStats, GolferRanking } from '../game/stats/deriveStats'
 import { loadStats } from '../game/stats/storage'
 import { formatRelativeScore } from '../game/simulation/formatTier'
 import { useGame } from '../state/useGame'
+import type { Country, Golfer } from '../content/types'
 import styles from './StatsPage.module.css'
 
 export function StatsPage() {
-  const { content, playAgain } = useGame()
+  const { content, playAgain, statsOverride } = useGame()
   const [stats] = useState(() => loadStats())
-  const rounds = stats.rounds
+  const rounds = statsOverride ?? stats.rounds
 
   const career = useMemo(() => deriveStats(rounds), [rounds])
   const courseIds = useMemo(() => Array.from(new Set(rounds.map((r) => r.courseId))), [rounds])
   const ranking = useMemo(() => rankGolfers(rounds), [rounds])
   const history = useMemo(() => [...rounds].reverse(), [rounds])
 
+  const golferIndex = useMemo(() => {
+    const map = new Map<string, Golfer>()
+    if (content.status === 'ready') {
+      for (const country of content.countries.countries) {
+        for (const golfer of country.golfers) map.set(golfer.id, golfer)
+      }
+    }
+    return map
+  }, [content])
+
+  const countryIndex = useMemo(() => {
+    const map = new Map<string, Country>()
+    if (content.status === 'ready') {
+      for (const country of content.countries.countries) map.set(country.id, country)
+    }
+    return map
+  }, [content])
+
   if (content.status !== 'ready') return null
+
+  function topGolferNode(topGolfer: GolferRanking | null): ReactNode {
+    if (!topGolfer) return null
+    const golfer = golferIndex.get(topGolfer.golferId)
+    if (!golfer) return null
+    const country = countryIndex.get(topGolfer.countryId)
+    return (
+      <span className={styles.topGolfer}>
+        {country && <CountryFlag isoCode={country.isoCode} className={styles.topGolferFlag} ariaHidden />}
+        {golfer.name}
+      </span>
+    )
+  }
 
   function courseName(courseId: string): string {
     if (content.status !== 'ready') return courseId
@@ -52,7 +85,7 @@ export function StatsPage() {
 
           <section className={`${styles.card} ${styles.careerCard}`}>
             <p className={styles.careerEyebrow}>Career</p>
-            <StatsGrid stats={career} large />
+            <StatsGrid stats={career} large topGolferNode={topGolferNode} />
           </section>
 
           <section className={styles.card}>
@@ -69,7 +102,7 @@ export function StatsPage() {
                       )}
                       <span className={styles.courseName}>{courseName(courseId)}</span>
                     </div>
-                    <CourseStatsGrid stats={courseStats} />
+                    <CourseStatsGrid stats={courseStats} topGolferNode={topGolferNode} />
                   </li>
                 )
               })}
@@ -119,21 +152,27 @@ export function StatsPage() {
   )
 }
 
-function StatsGrid({ stats, large }: { stats: DerivedStats; large?: boolean }) {
+interface StatsGridProps {
+  stats: DerivedStats
+  large?: boolean
+  topGolferNode: (topGolfer: GolferRanking | null) => ReactNode
+}
+
+function StatsGrid({ stats, large, topGolferNode }: StatsGridProps) {
   const gridClasses = [styles.grid, large && styles.careerGrid].filter(Boolean).join(' ')
   return (
     <dl className={gridClasses}>
       <StatItem label="Rounds played" value={stats.roundsPlayed} large={large} />
       <StatItem label="Bogey-free rounds" value={stats.bogeyFreeRounds} large={large} />
-      <StatItem label="Lowest bogeys" value={stats.lowestBogeyCount} large={large} />
-      <StatItem label="Most birdies" value={stats.highestBirdieCount} large={large} />
-      <StatItem label="Most eagles" value={stats.highestEagleCount} large={large} />
+      <StatItem label="Top player" value={topGolferNode(stats.topGolfer)} large={large} />
+      <StatItem label="Total birdies" value={stats.totalBirdieCount} large={large} />
+      <StatItem label="Total eagles" value={stats.totalEagleCount} large={large} />
       <StatItem label="Hole-in-ones" value={stats.holeInOnes} large={large} />
     </dl>
   )
 }
 
-function StatItem({ label, value, large }: { label: string; value: number | null; large?: boolean }) {
+function StatItem({ label, value, large }: { label: string; value: ReactNode; large?: boolean }) {
   return (
     <div className={styles.statItem}>
       <dt className={large ? styles.careerStatLabel : styles.statLabel}>{label}</dt>
@@ -142,20 +181,25 @@ function StatItem({ label, value, large }: { label: string; value: number | null
   )
 }
 
-function CourseStatsGrid({ stats }: { stats: DerivedStats }) {
+interface CourseStatsGridProps {
+  stats: DerivedStats
+  topGolferNode: (topGolfer: GolferRanking | null) => ReactNode
+}
+
+function CourseStatsGrid({ stats, topGolferNode }: CourseStatsGridProps) {
   return (
     <dl className={styles.courseGrid}>
       <CourseStatItem label="Rounds" value={stats.roundsPlayed} />
       <CourseStatItem label="Bogey-free" value={stats.bogeyFreeRounds} />
-      <CourseStatItem label="Fewest bogeys" value={stats.lowestBogeyCount} />
-      <CourseStatItem label="Birdies" value={stats.highestBirdieCount} />
-      <CourseStatItem label="Eagles" value={stats.highestEagleCount} />
+      <CourseStatItem label="Top player" value={topGolferNode(stats.topGolfer)} />
+      <CourseStatItem label="Birdies" value={stats.totalBirdieCount} />
+      <CourseStatItem label="Eagles" value={stats.totalEagleCount} />
       <CourseStatItem label="Aces" value={stats.holeInOnes} />
     </dl>
   )
 }
 
-function CourseStatItem({ label, value }: { label: string; value: number | null }) {
+function CourseStatItem({ label, value }: { label: string; value: ReactNode }) {
   return (
     <div className={styles.courseStatItem}>
       <dt className={styles.courseStatLabel}>{label}</dt>

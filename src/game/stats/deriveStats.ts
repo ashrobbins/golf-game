@@ -1,15 +1,6 @@
 import type { OutcomeTier } from '../../content/types'
 import type { RoundRecord } from './types'
 
-export interface DerivedStats {
-  roundsPlayed: number
-  bogeyFreeRounds: number
-  lowestBogeyCount: number | null
-  highestBirdieCount: number | null
-  highestEagleCount: number | null
-  holeInOnes: number
-}
-
 function countTier(round: RoundRecord, tier: OutcomeTier): number {
   return round.holeResults.filter((hole) => hole.outcomeTier === tier).length
 }
@@ -18,38 +9,13 @@ export function bogeyFreeRoundCount(rounds: RoundRecord[]): number {
   return rounds.filter((round) => round.isBogeyFreeRound).length
 }
 
-export function lowestOutcomeCount(rounds: RoundRecord[], tier: OutcomeTier): number | null {
-  if (rounds.length === 0) return null
-  return Math.min(...rounds.map((round) => countTier(round, tier)))
-}
-
-export function highestOutcomeCount(rounds: RoundRecord[], tier: OutcomeTier): number | null {
-  if (rounds.length === 0) return null
-  return Math.max(...rounds.map((round) => countTier(round, tier)))
-}
-
 export function careerTierCount(rounds: RoundRecord[], tier: OutcomeTier): number {
   return rounds.reduce((sum, round) => sum + countTier(round, tier), 0)
 }
 
-export function deriveStats(rounds: RoundRecord[]): DerivedStats {
-  return {
-    roundsPlayed: rounds.length,
-    bogeyFreeRounds: bogeyFreeRoundCount(rounds),
-    lowestBogeyCount: lowestOutcomeCount(rounds, 'bogey_plus'),
-    highestBirdieCount: highestOutcomeCount(rounds, 'birdie'),
-    highestEagleCount: highestOutcomeCount(rounds, 'eagle'),
-    holeInOnes: careerTierCount(rounds, 'hole_in_one'),
-  }
-}
-
-export function deriveStatsForCourse(rounds: RoundRecord[], courseId: string): DerivedStats {
-  return deriveStats(rounds.filter((round) => round.courseId === courseId))
-}
-
-// Points per hole outcome for the career golfer leaderboard below — chosen
-// so a single eagle (4) always outweighs two pars (1+1), and a bogey+
-// actively costs a golfer points rather than just sitting neutral.
+// Points per hole outcome for the golfer leaderboard/top-player stat below —
+// chosen so a single eagle (4) always outweighs two pars (1+1), and a
+// bogey+ actively costs a golfer points rather than just sitting neutral.
 const TIER_POINTS: Record<OutcomeTier, number> = {
   hole_in_one: 8,
   eagle: 4,
@@ -58,9 +24,10 @@ const TIER_POINTS: Record<OutcomeTier, number> = {
   bogey_plus: -1,
 }
 
-// Golfers need at least this many holes played (across every round) before
-// they're eligible for the leaderboard, so one lucky hole in a single
-// appearance can't outrank someone with a long, solid track record.
+// Golfers need at least this many holes played (across every round in the
+// set being ranked) before they're eligible for a leaderboard/top-player
+// slot, so one lucky hole in a single appearance can't outrank someone with
+// a longer, solid track record.
 export const LEADERBOARD_MIN_HOLES_PLAYED = 3
 
 function emptyTierCounts(): Record<OutcomeTier, number> {
@@ -111,4 +78,31 @@ export function rankGolfers(
       (a, b) =>
         b.points - a.points || b.holesPlayed - a.holesPlayed || a.golferId.localeCompare(b.golferId),
     )
+}
+
+export interface DerivedStats {
+  roundsPlayed: number
+  bogeyFreeRounds: number
+  // Highest-points golfer (same ranking/threshold as the career leaderboard
+  // below), scoped to whatever round set was passed in — null until someone
+  // clears LEADERBOARD_MIN_HOLES_PLAYED within that set.
+  topGolfer: GolferRanking | null
+  totalBirdieCount: number
+  totalEagleCount: number
+  holeInOnes: number
+}
+
+export function deriveStats(rounds: RoundRecord[]): DerivedStats {
+  return {
+    roundsPlayed: rounds.length,
+    bogeyFreeRounds: bogeyFreeRoundCount(rounds),
+    topGolfer: rankGolfers(rounds)[0] ?? null,
+    totalBirdieCount: careerTierCount(rounds, 'birdie'),
+    totalEagleCount: careerTierCount(rounds, 'eagle'),
+    holeInOnes: careerTierCount(rounds, 'hole_in_one'),
+  }
+}
+
+export function deriveStatsForCourse(rounds: RoundRecord[], courseId: string): DerivedStats {
+  return deriveStats(rounds.filter((round) => round.courseId === courseId))
 }

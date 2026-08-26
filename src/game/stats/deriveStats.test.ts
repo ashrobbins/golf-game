@@ -1,15 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { OutcomeTier } from '../../content/types'
 import type { HoleResult } from '../simulation/types'
-import {
-  bogeyFreeRoundCount,
-  careerTierCount,
-  deriveStats,
-  deriveStatsForCourse,
-  highestOutcomeCount,
-  lowestOutcomeCount,
-  rankGolfers,
-} from './deriveStats'
+import { bogeyFreeRoundCount, careerTierCount, deriveStats, deriveStatsForCourse, rankGolfers } from './deriveStats'
 import type { RoundRecord } from './types'
 
 function makeHole(outcomeTier: OutcomeTier, holeNumber = 1, golferId = 'golfer'): HoleResult {
@@ -67,23 +59,6 @@ describe('bogeyFreeRoundCount', () => {
   })
 })
 
-describe('lowestOutcomeCount / highestOutcomeCount', () => {
-  it('returns null for an empty round list', () => {
-    expect(lowestOutcomeCount([], 'bogey_plus')).toBeNull()
-    expect(highestOutcomeCount([], 'birdie')).toBeNull()
-  })
-
-  it('finds the min and max tier counts across rounds', () => {
-    const rounds = [
-      makeRound('augusta', ['bogey_plus', 'bogey_plus', 'birdie']),
-      makeRound('augusta', ['par', 'par', 'birdie', 'birdie']),
-    ]
-    expect(lowestOutcomeCount(rounds, 'bogey_plus')).toBe(0)
-    expect(highestOutcomeCount(rounds, 'bogey_plus')).toBe(2)
-    expect(highestOutcomeCount(rounds, 'birdie')).toBe(2)
-  })
-})
-
 describe('careerTierCount', () => {
   it('sums a tier across every round', () => {
     const rounds = [
@@ -99,26 +74,52 @@ describe('deriveStats', () => {
     expect(deriveStats([])).toEqual({
       roundsPlayed: 0,
       bogeyFreeRounds: 0,
-      lowestBogeyCount: null,
-      highestBirdieCount: null,
-      highestEagleCount: null,
+      topGolfer: null,
+      totalBirdieCount: 0,
+      totalEagleCount: 0,
       holeInOnes: 0,
     })
   })
 
-  it('aggregates across every stored round', () => {
+  it('aggregates across every stored round, including a career-wide topGolfer', () => {
+    const rounds = [
+      makeRoundOf('augusta', [
+        { golferId: 'star', tier: 'par' },
+        { golferId: 'star', tier: 'birdie' },
+        { golferId: 'star', tier: 'bogey_plus' },
+      ]),
+      makeRoundOf('augusta', [
+        { golferId: 'star', tier: 'birdie' },
+        { golferId: 'other', tier: 'birdie' },
+        { golferId: 'other', tier: 'eagle' },
+        { golferId: 'other', tier: 'hole_in_one' },
+      ]),
+    ]
+    const stats = deriveStats(rounds)
+    expect(stats).toEqual({
+      roundsPlayed: 2,
+      bogeyFreeRounds: 1,
+      topGolfer: expect.objectContaining({ golferId: 'other' }),
+      totalBirdieCount: 3,
+      totalEagleCount: 1,
+      holeInOnes: 1,
+    })
+  })
+
+  it('sums birdies/eagles/aces across every round (totals, not per-round highs)', () => {
     const rounds = [
       makeRound('augusta', ['par', 'birdie', 'bogey_plus']),
       makeRound('augusta', ['birdie', 'birdie', 'eagle', 'hole_in_one']),
     ]
-    expect(deriveStats(rounds)).toEqual({
-      roundsPlayed: 2,
-      bogeyFreeRounds: 1,
-      lowestBogeyCount: 0,
-      highestBirdieCount: 2,
-      highestEagleCount: 1,
-      holeInOnes: 1,
-    })
+    const stats = deriveStats(rounds)
+    expect(stats.totalBirdieCount).toBe(3)
+    expect(stats.totalEagleCount).toBe(1)
+    expect(stats.holeInOnes).toBe(1)
+  })
+
+  it('leaves topGolfer null when nobody clears the holes-played threshold', () => {
+    const rounds = [makeRoundOf('augusta', [{ golferId: 'newcomer', tier: 'birdie' }])]
+    expect(deriveStats(rounds).topGolfer).toBeNull()
   })
 })
 
@@ -128,8 +129,8 @@ describe('deriveStatsForCourse', () => {
       makeRound('augusta', ['eagle']),
       makeRound('carnoustie', ['eagle', 'eagle']),
     ]
-    expect(deriveStatsForCourse(rounds, 'carnoustie').highestEagleCount).toBe(2)
-    expect(deriveStatsForCourse(rounds, 'augusta').highestEagleCount).toBe(1)
+    expect(deriveStatsForCourse(rounds, 'carnoustie').totalEagleCount).toBe(2)
+    expect(deriveStatsForCourse(rounds, 'augusta').totalEagleCount).toBe(1)
     expect(deriveStatsForCourse(rounds, 'unknown').roundsPlayed).toBe(0)
   })
 })

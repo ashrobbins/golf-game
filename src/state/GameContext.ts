@@ -3,6 +3,7 @@ import type { Course } from '../content/types'
 import type { CountriesContent, CoursesContent, OddsConfig } from '../content/types'
 import type { DraftPick } from '../game/draft/types'
 import type { SimulationResult } from '../game/simulation/types'
+import type { RoundRecord } from '../game/stats/types'
 
 export type View = 'home' | 'course-info' | 'draft' | 'results' | 'stats'
 
@@ -20,6 +21,10 @@ export interface GameContextValue {
   view: View
   course?: Course
   simulationResult?: SimulationResult
+  // Set only by the `?simStats` debug shortcut (see GameProvider.tsx) — when
+  // present, StatsPage renders these instead of loading real localStorage
+  // stats, so the mock data can never pollute a real player's history.
+  statsOverride?: RoundRecord[]
   startRound: (courseId: string) => void
   beginDraft: () => void
   finishDraft: (picks: DraftPick[]) => void
