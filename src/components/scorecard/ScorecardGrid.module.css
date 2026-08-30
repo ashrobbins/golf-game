@@ -6,6 +6,16 @@
   max-width: 100%;
 }
 
+/* During a live reveal the grid drives its own scroll position (see the
+   auto-scroll effect in ScorecardGrid.tsx) — overflow:hidden stops the user
+   from fighting it with a manual scroll/swipe while still allowing the
+   programmatic scrollIntoView calls to work. Reverts to plain .wrapper
+   (freely scrollable) once the round is complete. */
+.wrapper.locked {
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: auto;
+}
+
 .table {
   border-collapse: collapse;
   font-size: 13px;
