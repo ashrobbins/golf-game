@@ -7,6 +7,7 @@ import { CoursePreviewPage } from './pages/CoursePreviewPage'
 import { DraftPage } from './pages/DraftPage'
 import { HomePage } from './pages/HomePage'
 import { ResultsPage } from './pages/ResultsPage'
+import { SharedRoundPage } from './pages/SharedRoundPage'
 import { StatsPage } from './pages/StatsPage'
 import { GameProvider } from './state/GameProvider'
 import { HowToPlayProvider } from './state/HowToPlayProvider'
@@ -39,6 +40,8 @@ function GameView() {
       return <ResultsPage />
     case 'stats':
       return <StatsPage />
+    case 'shared-round':
+      return <SharedRoundPage />
   }
 }
 

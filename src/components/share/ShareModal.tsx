@@ -1,0 +1,170 @@
+import { useEffect, useRef, useState } from 'react'
+import { toBlob } from 'html-to-image'
+import type { CountriesContent, Course } from '../../content/types'
+import { buildShareText, buildShareUrl } from '../../game/share/shareText'
+import { formatRelativeScore } from '../../game/simulation/formatTier'
+import type { SimulationResult } from '../../game/simulation/types'
+import { CloseIcon, ImageIcon, LinkIcon } from '../ui/icons'
+import { ShareCard } from './ShareCard'
+import styles from './ShareModal.module.css'
+
+interface ShareModalProps {
+  isOpen: boolean
+  onClose: () => void
+  course: Course
+  countries: CountriesContent
+  result: SimulationResult
+}
+
+const PIXEL_RATIO = 2.5
+type CopyState = 'idle' | 'copied'
+
+function truncateForDisplay(url: string): string {
+  return url.length > 40 ? `${url.slice(0, 38)}…` : url
+}
+
+export function ShareModal({ isOpen, onClose, course, countries, result }: ShareModalProps) {
+  const closeRef = useRef<HTMLButtonElement>(null)
+  const captureRef = useRef<HTMLDivElement>(null)
+  const [imageCopyState, setImageCopyState] = useState<CopyState>('idle')
+  const [linkCopyState, setLinkCopyState] = useState<CopyState>('idle')
+
+  useEffect(() => {
+    if (!isOpen) return
+    closeRef.current?.focus()
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') onClose()
+    }
+    document.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      document.body.style.overflow = previousOverflow
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [isOpen, onClose])
+
+  if (!isOpen) return null
+
+  const shareUrl = buildShareUrl(result, window.location.origin)
+  const shareText = buildShareText(course.name, result, shareUrl)
+
+  function downloadCapturedImage() {
+    if (!captureRef.current) return
+    toBlob(captureRef.current, { pixelRatio: PIXEL_RATIO }).then((blob) => {
+      if (!blob) return
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `beating-bogey-${course.id}.png`
+      link.click()
+      URL.revokeObjectURL(url)
+    })
+  }
+
+  async function handleCopyImage() {
+    if (!captureRef.current) return
+
+    // Passing a Promise<Blob> (rather than awaiting first) keeps this
+    // inside the click's user-activation window even though generation is
+    // async — some browsers (Safari especially) refuse a clipboard write
+    // that happens "too late" after the click that triggered it otherwise.
+    if (typeof ClipboardItem !== 'undefined' && navigator.clipboard?.write) {
+      try {
+        const blobPromise = toBlob(captureRef.current, { pixelRatio: PIXEL_RATIO }).then(
+          (blob) => blob ?? Promise.reject(new Error('Image generation failed')),
+        )
+        await navigator.clipboard.write([new ClipboardItem({ 'image/png': blobPromise })])
+        setImageCopyState('copied')
+        setTimeout(() => setImageCopyState('idle'), 1500)
+        return
+      } catch {
+        // Fall through to the download fallback below — most likely cause
+        // is a browser that doesn't support clipboard image writes at all
+        // (older Firefox) rather than anything the user did wrong.
+      }
+    }
+    downloadCapturedImage()
+  }
+
+  async function handleCopyLink() {
+    try {
+      await navigator.clipboard.writeText(shareText)
+    } catch {
+      // Nothing better to fall back to for text — clipboard access being
+      // blocked here would be unusual (no image-specific caveats apply),
+      // so this is left as a silent no-op rather than guessing at a fix.
+    }
+    setLinkCopyState('copied')
+    setTimeout(() => setLinkCopyState('idle'), 1500)
+  }
+
+  return (
+    <>
+      <button type="button" className={styles.backdrop} aria-label="Close" onClick={onClose} />
+      <div className={styles.modal} role="dialog" aria-modal="true" aria-labelledby="share-modal-heading">
+        <div className={styles.header}>
+          <div>
+            <h2 id="share-modal-heading" className={styles.heading}>
+              Share your round
+            </h2>
+            <p className={styles.subtext}>
+              {course.name} · {formatRelativeScore(result.totalStrokesToPar)}
+            </p>
+          </div>
+          <button ref={closeRef} type="button" className={styles.close} aria-label="Close" onClick={onClose}>
+            <CloseIcon className={styles.closeIcon} />
+          </button>
+        </div>
+
+        <div className={styles.thumbWrap}>
+          <div className={styles.thumb}>
+            <div className={styles.thumbInner}>
+              <ShareCard
+                course={course}
+                countries={countries}
+                result={result}
+                shareUrlDisplay={truncateForDisplay(shareUrl)}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className={styles.actions}>
+          <button
+            type="button"
+            className={imageCopyState === 'copied' ? `${styles.btn} ${styles.secondary} ${styles.copied}` : `${styles.btn} ${styles.secondary}`}
+            onClick={handleCopyImage}
+          >
+            <ImageIcon className={styles.btnIcon} />
+            <span>{imageCopyState === 'copied' ? 'Copied!' : 'Copy image'}</span>
+          </button>
+          <button
+            type="button"
+            className={linkCopyState === 'copied' ? `${styles.btn} ${styles.primary} ${styles.copied}` : `${styles.btn} ${styles.primary}`}
+            onClick={handleCopyLink}
+          >
+            <LinkIcon className={styles.btnIcon} />
+            <span>{linkCopyState === 'copied' ? 'Copied!' : 'Copy link'}</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Off-screen, full natural size — what actually gets captured.
+          Not display:none/visibility:hidden, both of which would make
+          html-to-image measure it as zero-size; pushed off the viewport
+          instead so it still lays out and paints normally. */}
+      <div className={styles.offscreen} aria-hidden>
+        <ShareCard
+          ref={captureRef}
+          course={course}
+          countries={countries}
+          result={result}
+          shareUrlDisplay={truncateForDisplay(shareUrl)}
+        />
+      </div>
+    </>
+  )
+}

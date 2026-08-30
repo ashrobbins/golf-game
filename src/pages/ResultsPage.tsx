@@ -1,7 +1,9 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { RevealSequence } from '../components/scorecard/RevealSequence'
 import { Scorecard } from '../components/scorecard/Scorecard'
+import { ShareModal } from '../components/share/ShareModal'
 import { Button } from '../components/ui/Button'
+import { ShareIcon } from '../components/ui/icons'
 import { useHoleRevealSequencer } from '../hooks/useHoleRevealSequencer'
 import { useGame } from '../state/useGame'
 
@@ -10,6 +12,7 @@ export function ResultsPage() {
   const { revealedCount, isComplete, skipToEnd } = useHoleRevealSequencer(
     simulationResult?.holeResults ?? [],
   )
+  const [isShareOpen, setIsShareOpen] = useState(false)
 
   // The ?simResults debug shortcut should land straight on the finished
   // scorecard, not replay the hole-by-hole reveal.
@@ -26,15 +29,28 @@ export function ResultsPage() {
     <div>
       {isComplete ? (
         <>
-          <div style={{ textAlign: 'center', marginBottom: 16 }}>
-            <Button variant="secondary" onClick={playAgain}>
-              Play again
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginBottom: 16 }}>
+            <Button onClick={playAgain}>Play again</Button>
+            <Button variant="secondary" onClick={() => setIsShareOpen(true)}>
+              <ShareIcon style={{ width: 16, height: 16 }} />
+              Share
             </Button>
           </div>
           <Scorecard course={course} countries={content.countries} result={simulationResult} />
-          <div style={{ textAlign: 'center', marginTop: 24 }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginTop: 24 }}>
             <Button onClick={playAgain}>Play again</Button>
+            <Button variant="secondary" onClick={() => setIsShareOpen(true)}>
+              <ShareIcon style={{ width: 16, height: 16 }} />
+              Share
+            </Button>
           </div>
+          <ShareModal
+            isOpen={isShareOpen}
+            onClose={() => setIsShareOpen(false)}
+            course={course}
+            countries={content.countries}
+            result={simulationResult}
+          />
         </>
       ) : (
         <RevealSequence

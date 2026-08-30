@@ -1,0 +1,60 @@
+/* Same neutral-grey/gold inset-bar convention as HoleResultRow/DraftRoster
+   — every card gets the bar, a genuine highlight (hole-in-one/eagle/birdie)
+   just recolours it gold. Never a highlight-only bar on its own, or a
+   neutral "best of a quiet round" card would misalign against one that got
+   the gold treatment. */
+.card {
+  padding: 14px;
+  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: inset 3px 0 0 var(--border), 0 1px 2px rgba(20, 20, 30, 0.04), 0 8px 24px rgba(20, 20, 30, 0.06);
+}
+
+.highlight {
+  box-shadow: inset 3px 0 0 var(--tier-gold), 0 1px 2px rgba(20, 20, 30, 0.04), 0 8px 24px rgba(20, 20, 30, 0.06);
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--tier-gold);
+}
+
+.eyebrowNeutral {
+  color: var(--text-muted);
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.holeNumber {
+  width: 14px;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.flag {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.name {
+  flex: 1;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.commentary {
+  margin: 8px 0 0;
+  font-size: 15.5px;
+  font-weight: 600;
+  line-height: 1.45;
+}

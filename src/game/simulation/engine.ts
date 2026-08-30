@@ -31,7 +31,10 @@ export function resolveOutcomeTier(
   return tiers[tiers.length - 1]
 }
 
-function relativeScoreFor(tier: OutcomeTier, par: number): number {
+// Exported so the /round/[code] decoder (game/share/roundCode.ts) can
+// recompute a hole's relativeScore from just its tier + par, rather than
+// needing the value stored in the encoded payload.
+export function relativeScoreFor(tier: OutcomeTier, par: number): number {
   switch (tier) {
     case 'hole_in_one':
       return 1 - par
@@ -43,6 +46,22 @@ function relativeScoreFor(tier: OutcomeTier, par: number): number {
       return 0
     case 'bogey_plus':
       return 1
+  }
+}
+
+// Also exported for the same reason as relativeScoreFor above — the
+// decoder rebuilds a full SimulationResult from bare hole outcomes and
+// needs the exact same derivation simulateRound itself uses.
+export function deriveRoundSummary(
+  courseId: string,
+  holeResults: HoleResult[],
+): Omit<SimulationResult, 'holeResults'> {
+  const firstBogeyIndex = holeResults.findIndex((r) => r.outcomeTier === 'bogey_plus')
+  return {
+    courseId,
+    totalStrokesToPar: holeResults.reduce((sum, r) => sum + r.relativeScore, 0),
+    bogeyFreeThroughHole: firstBogeyIndex === -1 ? holeResults.length : firstBogeyIndex,
+    isBogeyFreeRound: firstBogeyIndex === -1,
   }
 }
 
@@ -96,15 +115,5 @@ export function simulateRound(
       }
     })
 
-  const firstBogeyIndex = holeResults.findIndex((r) => r.outcomeTier === 'bogey_plus')
-  const bogeyFreeThroughHole =
-    firstBogeyIndex === -1 ? holeResults.length : firstBogeyIndex
-
-  return {
-    courseId: course.id,
-    holeResults,
-    totalStrokesToPar: holeResults.reduce((sum, r) => sum + r.relativeScore, 0),
-    bogeyFreeThroughHole,
-    isBogeyFreeRound: firstBogeyIndex === -1,
-  }
+  return { ...deriveRoundSummary(course.id, holeResults), holeResults }
 }

@@ -1,0 +1,77 @@
+/* Pinned to the light palette regardless of the poster's own theme — a
+   shared image is public-facing content that should look the same for
+   everyone, unlike the app's own UI (which reasonably follows whoever's
+   looking at it). Redeclaring every token here, on the subtree's root,
+   beats whatever :root/:root[data-theme='dark'] says further up, since CSS
+   custom properties resolve from the nearest ancestor definition — every
+   var(--x) inside ResultsHero/StackedScorecard/TopPerformerCard/ScoreMark
+   still works unmodified, it just always resolves to these light values.
+   Keep this in sync with :root's light block in index.css if that ever
+   changes. */
+.card {
+  --text: #1a1a1a;
+  --text-muted: #6b6b74;
+  --bg: #f5f5f7;
+  --surface: #ffffff;
+  --border: #e5e4e7;
+  --accent: #5b4fe8;
+  --accent-hover: #4a3fd8;
+  --accent-contrast: #ffffff;
+  --shadow: 0 1px 2px rgba(20, 20, 30, 0.04), 0 8px 24px rgba(20, 20, 30, 0.06);
+  --tier-gold: #d4a017;
+  --tier-green: #2e8b57;
+  --tier-grey: #b8b8bd;
+  --tier-red: #d1483f;
+  --archetype-long-hitter: #3b6fd6;
+  --archetype-precision-iron: #2f9e8f;
+  --archetype-short-game: #a855c9;
+  --archetype-scrambler: #d98c2b;
+  --archetype-closer: #c23a5e;
+
+  width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px;
+  background: var(--surface);
+  font-family: 'Sora', system-ui, 'Segoe UI', Roboto, sans-serif;
+  color: var(--text);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-bottom: 2px;
+}
+
+.brandMark {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.brandName {
+  font-size: 12.5px;
+  font-weight: 800;
+  letter-spacing: -0.005em;
+  color: var(--text-muted);
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2px 2px 0;
+}
+
+.footerUrl {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.footerTag {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  font-weight: 600;
+}

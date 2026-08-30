@@ -19,6 +19,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const [course, setCourse] = useState<Course | undefined>()
   const [simulationResult, setSimulationResult] = useState<SimulationResult | undefined>()
   const [statsOverride, setStatsOverride] = useState<RoundRecord[] | undefined>()
+  const [sharedRoundCode, setSharedRoundCode] = useState<string | undefined>()
 
   useEffect(() => {
     let cancelled = false
@@ -54,6 +55,16 @@ export function GameProvider({ children }: { children: ReactNode }) {
         if (params.has('simStats')) {
           setStatsOverride(generateMockStatsRounds(countries, courses, odds))
           setView('stats')
+        }
+
+        // Real feature, not a debug shortcut: a shared /round/[code] link.
+        // The actual decode happens in SharedRoundPage (it needs `content`,
+        // which just became ready) — this only recognizes the route and
+        // hands the raw code down.
+        const sharedRoundMatch = window.location.pathname.match(/^\/round\/([A-Za-z0-9_-]+)\/?$/)
+        if (sharedRoundMatch) {
+          setSharedRoundCode(sharedRoundMatch[1])
+          setView('shared-round')
         }
       })
       .catch((err: Error) => {
@@ -100,6 +111,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     setCourse(undefined)
     setSimulationResult(undefined)
     setStatsOverride(undefined)
+    setSharedRoundCode(undefined)
     setView('home')
 
     // Drop the debug shortcut params so leaving the mock results page
@@ -113,6 +125,13 @@ export function GameProvider({ children }: { children: ReactNode }) {
       url.searchParams.delete('simStats')
       window.history.replaceState({}, '', url)
     }
+
+    // Same idea for a /round/[code] path — leaving a shared round behind
+    // should go back to a plain "/", not silently keep showing that URL
+    // while the home page renders underneath it.
+    if (window.location.pathname.match(/^\/round\/[A-Za-z0-9_-]+\/?$/)) {
+      window.history.replaceState({}, '', '/')
+    }
   }, [])
 
   const value = useMemo<GameContextValue>(
@@ -122,6 +141,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       course,
       simulationResult,
       statsOverride,
+      sharedRoundCode,
       startRound,
       beginDraft,
       finishDraft,
@@ -134,6 +154,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       course,
       simulationResult,
       statsOverride,
+      sharedRoundCode,
       startRound,
       beginDraft,
       finishDraft,
