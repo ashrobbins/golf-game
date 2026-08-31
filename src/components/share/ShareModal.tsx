@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { toBlob } from 'html-to-image'
 import type { CountriesContent, Course } from '../../content/types'
 import { buildShareText, buildShareUrl } from '../../game/share/shareText'
@@ -7,6 +7,10 @@ import type { SimulationResult } from '../../game/simulation/types'
 import { CloseIcon, ImageIcon, LinkIcon } from '../ui/icons'
 import { ShareCard } from './ShareCard'
 import styles from './ShareModal.module.css'
+
+// ShareCard's own fixed, unscaled width (see ShareCard.module.css) — the
+// divisor for turning a measured container width into a zoom factor below.
+const SHARE_CARD_WIDTH = 400
 
 interface ShareModalProps {
   isOpen: boolean
@@ -26,8 +30,30 @@ function truncateForDisplay(url: string): string {
 export function ShareModal({ isOpen, onClose, course, countries, result }: ShareModalProps) {
   const closeRef = useRef<HTMLButtonElement>(null)
   const captureRef = useRef<HTMLDivElement>(null)
+  const thumbWrapRef = useRef<HTMLDivElement>(null)
   const [imageCopyState, setImageCopyState] = useState<CopyState>('idle')
   const [linkCopyState, setLinkCopyState] = useState<CopyState>('idle')
+  // Zoom factor that fills the thumbnail to the modal's actual (responsive)
+  // width instead of a fixed 0.4 — measured live so it always fills the
+  // container regardless of viewport size, rather than leaving a gap or
+  // looking squished on narrow phones.
+  const [thumbScale, setThumbScale] = useState(0.4)
+
+  useLayoutEffect(() => {
+    if (!isOpen) return
+    const wrap = thumbWrapRef.current
+    if (!wrap) return
+
+    function updateScale() {
+      if (!wrap) return
+      setThumbScale(wrap.clientWidth / SHARE_CARD_WIDTH)
+    }
+
+    updateScale()
+    const observer = new ResizeObserver(updateScale)
+    observer.observe(wrap)
+    return () => observer.disconnect()
+  }, [isOpen])
 
   useEffect(() => {
     if (!isOpen) return
@@ -119,9 +145,9 @@ export function ShareModal({ isOpen, onClose, course, countries, result }: Share
           </button>
         </div>
 
-        <div className={styles.thumbWrap}>
+        <div className={styles.thumbWrap} ref={thumbWrapRef}>
           <div className={styles.thumb}>
-            <div className={styles.thumbInner}>
+            <div className={styles.thumbInner} style={{ zoom: thumbScale }}>
               <ShareCard
                 course={course}
                 countries={countries}

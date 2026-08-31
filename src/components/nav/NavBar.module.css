@@ -36,3 +36,13 @@
   align-items: center;
   gap: 10px;
 }
+
+/* Wraps the navbar's own ThemeToggle instance specifically — the same
+   component also renders inside the mobile nav drawer (MobileNavDrawer.tsx),
+   where it must stay visible, so the hide-below-560px rule lives on this
+   wrapper rather than on ThemeToggle itself. */
+@media (max-width: 560px) {
+  .themeToggleWrap {
+    display: none;
+  }
+}

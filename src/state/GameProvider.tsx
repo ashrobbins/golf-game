@@ -107,6 +107,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
     setView('stats')
   }, [])
 
+  const viewAchievements = useCallback(() => {
+    setView('achievements')
+  }, [])
+
   const playAgain = useCallback(() => {
     setCourse(undefined)
     setSimulationResult(undefined)
@@ -147,6 +151,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       finishDraft,
       playAgain,
       viewStats,
+      viewAchievements,
     }),
     [
       content,
@@ -160,6 +165,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       finishDraft,
       playAgain,
       viewStats,
+      viewAchievements,
     ],
   )
 

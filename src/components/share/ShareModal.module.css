@@ -92,18 +92,10 @@
 
 .thumbWrap {
   margin: 16px 0;
-  display: flex;
-  justify-content: center;
 }
 
 .thumb {
-  /* No fixed width/height here on purpose — it shrink-wraps to whatever
-     .thumbInner's zoomed box actually measures out to. A hardcoded size
-     drifted out of sync with the zoom factor below once (136px real vs.
-     160px assumed), leaving a visible gap on the right/bottom that made
-     the whole thumbnail look broken — letting the browser compute it
-     from the real zoomed content means that can't happen again. */
-  display: inline-block;
+  width: 100%;
   border-radius: 10px;
   border: 1px solid var(--border);
   overflow: hidden;
@@ -113,10 +105,11 @@
 /* Shows the exact ShareCard markup at a fraction of its real size, rather
    than a separate illustration — it can never drift out of sync with what
    actually gets captured. `zoom` (not `transform: scale`) so it takes up
-   only its scaled-down space in this layout instead of the full 400px.
-   0.4 * ShareCard's fixed 400px width = a clean 160px-wide thumbnail. */
+   only its scaled-down space in this layout. The scale factor itself is
+   set inline from ShareModal.tsx, measured live against .thumbWrap's real
+   width, so the thumbnail always fills the modal instead of sitting at a
+   fixed size that looks squished/gappy at other viewport widths. */
 .thumbInner {
-  zoom: 0.4;
   pointer-events: none;
 }
 

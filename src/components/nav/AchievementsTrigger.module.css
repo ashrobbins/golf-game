@@ -31,9 +31,8 @@
 }
 
 /* Moves into the mobile nav drawer below this width — same breakpoint
-   CourseHoleTable/AchievementsTrigger/theme toggle use for the same
-   switch — rather than shrinking to an icon-only button the way this
-   used to work before the hamburger drawer existed. */
+   Stats/theme toggle use for the same switch — rather than shrinking to
+   an icon-only button the way this trigger's sibling used to. */
 @media (max-width: 560px) {
   .trigger {
     display: none;

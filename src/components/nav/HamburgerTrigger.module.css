@@ -1,0 +1,42 @@
+/* Same circle treatment as HowToPlayTrigger/HowToPlayDrawer's .trigger —
+   duplicated here (not imported) so the display:none/flex toggle below
+   isn't fighting cascade order against a second CSS module. */
+.trigger {
+  display: none;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.trigger:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.trigger:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Only shown below the breakpoint where Stats/Achievements/theme toggle
+   hide themselves (see StatsTrigger.module.css / AchievementsTrigger
+   .module.css / ThemeToggle.module.css) — same 560px threshold used
+   throughout the nav for this switch. */
+@media (max-width: 560px) {
+  .trigger {
+    display: flex;
+  }
+}
+
+.icon {
+  width: 15px;
+  height: 15px;
+}

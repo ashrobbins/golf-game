@@ -1,8 +1,10 @@
 import { useEffect } from 'react'
 import { HowToPlayDrawer } from './components/nav/HowToPlayDrawer'
+import { MobileNavDrawer } from './components/nav/MobileNavDrawer'
 import { NavBar } from './components/nav/NavBar'
 import { RoundDetailDrawer } from './components/stats/RoundDetailDrawer'
 import { Footer } from './components/ui/Footer'
+import { AchievementsPage } from './pages/AchievementsPage'
 import { CoursePreviewPage } from './pages/CoursePreviewPage'
 import { DraftPage } from './pages/DraftPage'
 import { HomePage } from './pages/HomePage'
@@ -10,7 +12,7 @@ import { ResultsPage } from './pages/ResultsPage'
 import { SharedRoundPage } from './pages/SharedRoundPage'
 import { StatsPage } from './pages/StatsPage'
 import { GameProvider } from './state/GameProvider'
-import { HowToPlayProvider } from './state/HowToPlayProvider'
+import { OverlayProvider } from './state/OverlayProvider'
 import { RoundDetailProvider } from './state/RoundDetailProvider'
 import { useGame } from './state/useGame'
 import styles from './App.module.css'
@@ -42,12 +44,14 @@ function GameView() {
       return <StatsPage />
     case 'shared-round':
       return <SharedRoundPage />
+    case 'achievements':
+      return <AchievementsPage />
   }
 }
 
 function App() {
   return (
-    <HowToPlayProvider>
+    <OverlayProvider>
       <GameProvider>
         <RoundDetailProvider>
           <NavBar />
@@ -57,9 +61,10 @@ function App() {
           <Footer />
           <HowToPlayDrawer />
           <RoundDetailDrawer />
+          <MobileNavDrawer />
         </RoundDetailProvider>
       </GameProvider>
-    </HowToPlayProvider>
+    </OverlayProvider>
   )
 }
 

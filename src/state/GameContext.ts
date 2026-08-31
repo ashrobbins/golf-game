@@ -5,7 +5,7 @@ import type { DraftPick } from '../game/draft/types'
 import type { SimulationResult } from '../game/simulation/types'
 import type { RoundRecord } from '../game/stats/types'
 
-export type View = 'home' | 'course-info' | 'draft' | 'results' | 'stats' | 'shared-round'
+export type View = 'home' | 'course-info' | 'draft' | 'results' | 'stats' | 'shared-round' | 'achievements'
 
 interface ContentReady {
   status: 'ready'
@@ -34,6 +34,7 @@ export interface GameContextValue {
   finishDraft: (picks: DraftPick[]) => void
   playAgain: () => void
   viewStats: () => void
+  viewAchievements: () => void
 }
 
 export const GameContext = createContext<GameContextValue | null>(null)
