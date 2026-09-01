@@ -11,7 +11,7 @@ export interface TopPerformer {
   isHighlight: boolean
 }
 
-function buildGolferIndex(content: CountriesContent): Map<string, Golfer> {
+export function buildGolferIndex(content: CountriesContent): Map<string, Golfer> {
   const index = new Map<string, Golfer>()
   for (const country of content.countries) {
     for (const golfer of country.golfers) index.set(golfer.id, golfer)

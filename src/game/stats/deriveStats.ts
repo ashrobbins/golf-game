@@ -27,7 +27,7 @@ export function findBestRound(rounds: RoundRecord[]): RoundRecord | null {
 // Points per hole outcome for the golfer leaderboard/top-player stat below —
 // chosen so a single eagle (4) always outweighs two pars (1+1), and a
 // bogey+ actively costs a golfer points rather than just sitting neutral.
-const TIER_POINTS: Record<OutcomeTier, number> = {
+export const TIER_POINTS: Record<OutcomeTier, number> = {
   hole_in_one: 8,
   eagle: 4,
   birdie: 2,

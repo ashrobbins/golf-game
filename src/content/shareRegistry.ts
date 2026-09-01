@@ -21,6 +21,10 @@ export const COURSE_REGISTRY: readonly string[] = [
   'tpc-sawgrass',
   'royal-birkdale',
   'marco-simone',
+  'pebble-beach',
+  'st-andrews',
+  'brabazon',
+  'medinah',
 ]
 
 export const GOLFER_REGISTRY: readonly string[] = [
@@ -148,4 +152,5 @@ export const GOLFER_REGISTRY: readonly string[] = [
   'oth-niemann',
   'oth-colsaerts',
   'oth-price',
+  'usa-sarazen',
 ]

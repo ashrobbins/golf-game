@@ -1,18 +1,32 @@
 import { useMemo, useState } from 'react'
+import { AchievementProgress } from '../components/achievements/AchievementProgress'
+import { AchievementRoster } from '../components/achievements/AchievementRoster'
 import { deriveAchievements } from '../game/achievements/deriveAchievements'
-import type { Achievement } from '../game/achievements/deriveAchievements'
+import type { Achievement, AchievementSection } from '../game/achievements/deriveAchievements'
 import { loadStats } from '../game/stats/storage'
 import { useGame } from '../state/useGame'
 import styles from './AchievementsPage.module.css'
 
+// One tab per AchievementSection, in tab-bar order — the label here is
+// the short tab text; the fuller name still written above each section's
+// own list lives inline in the JSX below, right next to its AchievementCard.
+const TABS: Array<{ section: AchievementSection; label: string }> = [
+  { section: 'career', label: 'Career' },
+  { section: 'iconic', label: 'Iconic' },
+  { section: 'course', label: 'Course' },
+]
+
+type ActiveTab = 'all' | AchievementSection
+
 export function AchievementsPage() {
   const { content, statsOverride } = useGame()
   const [stats] = useState(() => loadStats())
+  const [activeTab, setActiveTab] = useState<ActiveTab>('all')
   const rounds = statsOverride ?? stats.rounds
 
   const achievements = useMemo(() => {
     if (content.status !== 'ready') return []
-    return deriveAchievements(rounds, content.courses.courses)
+    return deriveAchievements(rounds, content.courses.courses, content.countries)
   }, [content, rounds])
 
   if (content.status !== 'ready') return null
@@ -22,6 +36,8 @@ export function AchievementsPage() {
   const careerAchievements = achievements.filter((a) => a.section === 'career')
   const iconicAchievements = achievements.filter((a) => a.section === 'iconic')
 
+  const showsSection = (section: AchievementSection) => activeTab === 'all' || activeTab === section
+
   return (
     <div className={styles.wrapper}>
       <h1 className={styles.title}>Achievements</h1>
@@ -30,14 +46,56 @@ export function AchievementsPage() {
         <strong>{unlockedCount}</strong> of <strong>{achievements.length}</strong> complete
       </p>
 
-      <p className={styles.sectionLabel}>Course achievements</p>
-      <AchievementCard achievements={courseAchievements} />
+      <div className={styles.tabBar}>
+        <button
+          type="button"
+          className={activeTab === 'all' ? `${styles.tab} ${styles.tabActive}` : styles.tab}
+          onClick={() => setActiveTab('all')}
+        >
+          All
+        </button>
+        <div className={styles.tabDivider} />
+        <div className={styles.tabScroll}>
+          {TABS.map((tab) => {
+            const sectionAchievements = achievements.filter((a) => a.section === tab.section)
+            const sectionUnlocked = sectionAchievements.filter((a) => a.isUnlocked).length
+            return (
+              <button
+                key={tab.section}
+                type="button"
+                className={activeTab === tab.section ? `${styles.tab} ${styles.tabActive}` : styles.tab}
+                onClick={() => setActiveTab(tab.section)}
+              >
+                {tab.label}{' '}
+                <span className={styles.tabCount}>
+                  {sectionUnlocked}/{sectionAchievements.length}
+                </span>
+              </button>
+            )
+          })}
+        </div>
+      </div>
 
-      <p className={styles.sectionLabel}>Career milestones</p>
-      <AchievementCard achievements={careerAchievements} />
+      {showsSection('career') && (
+        <>
+          <p className={styles.sectionLabel}>Career milestones</p>
+          <AchievementCard achievements={careerAchievements} />
+        </>
+      )}
 
-      <p className={styles.sectionLabel}>Iconic moments</p>
-      <AchievementCard achievements={iconicAchievements} />
+      {showsSection('iconic') && (
+        <>
+          <p className={styles.sectionLabel}>Iconic moments</p>
+          <AchievementCard achievements={iconicAchievements} />
+        </>
+      )}
+
+      {showsSection('course') && (
+        <>
+          <p className={styles.sectionLabel}>By Course</p>
+          <AchievementCard achievements={courseAchievements} />
+        </>
+      )}
 
       <p className={styles.localNote}>
         Achievements are based on your stats. Stats are stored locally on this device, so they
@@ -64,6 +122,8 @@ function AchievementCard({ achievements }: { achievements: Achievement[] }) {
               <div className={styles.body}>
                 <div className={styles.name}>{achievement.name}</div>
                 <p className={styles.desc}>{achievement.description}</p>
+                {achievement.roster && <AchievementRoster roster={achievement.roster} />}
+                {achievement.progress && <AchievementProgress {...achievement.progress} />}
               </div>
             </li>
           )

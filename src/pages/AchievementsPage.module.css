@@ -29,6 +29,102 @@
   color: var(--accent);
 }
 
+/* Sticks just below the main nav bar (64px tall, see NavBar.module.css)
+   as the achievement list scrolls beneath it. Lives inside .wrapper so it
+   naturally inherits the same 620px cap as the content below it — no need
+   for a separate full-bleed wrapper the way the mockup used one purely
+   for its own background-wash demo. */
+.tabBar {
+  position: sticky;
+  top: 64px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 0;
+  margin: 0 0 20px;
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.tabDivider {
+  flex: 0 0 auto;
+  width: 1px;
+  height: 20px;
+  background: var(--border);
+}
+
+/* Only this strip scrolls (swipeable on touch) — the pinned All pill and
+   the divider stay put so "get back to everything" is always reachable
+   regardless of scroll position within the category tabs. */
+.tabScroll {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  scroll-behavior: smooth;
+}
+
+.tabScroll::-webkit-scrollbar {
+  display: none;
+}
+
+.tab {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 34px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.tab:hover:not(.tabActive) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.tab:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.tabActive {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-contrast);
+}
+
+.tabCount {
+  font-variant-numeric: tabular-nums;
+  opacity: 0.75;
+  font-weight: 600;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tab {
+    transition: none;
+  }
+  .tabScroll {
+    scroll-behavior: auto;
+  }
+}
+
 .sectionLabel {
   margin: 28px 0 10px 4px;
   font-size: 11px;

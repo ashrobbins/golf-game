@@ -27,6 +27,16 @@
           "skill": "legend"
         },
         {
+          "id": "usa-sarazen",
+          "name": "Gene Sarazen",
+          "era": "1920s-30s",
+          "archetypes": [
+            "long_hitter",
+            "closer"
+          ],
+          "skill": "legend"
+        },
+        {
           "id": "usa-woods",
           "name": "Tiger Woods",
           "era": "1990s-2010s",
