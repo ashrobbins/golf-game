@@ -1,21 +1,9 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useLayoutEffect, useRef } from 'react'
 import type { ReactNode } from 'react'
+import { useDraftAnimation } from '../../hooks/useDraftAnimation'
 import styles from './Reel.module.css'
 
 export const DEFAULT_REEL_ITEM_HEIGHT = 56
-
-function usePrefersReducedMotion(): boolean {
-  const [reduced, setReduced] = useState(
-    () => window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-  )
-  useEffect(() => {
-    const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
-    const listener = (e: MediaQueryListEvent) => setReduced(e.matches)
-    mq.addEventListener('change', listener)
-    return () => mq.removeEventListener('change', listener)
-  }, [])
-  return reduced
-}
 
 interface ReelProps<T> {
   // The strip of content the reel scrolls through. The LAST item is where
@@ -47,7 +35,8 @@ export function Reel<T>({
 }: ReelProps<T>) {
   const trackRef = useRef<HTMLDivElement>(null)
   const settledRef = useRef(false)
-  const reducedMotion = usePrefersReducedMotion()
+  const { enabled: animationEnabled } = useDraftAnimation()
+  const reducedMotion = !animationEnabled
   const restingOffset = -(items.length - 1) * itemHeight
 
   useLayoutEffect(() => {

@@ -42,22 +42,3 @@
   background: var(--border);
   margin: 6px 4px;
 }
-
-.toggleRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 10px;
-}
-
-.toggleLabelGroup {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.toggleLabel {
-  font-size: 14.5px;
-  font-weight: 700;
-  color: var(--text);
-}

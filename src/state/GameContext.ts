@@ -35,8 +35,12 @@ export interface GameContextValue {
   // by playAgain — powers the results page's NewAchievementCard. Empty for
   // a round reached any other way (shared link, stats history, ?simResults).
   newlyUnlockedAchievements: Achievement[]
+  // Set by beginDraft's argument and read by DraftPage — when true, each
+  // hole's golfer is chosen automatically (see game/draft/autoPick.ts)
+  // instead of waiting for a manual Select/Draft click. Reset by playAgain.
+  isAutoPick: boolean
   startRound: (courseId: string) => void
-  beginDraft: () => void
+  beginDraft: (autoPick: boolean) => void
   finishDraft: (picks: DraftPick[]) => void
   playAgain: () => void
   viewStats: () => void

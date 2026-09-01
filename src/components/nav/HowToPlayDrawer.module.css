@@ -26,6 +26,15 @@
   outline-offset: 2px;
 }
 
+/* Moves into the mobile nav drawer below this width — same breakpoint
+   Stats/Achievements/Settings use for the same switch — since Help is
+   reached through the hamburger's "How to play" row there instead. */
+@media (max-width: 560px) {
+  .trigger {
+    display: none;
+  }
+}
+
 /* Shell (backdrop/panel/header/close button) lives in ui/Drawer.module.css
    now — only this drawer's own content styles remain here. */
 

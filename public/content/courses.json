@@ -83,33 +83,6 @@
       ]
     },
     {
-      "id": "tpc-sawgrass",
-      "name": "TPC Sawgrass",
-      "location": "Ponte Vedra Beach, Florida, USA",
-      "countryIsoCode": "US",
-      "par": 72,
-      "holes": [
-        { "number": 1, "par": 4, "yardage": 423, "archetype": "precision_iron" },
-        { "number": 2, "par": 5, "yardage": 532, "archetype": "long_hitter" },
-        { "number": 3, "par": 3, "yardage": 177, "archetype": "short_game_specialist" },
-        { "number": 4, "par": 4, "yardage": 384, "archetype": "scrambler" },
-        { "number": 5, "par": 4, "yardage": 471, "archetype": "precision_iron" },
-        { "number": 6, "par": 4, "yardage": 393, "archetype": "scrambler" },
-        { "number": 7, "par": 4, "yardage": 451, "archetype": "precision_iron" },
-        { "number": 8, "par": 3, "yardage": 237, "archetype": "short_game_specialist" },
-        { "number": 9, "par": 5, "yardage": 583, "archetype": "long_hitter" },
-        { "number": 10, "par": 4, "yardage": 424, "archetype": "precision_iron" },
-        { "number": 11, "par": 5, "yardage": 558, "archetype": "long_hitter" },
-        { "number": 12, "par": 4, "yardage": 358, "archetype": "scrambler" },
-        { "number": 13, "par": 3, "yardage": 181, "archetype": "short_game_specialist" },
-        { "number": 14, "par": 4, "yardage": 481, "archetype": "precision_iron" },
-        { "number": 15, "par": 4, "yardage": 470, "archetype": "scrambler" },
-        { "number": 16, "par": 5, "yardage": 523, "archetype": "closer" },
-        { "number": 17, "par": 3, "yardage": 137, "archetype": "closer" },
-        { "number": 18, "par": 4, "yardage": 462, "archetype": "closer" }
-      ]
-    },
-    {
       "id": "royal-birkdale",
       "name": "Royal Birkdale",
       "location": "Southport, Merseyside, England",
@@ -134,6 +107,33 @@
         { "number": 16, "par": 4, "yardage": 393, "archetype": "closer" },
         { "number": 17, "par": 5, "yardage": 566, "archetype": "closer" },
         { "number": 18, "par": 4, "yardage": 508, "archetype": "closer" }
+      ]
+    },
+    {
+      "id": "tpc-sawgrass",
+      "name": "TPC Sawgrass",
+      "location": "Ponte Vedra Beach, Florida, USA",
+      "countryIsoCode": "US",
+      "par": 72,
+      "holes": [
+        { "number": 1, "par": 4, "yardage": 423, "archetype": "precision_iron" },
+        { "number": 2, "par": 5, "yardage": 532, "archetype": "long_hitter" },
+        { "number": 3, "par": 3, "yardage": 177, "archetype": "short_game_specialist" },
+        { "number": 4, "par": 4, "yardage": 384, "archetype": "scrambler" },
+        { "number": 5, "par": 4, "yardage": 471, "archetype": "precision_iron" },
+        { "number": 6, "par": 4, "yardage": 393, "archetype": "scrambler" },
+        { "number": 7, "par": 4, "yardage": 451, "archetype": "precision_iron" },
+        { "number": 8, "par": 3, "yardage": 237, "archetype": "short_game_specialist" },
+        { "number": 9, "par": 5, "yardage": 583, "archetype": "long_hitter" },
+        { "number": 10, "par": 4, "yardage": 424, "archetype": "precision_iron" },
+        { "number": 11, "par": 5, "yardage": 558, "archetype": "long_hitter" },
+        { "number": 12, "par": 4, "yardage": 358, "archetype": "scrambler" },
+        { "number": 13, "par": 3, "yardage": 181, "archetype": "short_game_specialist" },
+        { "number": 14, "par": 4, "yardage": 481, "archetype": "precision_iron" },
+        { "number": 15, "par": 4, "yardage": 470, "archetype": "scrambler" },
+        { "number": 16, "par": 5, "yardage": 523, "archetype": "closer" },
+        { "number": 17, "par": 3, "yardage": 137, "archetype": "closer" },
+        { "number": 18, "par": 4, "yardage": 462, "archetype": "closer" }
       ]
     },
     {
@@ -245,6 +245,33 @@
       ]
     },
     {
+      "id": "le-golf-national",
+      "name": "Le Golf National",
+      "location": "Guyancourt, France",
+      "countryIsoCode": "FR",
+      "par": 71,
+      "holes": [
+        { "number": 1, "par": 4, "yardage": 490, "archetype": "precision_iron" },
+        { "number": 2, "par": 4, "yardage": 400, "archetype": "scrambler" },
+        { "number": 3, "par": 3, "yardage": 165, "archetype": "short_game_specialist" },
+        { "number": 4, "par": 5, "yardage": 542, "archetype": "long_hitter" },
+        { "number": 5, "par": 4, "yardage": 435, "archetype": "precision_iron" },
+        { "number": 6, "par": 3, "yardage": 175, "archetype": "short_game_specialist" },
+        { "number": 7, "par": 4, "yardage": 380, "archetype": "scrambler" },
+        { "number": 8, "par": 5, "yardage": 570, "archetype": "long_hitter" },
+        { "number": 9, "par": 4, "yardage": 415, "archetype": "precision_iron" },
+        { "number": 10, "par": 4, "yardage": 420, "archetype": "scrambler" },
+        { "number": 11, "par": 3, "yardage": 145, "archetype": "short_game_specialist" },
+        { "number": 12, "par": 4, "yardage": 460, "archetype": "precision_iron" },
+        { "number": 13, "par": 5, "yardage": 550, "archetype": "long_hitter" },
+        { "number": 14, "par": 4, "yardage": 410, "archetype": "scrambler" },
+        { "number": 15, "par": 4, "yardage": 470, "archetype": "closer" },
+        { "number": 16, "par": 4, "yardage": 435, "archetype": "closer" },
+        { "number": 17, "par": 3, "yardage": 190, "archetype": "closer" },
+        { "number": 18, "par": 4, "yardage": 470, "archetype": "closer" }
+      ]
+    },
+    {
       "id": "medinah",
       "name": "Medinah",
       "location": "Medinah, Illinois, USA",
@@ -269,6 +296,33 @@
         { "number": 16, "par": 5, "yardage": 552, "archetype": "long_hitter" },
         { "number": 17, "par": 3, "yardage": 206, "archetype": "closer" },
         { "number": 18, "par": 4, "yardage": 465, "archetype": "closer" }
+      ]
+    },
+    {
+      "id": "earth-course",
+      "name": "Earth Course",
+      "location": "Jumeirah Golf Estates, Dubai, UAE",
+      "countryIsoCode": "AE",
+      "par": 72,
+      "holes": [
+        { "number": 1, "par": 4, "yardage": 415, "archetype": "precision_iron" },
+        { "number": 2, "par": 5, "yardage": 565, "archetype": "long_hitter" },
+        { "number": 3, "par": 4, "yardage": 400, "archetype": "scrambler" },
+        { "number": 4, "par": 3, "yardage": 175, "archetype": "short_game_specialist" },
+        { "number": 5, "par": 4, "yardage": 445, "archetype": "precision_iron" },
+        { "number": 6, "par": 5, "yardage": 580, "archetype": "long_hitter" },
+        { "number": 7, "par": 4, "yardage": 385, "archetype": "scrambler" },
+        { "number": 8, "par": 3, "yardage": 155, "archetype": "short_game_specialist" },
+        { "number": 9, "par": 4, "yardage": 430, "archetype": "precision_iron" },
+        { "number": 10, "par": 4, "yardage": 410, "archetype": "scrambler" },
+        { "number": 11, "par": 3, "yardage": 185, "archetype": "short_game_specialist" },
+        { "number": 12, "par": 5, "yardage": 545, "archetype": "long_hitter" },
+        { "number": 13, "par": 4, "yardage": 460, "archetype": "precision_iron" },
+        { "number": 14, "par": 4, "yardage": 400, "archetype": "scrambler" },
+        { "number": 15, "par": 3, "yardage": 210, "archetype": "closer" },
+        { "number": 16, "par": 5, "yardage": 555, "archetype": "closer" },
+        { "number": 17, "par": 4, "yardage": 425, "archetype": "closer" },
+        { "number": 18, "par": 4, "yardage": 460, "archetype": "closer" }
       ]
     }
   ]

@@ -23,6 +23,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const [statsOverride, setStatsOverride] = useState<RoundRecord[] | undefined>()
   const [sharedRoundCode, setSharedRoundCode] = useState<string | undefined>()
   const [newlyUnlockedAchievements, setNewlyUnlockedAchievements] = useState<Achievement[]>([])
+  const [isAutoPick, setIsAutoPick] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -91,7 +92,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
     [content],
   )
 
-  const beginDraft = useCallback(() => {
+  const beginDraft = useCallback((autoPick: boolean) => {
+    setIsAutoPick(autoPick)
     setView('draft')
   }, [])
 
@@ -136,6 +138,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     setStatsOverride(undefined)
     setSharedRoundCode(undefined)
     setNewlyUnlockedAchievements([])
+    setIsAutoPick(false)
     setView('home')
 
     // Drop the debug shortcut params so leaving the mock results page
@@ -167,6 +170,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       statsOverride,
       sharedRoundCode,
       newlyUnlockedAchievements,
+      isAutoPick,
       startRound,
       beginDraft,
       finishDraft,
@@ -182,6 +186,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       statsOverride,
       sharedRoundCode,
       newlyUnlockedAchievements,
+      isAutoPick,
       startRound,
       beginDraft,
       finishDraft,

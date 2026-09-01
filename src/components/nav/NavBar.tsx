@@ -2,8 +2,8 @@ import { useGame } from '../../state/useGame'
 import { AchievementsTrigger } from './AchievementsTrigger'
 import { HamburgerTrigger } from './HamburgerTrigger'
 import { HowToPlayTrigger } from './HowToPlayTrigger'
+import { SettingsTrigger } from './SettingsTrigger'
 import { StatsTrigger } from './StatsTrigger'
-import { ThemeToggle } from './ThemeToggle'
 import styles from './NavBar.module.css'
 
 export function NavBar() {
@@ -19,9 +19,7 @@ export function NavBar() {
         <StatsTrigger />
         <AchievementsTrigger />
         <HowToPlayTrigger />
-        <span className={styles.themeToggleWrap}>
-          <ThemeToggle />
-        </span>
+        <SettingsTrigger />
         <HamburgerTrigger />
       </div>
     </header>

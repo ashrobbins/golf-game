@@ -21,13 +21,19 @@ export function CoursePreviewPage() {
       <p className={styles.par}>Par {course.par} · {course.holes.length} holes</p>
 
       <div className={styles.cta}>
-        <Button onClick={beginDraft}>Let's Go</Button>
+        <Button onClick={() => beginDraft(false)}>Build My Bag</Button>
+        <Button variant="secondary" onClick={() => beginDraft(true)}>
+          Auto-Pick
+        </Button>
       </div>
 
       <CourseHoleTable holes={course.holes} />
 
       <div className={styles.cta}>
-        <Button onClick={beginDraft}>Let's Go</Button>
+        <Button onClick={() => beginDraft(false)}>Build My Bag</Button>
+        <Button variant="secondary" onClick={() => beginDraft(true)}>
+          Auto-Pick
+        </Button>
       </div>
     </div>
   )

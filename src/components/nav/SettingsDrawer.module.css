@@ -1,0 +1,94 @@
+.groupLabel {
+  margin: 0 0 10px 2px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.toggleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 10px;
+}
+
+.toggleLabelGroup {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.toggleIcon {
+  width: 18px;
+  height: 18px;
+  color: var(--text-muted);
+  flex: 0 0 auto;
+}
+
+.toggleTextGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.toggleLabel {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.toggleHint {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+/* Unlike ThemeToggle's switch (a static track with just the thumb sliding),
+   this one also recolors the track itself — grey when off, accent when on
+   — so "spinner animations are off" reads at a glance rather than only
+   being inferable from thumb position. Duplicated rather than imported;
+   this drawer is the one place both toggles live. */
+.switchTrack {
+  position: relative;
+  flex: 0 0 auto;
+  width: 46px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--border);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.switchTrackOn {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.switchTrack:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.switchThumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--surface);
+  transition: transform 0.2s ease;
+}
+
+.switchThumbOn {
+  transform: translateX(22px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .switchTrack,
+  .switchThumb {
+    transition: none;
+  }
+}

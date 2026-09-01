@@ -12,23 +12,32 @@ import { useGame } from '../state/useGame'
 import styles from './DraftPage.module.css'
 
 export function DraftPage() {
-  const { content, course, finishDraft } = useGame()
+  const { content, course, finishDraft, isAutoPick } = useGame()
 
   if (content.status !== 'ready' || !course) return null
 
-  return <DraftPageInner countries={content.countries} course={course} onComplete={finishDraft} />
+  return (
+    <DraftPageInner
+      countries={content.countries}
+      course={course}
+      onComplete={finishDraft}
+      autoPick={isAutoPick}
+    />
+  )
 }
 
 function DraftPageInner({
   countries,
   course,
   onComplete,
+  autoPick,
 }: {
   countries: CountriesContent
   course: Course
   onComplete: (picks: DraftPick[]) => void
+  autoPick: boolean
 }) {
-  const { state, spin, confirmSpin, pick } = useDraftGame(course, countries)
+  const { state, spin, confirmSpin, pick } = useDraftGame(course, countries, autoPick)
 
   const countryIndex = useMemo(() => {
     const map = new Map<string, Country>()
@@ -45,7 +54,7 @@ function DraftPageInner({
   }, [countries])
 
   // Auto-spin every hole, including the first — the course preview page's
-  // own "Let's Go" button is the user's one manual kick-off, so the draft
+  // own "Build My Bag" button is the user's one manual kick-off, so the draft
   // itself never waits for another click. useLayoutEffect (not useEffect) so
   // the transition to 'spinning' happens before paint, avoiding a one-frame
   // flash of a "ready to spin" state between holes.

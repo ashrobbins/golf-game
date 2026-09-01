@@ -11,10 +11,17 @@ import styles from './HowToPlayDrawer.module.css'
 // shared slide-in shell (backdrop, close button, Escape, scroll lock) lives
 // in ui/Drawer.tsx — this component is just the rules content.
 export function HowToPlayDrawer() {
-  const { isOpen, close } = useHowToPlay()
+  const { isOpen, close, openedFromNav, backToNav } = useHowToPlay()
 
   return (
-    <Drawer isOpen={isOpen} onClose={close} titleId="how-to-play-heading" title="How to Play">
+    <Drawer
+      isOpen={isOpen}
+      onClose={close}
+      titleId="how-to-play-heading"
+      title="How to Play"
+      onBack={openedFromNav ? backToNav : undefined}
+      backLabel="Menu"
+    >
       <div className={styles.section}>
         <p className={styles.sectionTitle}>The goal</p>
         <p className={styles.sectionText}>

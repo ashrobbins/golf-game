@@ -4,20 +4,27 @@ import { HowToPlayContext } from './HowToPlayContext'
 import type { HowToPlayContextValue } from './HowToPlayContext'
 import { NavDrawerContext } from './NavDrawerContext'
 import type { NavDrawerContextValue } from './NavDrawerContext'
+import { SettingsContext } from './SettingsContext'
+import type { SettingsContextValue } from './SettingsContext'
 
-type ActiveOverlay = 'help' | 'nav' | null
+type ActiveOverlay =
+  | { kind: 'help'; from: 'direct' | 'nav' }
+  | { kind: 'settings'; from: 'direct' | 'nav' }
+  | { kind: 'nav' }
+  | null
 
-// Formerly HowToPlayProvider — broadened to coordinate the How to Play
-// drawer and the mobile hamburger nav drawer from one shared `active`
-// value, since the two must never both be open at once (there's only one
-// slide-in panel slot in the layout, and having both try to occupy it at
-// the same time would visually collide). Each consumer still gets its own
-// narrow context (HowToPlayContext / NavDrawerContext) with the same
-// {isOpen, open, close} shape as before, so nothing that already calls
-// useHowToPlay() (HomePage's "How it works" button, HowToPlayTrigger,
-// HowToPlayDrawer) needed to change — opening either one here always
-// closes the other first, structurally, rather than each drawer having to
-// remember to close its sibling.
+// Coordinates the How to Play drawer, the Settings drawer, and the mobile
+// hamburger nav drawer from one shared `active` value, since only one
+// slide-in panel slot exists in the layout and any two of these open at
+// once would visually collide. Each consumer still gets its own narrow
+// context (HowToPlayContext / SettingsContext / NavDrawerContext).
+//
+// Help and Settings can each be reached two ways: directly (the nav's own
+// icon, or — for Help — HomePage's "How it works" button) or via the
+// mobile nav drawer's menu rows. The `from` field on the active-overlay
+// state remembers which, so the drawer can show a "← Menu" back link only
+// when it makes sense to go back to a menu that was actually open a moment
+// ago — a direct open has no "back" to offer, just close.
 export function OverlayProvider({ children }: { children: ReactNode }) {
   const [active, setActive] = useState<ActiveOverlay>(null)
 
@@ -26,14 +33,37 @@ export function OverlayProvider({ children }: { children: ReactNode }) {
   // how it got closed.
   const previouslyFocusedRef = useRef<HTMLElement | null>(null)
 
-  const openHelp = useCallback(() => {
+  function saveFocus() {
     previouslyFocusedRef.current = document.activeElement as HTMLElement | null
-    setActive('help')
+  }
+
+  const openHelp = useCallback(() => {
+    saveFocus()
+    setActive({ kind: 'help', from: 'direct' })
+  }, [])
+
+  const openHelpFromNav = useCallback(() => {
+    setActive({ kind: 'help', from: 'nav' })
+  }, [])
+
+  const openSettings = useCallback(() => {
+    saveFocus()
+    setActive({ kind: 'settings', from: 'direct' })
+  }, [])
+
+  const openSettingsFromNav = useCallback(() => {
+    setActive({ kind: 'settings', from: 'nav' })
   }, [])
 
   const openNav = useCallback(() => {
-    previouslyFocusedRef.current = document.activeElement as HTMLElement | null
-    setActive('nav')
+    saveFocus()
+    setActive({ kind: 'nav' })
+  }, [])
+
+  // A lateral swap back to the menu, not a fresh open — no focus save
+  // needed since we're still within the same overall "menu opened" flow.
+  const backToNav = useCallback(() => {
+    setActive({ kind: 'nav' })
   }, [])
 
   const closeAll = useCallback(() => {
@@ -42,18 +72,39 @@ export function OverlayProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const howToPlayValue = useMemo<HowToPlayContextValue>(
-    () => ({ isOpen: active === 'help', open: openHelp, close: closeAll }),
-    [active, openHelp, closeAll],
+    () => ({
+      isOpen: active?.kind === 'help',
+      openedFromNav: active?.kind === 'help' && active.from === 'nav',
+      open: openHelp,
+      openFromNav: openHelpFromNav,
+      close: closeAll,
+      backToNav,
+    }),
+    [active, openHelp, openHelpFromNav, closeAll, backToNav],
+  )
+
+  const settingsValue = useMemo<SettingsContextValue>(
+    () => ({
+      isOpen: active?.kind === 'settings',
+      openedFromNav: active?.kind === 'settings' && active.from === 'nav',
+      open: openSettings,
+      openFromNav: openSettingsFromNav,
+      close: closeAll,
+      backToNav,
+    }),
+    [active, openSettings, openSettingsFromNav, closeAll, backToNav],
   )
 
   const navDrawerValue = useMemo<NavDrawerContextValue>(
-    () => ({ isOpen: active === 'nav', open: openNav, close: closeAll }),
+    () => ({ isOpen: active?.kind === 'nav', open: openNav, close: closeAll }),
     [active, openNav, closeAll],
   )
 
   return (
     <HowToPlayContext.Provider value={howToPlayValue}>
-      <NavDrawerContext.Provider value={navDrawerValue}>{children}</NavDrawerContext.Provider>
+      <SettingsContext.Provider value={settingsValue}>
+        <NavDrawerContext.Provider value={navDrawerValue}>{children}</NavDrawerContext.Provider>
+      </SettingsContext.Provider>
     </HowToPlayContext.Provider>
   )
 }

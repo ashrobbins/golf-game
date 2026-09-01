@@ -30,5 +30,8 @@
 }
 
 .cta {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
   margin: 24px 0;
 }

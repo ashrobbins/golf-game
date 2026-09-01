@@ -25,6 +25,8 @@ export const COURSE_REGISTRY: readonly string[] = [
   'st-andrews',
   'brabazon',
   'medinah',
+  'le-golf-national',
+  'earth-course',
 ]
 
 export const GOLFER_REGISTRY: readonly string[] = [

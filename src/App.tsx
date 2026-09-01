@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { HowToPlayDrawer } from './components/nav/HowToPlayDrawer'
 import { MobileNavDrawer } from './components/nav/MobileNavDrawer'
 import { NavBar } from './components/nav/NavBar'
+import { SettingsDrawer } from './components/nav/SettingsDrawer'
 import { RoundDetailDrawer } from './components/stats/RoundDetailDrawer'
 import { Footer } from './components/ui/Footer'
 import { AchievementsPage } from './pages/AchievementsPage'
@@ -20,7 +21,7 @@ import styles from './App.module.css'
 function GameView() {
   const { view } = useGame()
 
-  // Every real navigation (course card -> preview, "Let's Go" -> draft,
+  // Every real navigation (course card -> preview, "Build My Bag" -> draft,
   // "Play again" -> home, etc.) goes through a `view` change, so scrolling
   // here on every change is a single fix for all of them — a course card
   // near the bottom of the home grid, or a "Play again" click from the
@@ -60,6 +61,7 @@ function App() {
           </div>
           <Footer />
           <HowToPlayDrawer />
+          <SettingsDrawer />
           <RoundDetailDrawer />
           <MobileNavDrawer />
         </RoundDetailProvider>
