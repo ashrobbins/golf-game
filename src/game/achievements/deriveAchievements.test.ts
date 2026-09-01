@@ -35,8 +35,8 @@ describe('deriveAchievements', () => {
   it('returns every achievement locked when there are no rounds at all', () => {
     const achievements = deriveAchievements([], COURSES)
     expect(achievements.every((a) => !a.isUnlocked)).toBe(true)
-    // 2 courses x 2 per-course achievements + 3 career milestones + 3 iconic moments
-    expect(achievements).toHaveLength(10)
+    // 2 courses x 2 per-course achievements + 8 career milestones + 4 iconic moments
+    expect(achievements).toHaveLength(16)
   })
 
   it('unlocks a course bogey-free achievement only when a bogey-free round exists at that course', () => {
@@ -102,17 +102,23 @@ describe('deriveAchievements', () => {
       'bogey-free-everywhere',
       'break-60-everywhere',
       'first-hole-in-one',
+      'perfect-match',
+      'birdie-run',
+      'bogey-free-5-rounds',
+      'bogey-free-10-rounds',
+      'three-peat',
       'ace-island-green',
       'amen-corner-answered',
       'the-impossible-chip',
+      'golden-bear',
     ])
   })
 
   it('tags each achievement with the right section', () => {
     const achievements = deriveAchievements([], COURSES)
     expect(achievements.filter((a) => a.section === 'course')).toHaveLength(4)
-    expect(achievements.filter((a) => a.section === 'career')).toHaveLength(3)
-    expect(achievements.filter((a) => a.section === 'iconic')).toHaveLength(3)
+    expect(achievements.filter((a) => a.section === 'career')).toHaveLength(8)
+    expect(achievements.filter((a) => a.section === 'iconic')).toHaveLength(4)
   })
 
   it('unlocks "First Hole-in-One" from a hole-in-one on any course', () => {
@@ -185,5 +191,130 @@ describe('deriveAchievements', () => {
         false,
       )
     }
+  })
+
+  it('unlocks "Perfect Match" only when all 18 holes in a round have their archetype matched', () => {
+    const allMatched = Array.from({ length: 18 }, (_, i) => hole(i + 1, 'par', 0, 'golfer'))
+    const oneUnmatched = allMatched.map((h, i) => (i === 4 ? { ...h, archetypeMatched: false } : h))
+
+    expect(
+      deriveAchievements([round('augusta', { holeResults: allMatched })], COURSES).find(
+        (a) => a.id === 'perfect-match',
+      )?.isUnlocked,
+    ).toBe(true)
+    expect(
+      deriveAchievements([round('augusta', { holeResults: oneUnmatched })], COURSES).find(
+        (a) => a.id === 'perfect-match',
+      )?.isUnlocked,
+    ).toBe(false)
+  })
+
+  it('unlocks "Birdie Run" only for 5 consecutive birdies in one round', () => {
+    const fiveInARow = [
+      hole(1, 'par'),
+      hole(2, 'birdie'),
+      hole(3, 'birdie'),
+      hole(4, 'birdie'),
+      hole(5, 'birdie'),
+      hole(6, 'birdie'),
+      hole(7, 'par'),
+    ]
+    const onlyFourInARow = [
+      hole(1, 'par'),
+      hole(2, 'birdie'),
+      hole(3, 'birdie'),
+      hole(4, 'birdie'),
+      hole(5, 'birdie'),
+      hole(6, 'par'),
+    ]
+
+    expect(
+      deriveAchievements([round('augusta', { holeResults: fiveInARow })], COURSES).find(
+        (a) => a.id === 'birdie-run',
+      )?.isUnlocked,
+    ).toBe(true)
+    expect(
+      deriveAchievements([round('augusta', { holeResults: onlyFourInARow })], COURSES).find(
+        (a) => a.id === 'birdie-run',
+      )?.isUnlocked,
+    ).toBe(false)
+  })
+
+  it('unlocks the 5- and 10-round bogey-free milestones only once enough bogey-free rounds have been played', () => {
+    const fourBogeyFree = Array.from({ length: 4 }, () => round('augusta', { isBogeyFreeRound: true }))
+    const fiveBogeyFree = Array.from({ length: 5 }, () => round('augusta', { isBogeyFreeRound: true }))
+    const tenBogeyFree = Array.from({ length: 10 }, () => round('augusta', { isBogeyFreeRound: true }))
+
+    expect(deriveAchievements(fourBogeyFree, COURSES).find((a) => a.id === 'bogey-free-5-rounds')?.isUnlocked).toBe(
+      false,
+    )
+    expect(deriveAchievements(fiveBogeyFree, COURSES).find((a) => a.id === 'bogey-free-5-rounds')?.isUnlocked).toBe(
+      true,
+    )
+    expect(deriveAchievements(fiveBogeyFree, COURSES).find((a) => a.id === 'bogey-free-10-rounds')?.isUnlocked).toBe(
+      false,
+    )
+    expect(deriveAchievements(tenBogeyFree, COURSES).find((a) => a.id === 'bogey-free-10-rounds')?.isUnlocked).toBe(
+      true,
+    )
+  })
+
+  it('unlocks "Golden Bear" only for a bogey-free round at Augusta National with Jack Nicklaus in the bag', () => {
+    const rounds = [
+      round('augusta-national', { isBogeyFreeRound: true, holeResults: [hole(1, 'par', 0, 'usa-nicklaus')] }),
+    ]
+    expect(deriveAchievements(rounds, COURSES).find((a) => a.id === 'golden-bear')?.isUnlocked).toBe(true)
+  })
+
+  it('does not unlock "Golden Bear" without Nicklaus in the bag, without bogey-free, or on the wrong course', () => {
+    const noNicklaus = [
+      round('augusta-national', { isBogeyFreeRound: true, holeResults: [hole(1, 'par', 0, 'someone-else')] }),
+    ]
+    const notBogeyFree = [
+      round('augusta-national', { isBogeyFreeRound: false, holeResults: [hole(1, 'par', 0, 'usa-nicklaus')] }),
+    ]
+    const wrongCourse = [
+      round('carnoustie', { isBogeyFreeRound: true, holeResults: [hole(1, 'par', 0, 'usa-nicklaus')] }),
+    ]
+
+    for (const rounds of [noNicklaus, notBogeyFree, wrongCourse]) {
+      expect(deriveAchievements(rounds, COURSES).find((a) => a.id === 'golden-bear')?.isUnlocked).toBe(false)
+    }
+  })
+
+  it('unlocks "3-Peat" only for 3 consecutive rounds (by play order) shooting 65 or under gross', () => {
+    // Augusta is par 72: -8 to par = 64 gross, which does shoot 65 or under.
+    function goodRound(playedAt: string) {
+      return round('augusta', { playedAt, totalStrokesToPar: -8 })
+    }
+    // -6 to par = 66 gross, which does NOT shoot 65 or under.
+    function missedRound(playedAt: string) {
+      return round('augusta', { playedAt, totalStrokesToPar: -6 })
+    }
+
+    const threeInARow = [goodRound('2026-01-01T00:00:00.000Z'), goodRound('2026-01-02T00:00:00.000Z'), goodRound('2026-01-03T00:00:00.000Z')]
+    expect(deriveAchievements(threeInARow, COURSES).find((a) => a.id === 'three-peat')?.isUnlocked).toBe(true)
+
+    const brokenStreak = [
+      goodRound('2026-01-01T00:00:00.000Z'),
+      missedRound('2026-01-02T00:00:00.000Z'),
+      goodRound('2026-01-03T00:00:00.000Z'),
+      goodRound('2026-01-04T00:00:00.000Z'),
+    ]
+    expect(deriveAchievements(brokenStreak, COURSES).find((a) => a.id === 'three-peat')?.isUnlocked).toBe(false)
+
+    // Same 3 good rounds, but supplied out of chronological order — the
+    // streak should still be found because it sorts by playedAt first.
+    const outOfOrder = [goodRound('2026-01-03T00:00:00.000Z'), goodRound('2026-01-01T00:00:00.000Z'), goodRound('2026-01-02T00:00:00.000Z')]
+    expect(deriveAchievements(outOfOrder, COURSES).find((a) => a.id === 'three-peat')?.isUnlocked).toBe(true)
+  })
+
+  it('does not unlock "3-Peat" for a round on a course with no known par', () => {
+    const rounds = [
+      round('unknown-course', { playedAt: '2026-01-01T00:00:00.000Z', totalStrokesToPar: -8 }),
+      round('unknown-course', { playedAt: '2026-01-02T00:00:00.000Z', totalStrokesToPar: -8 }),
+      round('unknown-course', { playedAt: '2026-01-03T00:00:00.000Z', totalStrokesToPar: -8 }),
+    ]
+    expect(deriveAchievements(rounds, COURSES).find((a) => a.id === 'three-peat')?.isUnlocked).toBe(false)
   })
 })

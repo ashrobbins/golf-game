@@ -9,6 +9,15 @@ import type { RoundRecord } from '../stats/types'
 // itself doesn't.
 const BREAK_60_STROKES = 60
 
+const BIRDIE_RUN_LENGTH = 5
+const BOGEY_FREE_ROUNDS_TIER_1 = 5
+const BOGEY_FREE_ROUNDS_TIER_2 = 10
+
+// A gross-stroke threshold, same convention as BREAK_60_STROKES above —
+// "shoot 65 or under" is a real total, not a relative-to-par count.
+const THREE_PEAT_MAX_GROSS_SCORE = 65
+const THREE_PEAT_ROUND_COUNT = 3
+
 // Iconic Moments — tied to specific real holes on specific real courses,
 // not derived generically from the course list the way the per-course
 // achievements above are. Hardcoded course/hole numbers rather than looked
@@ -29,6 +38,11 @@ const AMEN_CORNER_HOLE_NUMBERS = [11, 12, 13] // Augusta National's real Amen Co
 const IMPOSSIBLE_CHIP_COURSE_ID = 'augusta-national'
 const IMPOSSIBLE_CHIP_HOLE_NUMBER = 16
 const IMPOSSIBLE_CHIP_GOLFER_ID = 'usa-woods'
+
+// Jack Nicklaus went bogey-free at Augusta National — the "Golden Bear"
+// nickname is his, not the achievement's own invention.
+const GOLDEN_BEAR_COURSE_ID = 'augusta-national'
+const GOLDEN_BEAR_GOLFER_ID = 'usa-nicklaus'
 
 export type AchievementSection = 'course' | 'career' | 'iconic'
 
@@ -83,6 +97,52 @@ function hasScoredTheImpossibleChip(rounds: RoundRecord[]): boolean {
   )
 }
 
+function hasPerfectMatchRound(rounds: RoundRecord[]): boolean {
+  return rounds.some((r) => r.holeResults.length === 18 && r.holeResults.every((h) => h.archetypeMatched))
+}
+
+// holeResults is already sorted by holeNumber (see engine.ts), so a run of
+// consecutive birdies in the array is a run of consecutive holes.
+function hasBirdieRun(rounds: RoundRecord[]): boolean {
+  return rounds.some((r) => {
+    let streak = 0
+    for (const h of r.holeResults) {
+      streak = h.outcomeTier === 'birdie' ? streak + 1 : 0
+      if (streak >= BIRDIE_RUN_LENGTH) return true
+    }
+    return false
+  })
+}
+
+function bogeyFreeRoundCount(rounds: RoundRecord[]): number {
+  return rounds.filter((r) => r.isBogeyFreeRound).length
+}
+
+function hasGoneGoldenBear(rounds: RoundRecord[]): boolean {
+  return rounds.some(
+    (r) =>
+      r.courseId === GOLDEN_BEAR_COURSE_ID &&
+      r.isBogeyFreeRound &&
+      r.holeResults.some((h) => h.golferId === GOLDEN_BEAR_GOLFER_ID),
+  )
+}
+
+// Consecutive by play order, not consecutive within a single course — a
+// round on a course with no par data on record simply breaks the streak
+// rather than crashing, same "stay locked" fallback as the other
+// hardcoded-course achievements above.
+function hasThreePeat(rounds: RoundRecord[], courses: Course[]): boolean {
+  const sorted = [...rounds].sort((a, b) => a.playedAt.localeCompare(b.playedAt))
+  let streak = 0
+  for (const r of sorted) {
+    const course = courses.find((c) => c.id === r.courseId)
+    const grossScore = course ? course.par + r.totalStrokesToPar : null
+    streak = grossScore !== null && grossScore <= THREE_PEAT_MAX_GROSS_SCORE ? streak + 1 : 0
+    if (streak >= THREE_PEAT_ROUND_COUNT) return true
+  }
+  return false
+}
+
 // Returns the full achievement list in display order: each course's
 // bogey-free/break-60 pair (in courses.json's own order — the same order
 // the home page's course grid uses), then career-wide milestones, then
@@ -129,6 +189,41 @@ export function deriveAchievements(rounds: RoundRecord[], courses: Course[]): Ac
     section: 'career',
     isUnlocked: hasAnyHoleInOne(rounds),
   })
+  achievements.push({
+    id: 'perfect-match',
+    name: 'Perfect Match',
+    description: "Match every golfer's archetype to their hole on all 18 holes in a single round.",
+    section: 'career',
+    isUnlocked: hasPerfectMatchRound(rounds),
+  })
+  achievements.push({
+    id: 'birdie-run',
+    name: 'Birdie Run',
+    description: 'Card 5 birdies in a row, on any course.',
+    section: 'career',
+    isUnlocked: hasBirdieRun(rounds),
+  })
+  achievements.push({
+    id: 'bogey-free-5-rounds',
+    name: '5 Rounds Bogey-Free',
+    description: 'Go bogey-free in 5 rounds total, on any course.',
+    section: 'career',
+    isUnlocked: bogeyFreeRoundCount(rounds) >= BOGEY_FREE_ROUNDS_TIER_1,
+  })
+  achievements.push({
+    id: 'bogey-free-10-rounds',
+    name: '10 Rounds Bogey-Free',
+    description: 'Go bogey-free in 10 rounds total, on any course.',
+    section: 'career',
+    isUnlocked: bogeyFreeRoundCount(rounds) >= BOGEY_FREE_ROUNDS_TIER_2,
+  })
+  achievements.push({
+    id: 'three-peat',
+    name: '3-Peat',
+    description: 'Shoot 65 or under in 3 consecutive rounds.',
+    section: 'career',
+    isUnlocked: hasThreePeat(rounds, courses),
+  })
 
   achievements.push({
     id: 'ace-island-green',
@@ -150,6 +245,13 @@ export function deriveAchievements(rounds: RoundRecord[], courses: Course[]): Ac
     description: 'Score a birdie with Tiger Woods on Augusta National’s 16th.',
     section: 'iconic',
     isUnlocked: hasScoredTheImpossibleChip(rounds),
+  })
+  achievements.push({
+    id: 'golden-bear',
+    name: 'Golden Bear',
+    description: 'Go bogey-free at Augusta National with Jack Nicklaus in the bag.',
+    section: 'iconic',
+    isUnlocked: hasGoneGoldenBear(rounds),
   })
 
   return achievements
