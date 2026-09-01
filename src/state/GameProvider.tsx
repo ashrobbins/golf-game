@@ -4,12 +4,14 @@ import { loadCountries, loadCourses, loadOddsConfig } from '../content/loadConte
 import { MOCK_COURSE_ID, MOCK_SIMULATION_RESULT } from '../content/mockSimulationResult'
 import { generateMockStatsRounds } from '../content/mockStats'
 import type { Course } from '../content/types'
+import type { Achievement } from '../game/achievements/deriveAchievements'
+import { deriveAchievements } from '../game/achievements/deriveAchievements'
 import { assertWheelHasCapacity } from '../game/draft/engine'
 import type { DraftPick } from '../game/draft/types'
 import { simulateRound } from '../game/simulation/engine'
 import type { SimulationResult } from '../game/simulation/types'
 import type { RoundRecord } from '../game/stats/types'
-import { recordRound } from '../game/stats/storage'
+import { loadStats, recordRound } from '../game/stats/storage'
 import { GameContext } from './GameContext'
 import type { ContentState, GameContextValue, View } from './GameContext'
 
@@ -20,6 +22,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const [simulationResult, setSimulationResult] = useState<SimulationResult | undefined>()
   const [statsOverride, setStatsOverride] = useState<RoundRecord[] | undefined>()
   const [sharedRoundCode, setSharedRoundCode] = useState<string | undefined>()
+  const [newlyUnlockedAchievements, setNewlyUnlockedAchievements] = useState<Achievement[]>([])
 
   useEffect(() => {
     let cancelled = false
@@ -97,7 +100,23 @@ export function GameProvider({ children }: { children: ReactNode }) {
       if (content.status !== 'ready' || !course) return
       const result = simulateRound(picks, course, content.countries, content.odds)
       setSimulationResult(result)
-      recordRound(result)
+
+      // Diff achievement state from just before this round to just after it
+      // (rather than "is it unlocked at all") so a round that merely keeps
+      // an already-unlocked achievement unlocked doesn't get re-announced.
+      const roundsBefore = loadStats().rounds
+      const newRecord = recordRound(result)
+      const roundsAfter = [...roundsBefore, newRecord]
+      const unlockedBefore = new Set(
+        deriveAchievements(roundsBefore, content.courses.courses, content.countries)
+          .filter((a) => a.isUnlocked)
+          .map((a) => a.id),
+      )
+      const achievementsAfter = deriveAchievements(roundsAfter, content.courses.courses, content.countries)
+      setNewlyUnlockedAchievements(
+        achievementsAfter.filter((a) => a.isUnlocked && !unlockedBefore.has(a.id)),
+      )
+
       setView('results')
     },
     [content, course],
@@ -116,6 +135,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     setSimulationResult(undefined)
     setStatsOverride(undefined)
     setSharedRoundCode(undefined)
+    setNewlyUnlockedAchievements([])
     setView('home')
 
     // Drop the debug shortcut params so leaving the mock results page
@@ -146,6 +166,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       simulationResult,
       statsOverride,
       sharedRoundCode,
+      newlyUnlockedAchievements,
       startRound,
       beginDraft,
       finishDraft,
@@ -160,6 +181,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       simulationResult,
       statsOverride,
       sharedRoundCode,
+      newlyUnlockedAchievements,
       startRound,
       beginDraft,
       finishDraft,

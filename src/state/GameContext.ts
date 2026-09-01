@@ -1,6 +1,7 @@
 import { createContext } from 'react'
 import type { Course } from '../content/types'
 import type { CountriesContent, CoursesContent, OddsConfig } from '../content/types'
+import type { Achievement } from '../game/achievements/deriveAchievements'
 import type { DraftPick } from '../game/draft/types'
 import type { SimulationResult } from '../game/simulation/types'
 import type { RoundRecord } from '../game/stats/types'
@@ -29,6 +30,11 @@ export interface GameContextValue {
   // path (see GameProvider.tsx) — SharedRoundPage decodes it itself once
   // content is ready, rather than GameProvider doing the decode.
   sharedRoundCode?: string
+  // Whichever achievements this specific round newly unlocked (that weren't
+  // already unlocked before it), computed once in finishDraft and cleared
+  // by playAgain — powers the results page's NewAchievementCard. Empty for
+  // a round reached any other way (shared link, stats history, ?simResults).
+  newlyUnlockedAchievements: Achievement[]
   startRound: (courseId: string) => void
   beginDraft: () => void
   finishDraft: (picks: DraftPick[]) => void

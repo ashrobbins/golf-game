@@ -64,8 +64,8 @@ describe('deriveAchievements', () => {
   it('returns every achievement locked when there are no rounds at all', () => {
     const achievements = deriveAchievements([], COURSES, COUNTRIES)
     expect(achievements.every((a) => !a.isUnlocked)).toBe(true)
-    // 2 courses x 2 per-course achievements + 13 career milestones + 7 iconic moments
-    expect(achievements).toHaveLength(24)
+    // 2 courses x 2 per-course achievements + 13 career milestones + 8 iconic moments
+    expect(achievements).toHaveLength(25)
   })
 
   it('unlocks a course bogey-free achievement only when a bogey-free round exists at that course', () => {
@@ -148,6 +148,7 @@ describe('deriveAchievements', () => {
       'postcard-perfect',
       'jimenez-escape',
       'miracle-at-medinah',
+      'kiwi-closer',
     ])
   })
 
@@ -155,7 +156,7 @@ describe('deriveAchievements', () => {
     const achievements = deriveAchievements([], COURSES, COUNTRIES)
     expect(achievements.filter((a) => a.section === 'course')).toHaveLength(4)
     expect(achievements.filter((a) => a.section === 'career')).toHaveLength(13)
-    expect(achievements.filter((a) => a.section === 'iconic')).toHaveLength(7)
+    expect(achievements.filter((a) => a.section === 'iconic')).toHaveLength(8)
   })
 
   it('unlocks "First Hole-in-One" from a hole-in-one on any course', () => {
@@ -521,6 +522,25 @@ describe('deriveAchievements', () => {
       expect(
         deriveAchievements(rounds, COURSES, COUNTRIES).find((a) => a.id === 'miracle-at-medinah')?.isUnlocked,
       ).toBe(false)
+    }
+  })
+
+  it('unlocks "Kiwi Closer" for a birdie by Ryan Fox on Royal Birkdale hole 18', () => {
+    const rounds = [round('royal-birkdale', { holeResults: [hole(18, 'birdie', -1, 'nzl-fox')] })]
+    expect(deriveAchievements(rounds, COURSES, COUNTRIES).find((a) => a.id === 'kiwi-closer')?.isUnlocked).toBe(
+      true,
+    )
+  })
+
+  it('does not unlock "Kiwi Closer" for the wrong golfer, hole, course, or outcome', () => {
+    const wrongGolfer = [round('royal-birkdale', { holeResults: [hole(18, 'birdie', -1, 'someone-else')] })]
+    const wrongHole = [round('royal-birkdale', { holeResults: [hole(17, 'birdie', -1, 'nzl-fox')] })]
+    const wrongCourse = [round('augusta', { holeResults: [hole(18, 'birdie', -1, 'nzl-fox')] })]
+    const wrongOutcome = [round('royal-birkdale', { holeResults: [hole(18, 'par', 0, 'nzl-fox')] })]
+    for (const rounds of [wrongGolfer, wrongHole, wrongCourse, wrongOutcome]) {
+      expect(deriveAchievements(rounds, COURSES, COUNTRIES).find((a) => a.id === 'kiwi-closer')?.isUnlocked).toBe(
+        false,
+      )
     }
   })
 

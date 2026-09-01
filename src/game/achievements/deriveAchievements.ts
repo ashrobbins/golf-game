@@ -59,6 +59,10 @@ const MIRACLE_AT_MEDINAH_COURSE_ID = 'medinah'
 const MIRACLE_AT_MEDINAH_HOLE_NUMBER = 18
 const MIRACLE_AT_MEDINAH_GOLFER_ID = 'eng-poulter'
 
+const KIWI_CLOSER_COURSE_ID = 'royal-birkdale'
+const KIWI_CLOSER_HOLE_NUMBER = 18
+const KIWI_CLOSER_GOLFER_ID = 'nzl-fox' // Ryan Fox, New Zealand.
+
 // Six legends, five birdies each, across the whole round history — not
 // tied to any single round the way the other Iconic Moments are.
 const GRAND_SLAM_GOLFER_IDS = ['usa-nicklaus', 'rsa-player', 'usa-woods', 'nir-mcilroy', 'usa-hogan', 'usa-sarazen']
@@ -442,6 +446,13 @@ export function deriveAchievements(
     description: "Birdie Medinah's 18th with Ian Poulter.",
     section: 'iconic',
     isUnlocked: hasBirdieAt(rounds, MIRACLE_AT_MEDINAH_COURSE_ID, MIRACLE_AT_MEDINAH_HOLE_NUMBER, MIRACLE_AT_MEDINAH_GOLFER_ID),
+  })
+  achievements.push({
+    id: 'kiwi-closer',
+    name: 'Kiwi Closer',
+    description: "Birdie Royal Birkdale's 18th with Ryan Fox.",
+    section: 'iconic',
+    isUnlocked: hasBirdieAt(rounds, KIWI_CLOSER_COURSE_ID, KIWI_CLOSER_HOLE_NUMBER, KIWI_CLOSER_GOLFER_ID),
   })
 
   return achievements

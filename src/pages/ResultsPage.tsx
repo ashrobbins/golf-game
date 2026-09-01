@@ -8,7 +8,7 @@ import { useHoleRevealSequencer } from '../hooks/useHoleRevealSequencer'
 import { useGame } from '../state/useGame'
 
 export function ResultsPage() {
-  const { content, course, simulationResult, playAgain } = useGame()
+  const { content, course, simulationResult, playAgain, newlyUnlockedAchievements, viewAchievements } = useGame()
   const { revealedCount, isComplete, skipToEnd } = useHoleRevealSequencer(
     simulationResult?.holeResults ?? [],
   )
@@ -36,7 +36,13 @@ export function ResultsPage() {
               Share
             </Button>
           </div>
-          <Scorecard course={course} countries={content.countries} result={simulationResult} />
+          <Scorecard
+            course={course}
+            countries={content.countries}
+            result={simulationResult}
+            newlyUnlockedAchievements={newlyUnlockedAchievements}
+            onViewAchievements={viewAchievements}
+          />
           <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginTop: 24 }}>
             <Button onClick={playAgain}>Play again</Button>
             <Button variant="secondary" onClick={() => setIsShareOpen(true)}>

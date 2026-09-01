@@ -1,7 +1,9 @@
 import { useMemo } from 'react'
 import type { CountriesContent, Country, Course, Golfer } from '../../content/types'
+import type { Achievement } from '../../game/achievements/deriveAchievements'
 import { generateHoleCommentary } from '../../game/simulation/commentary'
 import type { SimulationResult } from '../../game/simulation/types'
+import { NewAchievementCard } from '../achievements/NewAchievementCard'
 import { Confetti } from './Confetti'
 import { HoleResultRow } from './HoleResultRow'
 import { ResultsHero } from './ResultsHero'
@@ -12,9 +14,21 @@ interface ScorecardProps {
   course: Course
   countries: CountriesContent
   result: SimulationResult
+  // Only ever set when this Scorecard is the live result of a round just
+  // played (see ResultsPage.tsx) — omitted when reused to display a past
+  // round from Stats or a shared /round/[code] link, so the "new
+  // achievement" card never appears outside the moment it actually happened.
+  newlyUnlockedAchievements?: Achievement[]
+  onViewAchievements?: () => void
 }
 
-export function Scorecard({ course, countries, result }: ScorecardProps) {
+export function Scorecard({
+  course,
+  countries,
+  result,
+  newlyUnlockedAchievements,
+  onViewAchievements,
+}: ScorecardProps) {
   const golferIndex = useMemo(() => {
     const map = new Map<string, Golfer>()
     for (const country of countries.countries) {
@@ -55,6 +69,9 @@ export function Scorecard({ course, countries, result }: ScorecardProps) {
         bogeyFreeThroughHole={result.bogeyFreeThroughHole}
         isBogeyFreeRound={result.isBogeyFreeRound}
       />
+      {newlyUnlockedAchievements && newlyUnlockedAchievements.length > 0 && onViewAchievements && (
+        <NewAchievementCard achievements={newlyUnlockedAchievements} onViewAchievements={onViewAchievements} />
+      )}
       <ScorecardGrid holes={course.holes} holeResults={result.holeResults} />
 
       <ul className={styles.list}>
