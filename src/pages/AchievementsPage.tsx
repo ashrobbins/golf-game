@@ -126,6 +126,7 @@ function AchievementCard({ achievements }: { achievements: Achievement[] }) {
                 {achievement.roster && <AchievementRoster roster={achievement.roster} />}
                 {achievement.progress && <AchievementProgress {...achievement.progress} />}
                 {achievement.holeProgress && <AchievementHoleDots holes={achievement.holeProgress} />}
+                {achievement.trivia && <p className={styles.trivia}>{achievement.trivia}</p>}
               </div>
             </li>
           )

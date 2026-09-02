@@ -63,6 +63,33 @@ const KIWI_CLOSER_COURSE_ID = 'royal-birkdale'
 const KIWI_CLOSER_HOLE_NUMBER = 18
 const KIWI_CLOSER_GOLFER_ID = 'nzl-fox' // Ryan Fox, New Zealand.
 
+// Paul Lawrie closed with a 4-under 67 in the final round to win the 1999
+// Open Championship at Carnoustie, coming from 10 shots back after Jean
+// van de Velde's collapse at the 18th forced a playoff.
+const LAWRIE_COMEBACK_COURSE_ID = 'carnoustie'
+const LAWRIE_COMEBACK_GOLFER_ID = 'sco-lawrie'
+const LAWRIE_COMEBACK_MAX_TO_PAR = -4
+
+// Sergio Garcia's second-round 64 (-7) at Valderrama, on the way to winning
+// the 2018 Andalucía Valderrama Masters on home soil in Spain.
+const GARCIA_HOME_SOIL_COURSE_ID = 'valderrama'
+const GARCIA_HOME_SOIL_GOLFER_ID = 'esp-garcia'
+const GARCIA_HOME_SOIL_MAX_TO_PAR = -7
+
+// Scottie Scheffler's final-round 62 (-9) at Le Golf National won him the
+// gold medal at the 2024 Paris Olympics.
+const SCHEFFLER_GOLD_COURSE_ID = 'le-golf-national'
+const SCHEFFLER_GOLD_GOLFER_ID = 'usa-scheffler'
+const SCHEFFLER_GOLD_MAX_TO_PAR = -9
+
+// A gross-stroke threshold, same convention as BREAK_60_STROKES/
+// THREE_PEAT_MAX_GROSS_SCORE above. Henrik Stenson closed with a 64 to win
+// the 2013 DP World Tour Championship — and the Race to Dubai title with
+// it — at Jumeirah Golf Estates' Earth Course.
+const STENSON_FINALE_COURSE_ID = 'earth-course'
+const STENSON_FINALE_GOLFER_ID = 'swe-stenson'
+const STENSON_FINALE_MAX_GROSS_SCORE = 64
+
 // Six legends, five birdies each, across the whole round history — not
 // tied to any single round the way the other Iconic Moments are.
 const GRAND_SLAM_GOLFER_IDS = ['usa-nicklaus', 'rsa-player', 'usa-woods', 'nir-mcilroy', 'usa-hogan', 'usa-sarazen']
@@ -116,6 +143,10 @@ export interface Achievement {
   // a grey/green dot strip by the reusable AchievementHoleDots UI
   // component, one entry per hole in course order.
   holeProgress?: AchievementHoleProgressEntry[]
+  // Optional short real-world context — almost exclusively used by Iconic
+  // Moments, since those are the achievements actually tied to a specific
+  // real event. Rendered as small print under the description.
+  trivia?: string
 }
 
 function isBogeyFreeAt(rounds: RoundRecord[], courseId: string): boolean {
@@ -209,6 +240,44 @@ function hasGoneGoldenBear(rounds: RoundRecord[]): boolean {
       r.courseId === GOLDEN_BEAR_COURSE_ID &&
       r.isBogeyFreeRound &&
       r.holeResults.some((h) => h.golferId === GOLDEN_BEAR_GOLFER_ID),
+  )
+}
+
+// Relative-to-par version of the same "score X with golfer Y in the bag, in
+// the same round" shape as hasGoneGoldenBear above, generalized for the
+// Carnoustie/Valderrama/Le Golf National real-round-recreation achievements.
+function hasScoredWithGolferAt(
+  rounds: RoundRecord[],
+  courseId: string,
+  golferId: string,
+  maxStrokesToPar: number,
+): boolean {
+  return rounds.some(
+    (r) =>
+      r.courseId === courseId &&
+      r.totalStrokesToPar <= maxStrokesToPar &&
+      r.holeResults.some((h) => h.golferId === golferId),
+  )
+}
+
+// Gross-stroke version of the same shape, same BREAK_60_STROKES-style
+// convention — needs the course's own par to convert, so it looks the
+// course up from the passed-in list rather than taking it as a param
+// (matching hasThreePeat's own per-round course lookup above).
+function hasShotGrossWithGolferAt(
+  rounds: RoundRecord[],
+  courses: Course[],
+  courseId: string,
+  golferId: string,
+  maxGrossScore: number,
+): boolean {
+  const course = courses.find((c) => c.id === courseId)
+  if (!course) return false
+  return rounds.some(
+    (r) =>
+      r.courseId === courseId &&
+      course.par + r.totalStrokesToPar <= maxGrossScore &&
+      r.holeResults.some((h) => h.golferId === golferId),
   )
 }
 
@@ -468,6 +537,8 @@ export function deriveAchievements(
     description: "Make a hole-in-one on TPC Sawgrass's par-3 17th — the Island Green.",
     section: 'iconic',
     isUnlocked: hasHoleInOneAt(rounds, ISLAND_GREEN_COURSE_ID, ISLAND_GREEN_HOLE_NUMBER),
+    trivia:
+      "TPC Sawgrass's par-3 17th is almost entirely surrounded by water, making it one of the most recognizable — and feared — holes in golf.",
   })
   achievements.push({
     id: 'amen-corner-answered',
@@ -475,6 +546,8 @@ export function deriveAchievements(
     description: 'Play holes 11–13 at Augusta National — Amen Corner — under par, combined.',
     section: 'iconic',
     isUnlocked: hasPlayedAmenCornerUnderPar(rounds),
+    trivia:
+      "Sportswriter Herbert Warren Wind coined \"Amen Corner\" in 1958, naming Augusta's 11th, 12th, and 13th after the jazz record \"Shoutin' in that Amen Corner.\"",
   })
   achievements.push({
     id: 'the-impossible-chip',
@@ -482,6 +555,8 @@ export function deriveAchievements(
     description: 'Score a birdie with Tiger Woods on Augusta National’s 16th.',
     section: 'iconic',
     isUnlocked: hasBirdieAt(rounds, IMPOSSIBLE_CHIP_COURSE_ID, IMPOSSIBLE_CHIP_HOLE_NUMBER, IMPOSSIBLE_CHIP_GOLFER_ID),
+    trivia:
+      "Tiger Woods holed a chip on Augusta's 16th during the final round of the 2005 Masters — the ball paused on the lip just long enough for the Nike swoosh to face the camera before dropping.",
   })
   achievements.push({
     id: 'golden-bear',
@@ -489,6 +564,64 @@ export function deriveAchievements(
     description: 'Go bogey-free at Augusta National with Jack Nicklaus in the bag.',
     section: 'iconic',
     isUnlocked: hasGoneGoldenBear(rounds),
+    trivia: 'Jack Nicklaus — golf\'s "Golden Bear" — won a record six Masters titles at Augusta National, from 1963 to 1986.',
+  })
+  achievements.push({
+    id: 'lawrie-comeback',
+    name: 'The Carnoustie Comeback',
+    description: `Score ${LAWRIE_COMEBACK_MAX_TO_PAR} or better at Carnoustie with Paul Lawrie in the bag.`,
+    section: 'iconic',
+    isUnlocked: hasScoredWithGolferAt(
+      rounds,
+      LAWRIE_COMEBACK_COURSE_ID,
+      LAWRIE_COMEBACK_GOLFER_ID,
+      LAWRIE_COMEBACK_MAX_TO_PAR,
+    ),
+    trivia:
+      "Paul Lawrie came from 10 shots back in the final round to win the 1999 Open Championship at Carnoustie, closing with a 4-under 67 after Jean van de Velde's collapse at the 18th forced a playoff.",
+  })
+  achievements.push({
+    id: 'garcia-home-soil',
+    name: 'Home Soil Hero',
+    description: `Score ${GARCIA_HOME_SOIL_MAX_TO_PAR} or better at Valderrama with Sergio García in the bag.`,
+    section: 'iconic',
+    isUnlocked: hasScoredWithGolferAt(
+      rounds,
+      GARCIA_HOME_SOIL_COURSE_ID,
+      GARCIA_HOME_SOIL_GOLFER_ID,
+      GARCIA_HOME_SOIL_MAX_TO_PAR,
+    ),
+    trivia:
+      'Sergio García fired a second-round 64 at Valderrama on his way to winning the 2018 Andalucía Valderrama Masters on home soil in Spain.',
+  })
+  achievements.push({
+    id: 'scheffler-gold',
+    name: 'Olympic Gold',
+    description: `Score ${SCHEFFLER_GOLD_MAX_TO_PAR} or better at Le Golf National with Scottie Scheffler in the bag.`,
+    section: 'iconic',
+    isUnlocked: hasScoredWithGolferAt(
+      rounds,
+      SCHEFFLER_GOLD_COURSE_ID,
+      SCHEFFLER_GOLD_GOLFER_ID,
+      SCHEFFLER_GOLD_MAX_TO_PAR,
+    ),
+    trivia:
+      'Scottie Scheffler closed with a final-round 62 at Le Golf National to win the gold medal at the 2024 Paris Olympics.',
+  })
+  achievements.push({
+    id: 'stenson-finale',
+    name: "Iron Byron's Finale",
+    description: `Shoot ${STENSON_FINALE_MAX_GROSS_SCORE} or better at the Earth Course with Henrik Stenson in the bag.`,
+    section: 'iconic',
+    isUnlocked: hasShotGrossWithGolferAt(
+      rounds,
+      courses,
+      STENSON_FINALE_COURSE_ID,
+      STENSON_FINALE_GOLFER_ID,
+      STENSON_FINALE_MAX_GROSS_SCORE,
+    ),
+    trivia:
+      'Henrik Stenson — nicknamed "Iron Byron" for his ball-striking — closed with a 64 to win the 2013 DP World Tour Championship, and the Race to Dubai title with it, at Jumeirah Golf Estates\' Earth Course.',
   })
   achievements.push({
     id: 'postcard-perfect',
@@ -496,6 +629,8 @@ export function deriveAchievements(
     description: "Make a hole-in-one on Pebble Beach's tiny par-3 7th.",
     section: 'iconic',
     isUnlocked: hasHoleInOneAt(rounds, POSTCARD_PERFECT_COURSE_ID, POSTCARD_PERFECT_HOLE_NUMBER),
+    trivia:
+      "Pebble Beach's par-3 7th plays as short as 100 yards but sits perched above the Pacific, making it one of the most photographed holes in golf.",
   })
   achievements.push({
     id: 'jimenez-escape',
@@ -503,6 +638,8 @@ export function deriveAchievements(
     description: 'Make par or better on the Road Hole at St Andrews with Miguel Angel Jimenez.',
     section: 'iconic',
     isUnlocked: hasJimenezEscape(rounds),
+    trivia:
+      "In the 2010 Open Championship, Miguel Ángel Jiménez's tee shot on the Road Hole came to rest against the stone boundary wall — and he still escaped with a par.",
   })
   achievements.push({
     id: 'miracle-at-medinah',
@@ -510,6 +647,8 @@ export function deriveAchievements(
     description: "Birdie Medinah's 18th with Ian Poulter.",
     section: 'iconic',
     isUnlocked: hasBirdieAt(rounds, MIRACLE_AT_MEDINAH_COURSE_ID, MIRACLE_AT_MEDINAH_HOLE_NUMBER, MIRACLE_AT_MEDINAH_GOLFER_ID),
+    trivia:
+      "Ian Poulter birdied Medinah's 18th during the 2012 Ryder Cup, part of a five-birdie finishing run that fired up Europe's historic comeback from 10-6 down.",
   })
   achievements.push({
     id: 'kiwi-closer',
@@ -517,6 +656,7 @@ export function deriveAchievements(
     description: "Birdie Royal Birkdale's 18th with Ryan Fox.",
     section: 'iconic',
     isUnlocked: hasBirdieAt(rounds, KIWI_CLOSER_COURSE_ID, KIWI_CLOSER_HOLE_NUMBER, KIWI_CLOSER_GOLFER_ID),
+    trivia: 'Ryan Fox is one of New Zealand\'s most successful modern golfers, a multiple-time DP World Tour winner known for his power off the tee.',
   })
 
   return achievements

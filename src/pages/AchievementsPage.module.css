@@ -205,6 +205,18 @@
   line-height: 1.4;
 }
 
+/* Real-world context, not the requirement itself — set apart from .desc by
+   going smaller/italic/more knocked-back rather than just repeating its
+   styling, so the two read as clearly different kinds of text at a glance. */
+.trivia {
+  margin: 5px 0 0;
+  font-size: 11px;
+  font-style: italic;
+  color: var(--text-muted);
+  opacity: 0.75;
+  line-height: 1.45;
+}
+
 /* Same knocked-back treatment as StatsPage's own local-storage disclosure
    (StatsPage.module.css) — a footnote, not content anyone needs to read
    at a glance. */

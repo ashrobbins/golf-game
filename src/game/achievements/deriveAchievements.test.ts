@@ -64,8 +64,8 @@ describe('deriveAchievements', () => {
   it('returns every achievement locked when there are no rounds at all', () => {
     const achievements = deriveAchievements([], COURSES, COUNTRIES)
     expect(achievements.every((a) => !a.isUnlocked)).toBe(true)
-    // 2 courses x 3 per-course achievements + 14 career milestones + 8 iconic moments
-    expect(achievements).toHaveLength(28)
+    // 2 courses x 3 per-course achievements + 14 career milestones + 12 iconic moments
+    expect(achievements).toHaveLength(32)
   })
 
   it('unlocks a course bogey-free achievement only when a bogey-free round exists at that course', () => {
@@ -213,6 +213,10 @@ describe('deriveAchievements', () => {
       'amen-corner-answered',
       'the-impossible-chip',
       'golden-bear',
+      'lawrie-comeback',
+      'garcia-home-soil',
+      'scheffler-gold',
+      'stenson-finale',
       'postcard-perfect',
       'jimenez-escape',
       'miracle-at-medinah',
@@ -224,7 +228,7 @@ describe('deriveAchievements', () => {
     const achievements = deriveAchievements([], COURSES, COUNTRIES)
     expect(achievements.filter((a) => a.section === 'course')).toHaveLength(6)
     expect(achievements.filter((a) => a.section === 'career')).toHaveLength(14)
-    expect(achievements.filter((a) => a.section === 'iconic')).toHaveLength(8)
+    expect(achievements.filter((a) => a.section === 'iconic')).toHaveLength(12)
   })
 
   it('unlocks "First Hole-in-One" from a hole-in-one on any course', () => {
@@ -386,6 +390,77 @@ describe('deriveAchievements', () => {
     for (const rounds of [noNicklaus, notBogeyFree, wrongCourse]) {
       expect(deriveAchievements(rounds, COURSES, COUNTRIES).find((a) => a.id === 'golden-bear')?.isUnlocked).toBe(false)
     }
+  })
+
+  it('unlocks "The Carnoustie Comeback" only for -4 or better at Carnoustie with Paul Lawrie in the bag', () => {
+    const good = [round('carnoustie', { totalStrokesToPar: -4, holeResults: [hole(1, 'par', 0, 'sco-lawrie')] })]
+    expect(deriveAchievements(good, COURSES, COUNTRIES).find((a) => a.id === 'lawrie-comeback')?.isUnlocked).toBe(true)
+
+    const worse = [round('carnoustie', { totalStrokesToPar: -3, holeResults: [hole(1, 'par', 0, 'sco-lawrie')] })]
+    expect(deriveAchievements(worse, COURSES, COUNTRIES).find((a) => a.id === 'lawrie-comeback')?.isUnlocked).toBe(
+      false,
+    )
+
+    const noLawrie = [round('carnoustie', { totalStrokesToPar: -4, holeResults: [hole(1, 'par', 0, 'someone-else')] })]
+    expect(
+      deriveAchievements(noLawrie, COURSES, COUNTRIES).find((a) => a.id === 'lawrie-comeback')?.isUnlocked,
+    ).toBe(false)
+  })
+
+  it('unlocks "Home Soil Hero" only for -7 or better at Valderrama with Sergio García in the bag', () => {
+    const good = [round('valderrama', { totalStrokesToPar: -7, holeResults: [hole(1, 'par', 0, 'esp-garcia')] })]
+    expect(deriveAchievements(good, COURSES, COUNTRIES).find((a) => a.id === 'garcia-home-soil')?.isUnlocked).toBe(
+      true,
+    )
+
+    const worse = [round('valderrama', { totalStrokesToPar: -6, holeResults: [hole(1, 'par', 0, 'esp-garcia')] })]
+    expect(deriveAchievements(worse, COURSES, COUNTRIES).find((a) => a.id === 'garcia-home-soil')?.isUnlocked).toBe(
+      false,
+    )
+  })
+
+  it('unlocks "Olympic Gold" only for -9 or better at Le Golf National with Scottie Scheffler in the bag', () => {
+    const good = [
+      round('le-golf-national', { totalStrokesToPar: -9, holeResults: [hole(1, 'par', 0, 'usa-scheffler')] }),
+    ]
+    expect(deriveAchievements(good, COURSES, COUNTRIES).find((a) => a.id === 'scheffler-gold')?.isUnlocked).toBe(
+      true,
+    )
+
+    const worse = [
+      round('le-golf-national', { totalStrokesToPar: -8, holeResults: [hole(1, 'par', 0, 'usa-scheffler')] }),
+    ]
+    expect(deriveAchievements(worse, COURSES, COUNTRIES).find((a) => a.id === 'scheffler-gold')?.isUnlocked).toBe(
+      false,
+    )
+  })
+
+  it('unlocks "Iron Byron\'s Finale" only for 64-or-better gross at the Earth Course with Henrik Stenson in the bag', () => {
+    const earthCourse: Course = { id: 'earth-course', name: 'earth-course', par: 72, holes: [] }
+    const courses = [...COURSES, earthCourse]
+
+    // Par 72: -8 to par = 64 gross, which does shoot 64 or under.
+    const good = [
+      round('earth-course', { totalStrokesToPar: -8, holeResults: [hole(1, 'par', 0, 'swe-stenson')] }),
+    ]
+    expect(deriveAchievements(good, courses, COUNTRIES).find((a) => a.id === 'stenson-finale')?.isUnlocked).toBe(
+      true,
+    )
+
+    // -7 to par = 65 gross, which does NOT shoot 64 or under.
+    const worse = [
+      round('earth-course', { totalStrokesToPar: -7, holeResults: [hole(1, 'par', 0, 'swe-stenson')] }),
+    ]
+    expect(deriveAchievements(worse, courses, COUNTRIES).find((a) => a.id === 'stenson-finale')?.isUnlocked).toBe(
+      false,
+    )
+
+    const noStenson = [
+      round('earth-course', { totalStrokesToPar: -8, holeResults: [hole(1, 'par', 0, 'someone-else')] }),
+    ]
+    expect(
+      deriveAchievements(noStenson, courses, COUNTRIES).find((a) => a.id === 'stenson-finale')?.isUnlocked,
+    ).toBe(false)
   })
 
   it('unlocks "3-Peat" only for 3 consecutive rounds (by play order) shooting 65 or under gross', () => {
