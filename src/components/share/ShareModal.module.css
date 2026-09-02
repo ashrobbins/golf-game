@@ -90,6 +90,49 @@
   height: 13px;
 }
 
+/* Compact chip toggles rather than full switch rows (à la SettingsDrawer)
+   — four of those would eat more vertical space than the modal can spare
+   alongside the preview below. Same filled/outline convention as
+   AchievementsPage's own tab pills. */
+.toggleGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 14px;
+}
+
+.toggleChip {
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.toggleChip:hover:not(.toggleChipOn) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.toggleChip:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.toggleChipOn {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-contrast);
+}
+
 .thumbWrap {
   margin: 16px 0;
 }

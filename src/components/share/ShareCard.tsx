@@ -13,13 +13,20 @@ interface ShareCardProps {
   course: Course
   countries: CountriesContent
   result: SimulationResult
-  // Short display form of the share URL for the footer — full-length codes
-  // run ~50 characters, too cramped at this font size, so callers pass an
-  // already-truncated string.
-  shareUrlDisplay: string
+  // The site's base domain for the footer — not the round-specific share
+  // link, which never fit at this font size and isn't copyable off a
+  // flattened PNG anyway. The real link only travels as text, via the
+  // modal's Copy button.
+  siteUrlDisplay: string
   // Achievements this specific round newly unlocked (see GameProvider's
   // before/after diff) — optional since most shared rounds unlock nothing.
   newlyUnlockedAchievements?: Achievement[]
+  // Per-section visibility, all opt-out (default shown) — lets the share
+  // modal's toggles trim the card down to just what someone wants to post.
+  showHero?: boolean
+  showAchievements?: boolean
+  showScorecard?: boolean
+  showTopPerformer?: boolean
 }
 
 // Rendered off-screen at its real natural size (see ShareModal.tsx, which
@@ -30,7 +37,17 @@ interface ShareCardProps {
 // built specifically for this static-image layout (see their own files for
 // why they aren't just reused from the scrollable/live-reveal versions).
 export const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(function ShareCard(
-  { course, countries, result, shareUrlDisplay, newlyUnlockedAchievements },
+  {
+    course,
+    countries,
+    result,
+    siteUrlDisplay,
+    newlyUnlockedAchievements,
+    showHero = true,
+    showAchievements = true,
+    showScorecard = true,
+    showTopPerformer = true,
+  },
   ref,
 ) {
   const countryIndex = new Map<string, Country>(countries.countries.map((c) => [c.id, c]))
@@ -44,23 +61,25 @@ export const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(function Sha
         <span className={styles.brandName}>Beating Bogey</span>
       </div>
 
-      <ResultsHero
-        courseName={course.name}
-        countryIsoCode={course.countryIsoCode}
-        holes={course.holes}
-        holeResults={result.holeResults}
-        totalStrokesToPar={result.totalStrokesToPar}
-        bogeyFreeThroughHole={result.bogeyFreeThroughHole}
-        isBogeyFreeRound={result.isBogeyFreeRound}
-      />
+      {showHero && (
+        <ResultsHero
+          courseName={course.name}
+          countryIsoCode={course.countryIsoCode}
+          holes={course.holes}
+          holeResults={result.holeResults}
+          totalStrokesToPar={result.totalStrokesToPar}
+          bogeyFreeThroughHole={result.bogeyFreeThroughHole}
+          isBogeyFreeRound={result.isBogeyFreeRound}
+        />
+      )}
 
-      {newlyUnlockedAchievements && newlyUnlockedAchievements.length > 0 && (
+      {showAchievements && newlyUnlockedAchievements && newlyUnlockedAchievements.length > 0 && (
         <AchievementUnlockBanner achievements={newlyUnlockedAchievements} />
       )}
 
-      <StackedScorecard holes={course.holes} holeResults={result.holeResults} />
+      {showScorecard && <StackedScorecard holes={course.holes} holeResults={result.holeResults} />}
 
-      {performer && performerHole && (
+      {showTopPerformer && performer && performerHole && (
         <TopPerformerCard
           performer={performer}
           hole={performerHole}
@@ -69,7 +88,7 @@ export const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(function Sha
       )}
 
       <div className={styles.footer}>
-        <span className={styles.footerUrl}>{shareUrlDisplay}</span>
+        <span className={styles.footerUrl}>{siteUrlDisplay}</span>
         <span className={styles.footerTag}>Can you go lower?</span>
       </div>
     </div>

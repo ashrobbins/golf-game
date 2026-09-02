@@ -25,9 +25,27 @@ interface ShareModalProps {
 const PIXEL_RATIO = 2.5
 type CopyState = 'idle' | 'copied'
 
-function truncateForDisplay(url: string): string {
-  return url.length > 40 ? `${url.slice(0, 38)}…` : url
+// What's shown in the image's own footer — just the site's base domain,
+// not the round-specific share link. The full link never fit at this font
+// size, and it isn't actually copyable off a flattened PNG anyway; the
+// real link only ever needs to travel as text, via Copy below.
+function baseUrlDisplay(origin: string): string {
+  return origin.replace(/^https?:\/\//, '').replace(/\/$/, '')
 }
+
+interface VisibleSections {
+  hero: boolean
+  achievements: boolean
+  scorecard: boolean
+  topPerformer: boolean
+}
+
+const SECTION_TOGGLES: Array<{ key: keyof VisibleSections; label: string }> = [
+  { key: 'hero', label: 'Round hero' },
+  { key: 'achievements', label: 'Achievements' },
+  { key: 'scorecard', label: 'Scorecard' },
+  { key: 'topPerformer', label: 'Top performer' },
+]
 
 export function ShareModal({
   isOpen,
@@ -42,11 +60,25 @@ export function ShareModal({
   const thumbWrapRef = useRef<HTMLDivElement>(null)
   const [imageCopyState, setImageCopyState] = useState<CopyState>('idle')
   const [linkCopyState, setLinkCopyState] = useState<CopyState>('idle')
+  // Everything on by default — these are opt-out, not opt-in, so a share
+  // still looks like today's card unless someone deliberately trims it.
+  const [visibleSections, setVisibleSections] = useState<VisibleSections>({
+    hero: true,
+    achievements: true,
+    scorecard: true,
+    topPerformer: true,
+  })
   // Zoom factor that fills the thumbnail to the modal's actual (responsive)
   // width instead of a fixed 0.4 — measured live so it always fills the
-  // container regardless of viewport size, rather than leaving a gap or
-  // looking squished on narrow phones.
+  // container regardless of viewport size, rather than looking squished on
+  // narrow phones.
   const [thumbScale, setThumbScale] = useState(0.4)
+
+  const hasNewAchievements = !!newlyUnlockedAchievements && newlyUnlockedAchievements.length > 0
+
+  function toggleSection(key: keyof VisibleSections) {
+    setVisibleSections((prev) => ({ ...prev, [key]: !prev[key] }))
+  }
 
   useLayoutEffect(() => {
     if (!isOpen) return
@@ -154,6 +186,28 @@ export function ShareModal({
           </button>
         </div>
 
+        <div className={styles.toggleGroup} role="group" aria-label="Include in image">
+          {SECTION_TOGGLES.map(({ key, label }) => {
+            // The achievements toggle only makes sense when this round
+            // actually unlocked something — nothing to include otherwise,
+            // same guard ShareCard itself already applies to the banner.
+            if (key === 'achievements' && !hasNewAchievements) return null
+            const isOn = visibleSections[key]
+            return (
+              <button
+                key={key}
+                type="button"
+                role="switch"
+                aria-checked={isOn}
+                className={isOn ? `${styles.toggleChip} ${styles.toggleChipOn}` : styles.toggleChip}
+                onClick={() => toggleSection(key)}
+              >
+                {label}
+              </button>
+            )
+          })}
+        </div>
+
         <div className={styles.thumbWrap} ref={thumbWrapRef}>
           <div className={styles.thumb}>
             <div className={styles.thumbInner} style={{ zoom: thumbScale }}>
@@ -161,8 +215,12 @@ export function ShareModal({
                 course={course}
                 countries={countries}
                 result={result}
-                shareUrlDisplay={truncateForDisplay(shareUrl)}
+                siteUrlDisplay={baseUrlDisplay(window.location.origin)}
                 newlyUnlockedAchievements={newlyUnlockedAchievements}
+                showHero={visibleSections.hero}
+                showAchievements={visibleSections.achievements}
+                showScorecard={visibleSections.scorecard}
+                showTopPerformer={visibleSections.topPerformer}
               />
             </div>
           </div>
@@ -181,9 +239,10 @@ export function ShareModal({
             type="button"
             className={linkCopyState === 'copied' ? `${styles.btn} ${styles.primary} ${styles.copied}` : `${styles.btn} ${styles.primary}`}
             onClick={handleCopyLink}
+            aria-label="Copy round summary and link"
           >
             <LinkIcon className={styles.btnIcon} />
-            <span>{linkCopyState === 'copied' ? 'Copied!' : 'Copy link'}</span>
+            <span>{linkCopyState === 'copied' ? 'Copied!' : 'Copy'}</span>
           </button>
         </div>
       </div>
@@ -198,8 +257,12 @@ export function ShareModal({
           course={course}
           countries={countries}
           result={result}
-          shareUrlDisplay={truncateForDisplay(shareUrl)}
+          siteUrlDisplay={baseUrlDisplay(window.location.origin)}
           newlyUnlockedAchievements={newlyUnlockedAchievements}
+          showHero={visibleSections.hero}
+          showAchievements={visibleSections.achievements}
+          showScorecard={visibleSections.scorecard}
+          showTopPerformer={visibleSections.topPerformer}
         />
       </div>
     </>
