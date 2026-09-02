@@ -64,8 +64,8 @@ describe('deriveAchievements', () => {
   it('returns every achievement locked when there are no rounds at all', () => {
     const achievements = deriveAchievements([], COURSES, COUNTRIES)
     expect(achievements.every((a) => !a.isUnlocked)).toBe(true)
-    // 2 courses x 3 per-course achievements + 14 career milestones + 12 iconic moments
-    expect(achievements).toHaveLength(32)
+    // 2 courses x 3 per-course achievements + 14 career milestones + 14 iconic moments
+    expect(achievements).toHaveLength(34)
   })
 
   it('unlocks a course bogey-free achievement only when a bogey-free round exists at that course', () => {
@@ -221,6 +221,8 @@ describe('deriveAchievements', () => {
       'jimenez-escape',
       'miracle-at-medinah',
       'kiwi-closer',
+      'matadors-flourish',
+      'cup-clincher',
     ])
   })
 
@@ -228,7 +230,7 @@ describe('deriveAchievements', () => {
     const achievements = deriveAchievements([], COURSES, COUNTRIES)
     expect(achievements.filter((a) => a.section === 'course')).toHaveLength(6)
     expect(achievements.filter((a) => a.section === 'career')).toHaveLength(14)
-    expect(achievements.filter((a) => a.section === 'iconic')).toHaveLength(12)
+    expect(achievements.filter((a) => a.section === 'iconic')).toHaveLength(14)
   })
 
   it('unlocks "First Hole-in-One" from a hole-in-one on any course', () => {
@@ -698,6 +700,44 @@ describe('deriveAchievements', () => {
     const wrongOutcome = [round('royal-birkdale', { holeResults: [hole(18, 'par', 0, 'nzl-fox')] })]
     for (const rounds of [wrongGolfer, wrongHole, wrongCourse, wrongOutcome]) {
       expect(deriveAchievements(rounds, COURSES, COUNTRIES).find((a) => a.id === 'kiwi-closer')?.isUnlocked).toBe(
+        false,
+      )
+    }
+  })
+
+  it('unlocks "The Matador\'s Flourish" for a birdie by Seve Ballesteros on Brabazon hole 10', () => {
+    const rounds = [round('brabazon', { holeResults: [hole(10, 'birdie', -1, 'esp-ballesteros')] })]
+    expect(
+      deriveAchievements(rounds, COURSES, COUNTRIES).find((a) => a.id === 'matadors-flourish')?.isUnlocked,
+    ).toBe(true)
+  })
+
+  it('does not unlock "The Matador\'s Flourish" for the wrong golfer, hole, course, or outcome', () => {
+    const wrongGolfer = [round('brabazon', { holeResults: [hole(10, 'birdie', -1, 'someone-else')] })]
+    const wrongHole = [round('brabazon', { holeResults: [hole(9, 'birdie', -1, 'esp-ballesteros')] })]
+    const wrongCourse = [round('augusta', { holeResults: [hole(10, 'birdie', -1, 'esp-ballesteros')] })]
+    const wrongOutcome = [round('brabazon', { holeResults: [hole(10, 'par', 0, 'esp-ballesteros')] })]
+    for (const rounds of [wrongGolfer, wrongHole, wrongCourse, wrongOutcome]) {
+      expect(
+        deriveAchievements(rounds, COURSES, COUNTRIES).find((a) => a.id === 'matadors-flourish')?.isUnlocked,
+      ).toBe(false)
+    }
+  })
+
+  it('unlocks "The Cup Clincher" for a birdie by Rory McIlroy on Marco Simone hole 17', () => {
+    const rounds = [round('marco-simone', { holeResults: [hole(17, 'birdie', -1, 'nir-mcilroy')] })]
+    expect(deriveAchievements(rounds, COURSES, COUNTRIES).find((a) => a.id === 'cup-clincher')?.isUnlocked).toBe(
+      true,
+    )
+  })
+
+  it('does not unlock "The Cup Clincher" for the wrong golfer, hole, course, or outcome', () => {
+    const wrongGolfer = [round('marco-simone', { holeResults: [hole(17, 'birdie', -1, 'someone-else')] })]
+    const wrongHole = [round('marco-simone', { holeResults: [hole(16, 'birdie', -1, 'nir-mcilroy')] })]
+    const wrongCourse = [round('augusta', { holeResults: [hole(17, 'birdie', -1, 'nir-mcilroy')] })]
+    const wrongOutcome = [round('marco-simone', { holeResults: [hole(17, 'par', 0, 'nir-mcilroy')] })]
+    for (const rounds of [wrongGolfer, wrongHole, wrongCourse, wrongOutcome]) {
+      expect(deriveAchievements(rounds, COURSES, COUNTRIES).find((a) => a.id === 'cup-clincher')?.isUnlocked).toBe(
         false,
       )
     }

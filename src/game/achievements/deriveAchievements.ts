@@ -66,6 +66,20 @@ const KIWI_CLOSER_COURSE_ID = 'royal-birkdale'
 const KIWI_CLOSER_HOLE_NUMBER = 18
 const KIWI_CLOSER_GOLFER_ID = 'nzl-fox' // Ryan Fox, New Zealand.
 
+// The Belfry's short, daring par-4 10th — a green players can reach off
+// the tee — is part of Ryder Cup folklore for Seve Ballesteros's flair
+// there.
+const MATADORS_FLOURISH_COURSE_ID = 'brabazon'
+const MATADORS_FLOURISH_HOLE_NUMBER = 10
+const MATADORS_FLOURISH_GOLFER_ID = 'esp-ballesteros'
+
+// Rory McIlroy beat Sam Burns 3&1 in the final Sunday singles match of the
+// 2023 Ryder Cup — a match decided on the 17th green, sealing Europe's
+// Cup-winning point at Marco Simone.
+const CUP_CLINCHER_COURSE_ID = 'marco-simone'
+const CUP_CLINCHER_HOLE_NUMBER = 17
+const CUP_CLINCHER_GOLFER_ID = 'nir-mcilroy'
+
 // Paul Lawrie closed with a 4-under 67 in the final round to win the 1999
 // Open Championship at Carnoustie, coming from 10 shots back after Jean
 // van de Velde's collapse at the 18th forced a playoff.
@@ -678,6 +692,24 @@ export function deriveAchievements(
     section: 'iconic',
     isUnlocked: hasBirdieAt(rounds, KIWI_CLOSER_COURSE_ID, KIWI_CLOSER_HOLE_NUMBER, KIWI_CLOSER_GOLFER_ID),
     trivia: 'Ryan Fox is one of New Zealand\'s most successful modern golfers, a multiple-time DP World Tour winner known for his power off the tee.',
+  })
+  achievements.push({
+    id: 'matadors-flourish',
+    name: "The Matador's Flourish",
+    description: "Birdie Brabazon's 10th with Seve Ballesteros.",
+    section: 'iconic',
+    isUnlocked: hasBirdieAt(rounds, MATADORS_FLOURISH_COURSE_ID, MATADORS_FLOURISH_HOLE_NUMBER, MATADORS_FLOURISH_GOLFER_ID),
+    trivia:
+      "As golf lore has it, Seve Ballesteros drove the green on The Belfry's short, daring par-4 10th during a practice round — the kind of audacious play that made him a Ryder Cup legend across five appearances for Europe.",
+  })
+  achievements.push({
+    id: 'cup-clincher',
+    name: 'The Cup Clincher',
+    description: "Birdie Marco Simone's 17th with Rory McIlroy.",
+    section: 'iconic',
+    isUnlocked: hasBirdieAt(rounds, CUP_CLINCHER_COURSE_ID, CUP_CLINCHER_HOLE_NUMBER, CUP_CLINCHER_GOLFER_ID),
+    trivia:
+      "Rory McIlroy beat Sam Burns 3&1 in the final Sunday singles match of the 2023 Ryder Cup — decided on the 17th green — sealing Europe's Cup-winning point at Marco Simone.",
   })
 
   return achievements
