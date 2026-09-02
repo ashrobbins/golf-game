@@ -64,8 +64,8 @@ describe('deriveAchievements', () => {
   it('returns every achievement locked when there are no rounds at all', () => {
     const achievements = deriveAchievements([], COURSES, COUNTRIES)
     expect(achievements.every((a) => !a.isUnlocked)).toBe(true)
-    // 2 courses x 3 per-course achievements + 14 career milestones + 14 iconic moments
-    expect(achievements).toHaveLength(34)
+    // 2 courses x 3 per-course achievements + 14 career milestones + 18 iconic moments
+    expect(achievements).toHaveLength(38)
   })
 
   it('unlocks a course bogey-free achievement only when a bogey-free round exists at that course', () => {
@@ -212,17 +212,21 @@ describe('deriveAchievements', () => {
       'the-impossible-chip',
       'amen-corner-answered',
       'golden-bear',
+      'pine-straw-miracle',
       'ace-island-green',
       'postcard-perfect',
       'miracle-at-medinah',
       'cup-clincher',
       'scheffler-gold',
+      'oosthuizen-coronation',
       'lawrie-comeback',
       'stenson-finale',
+      'seves-home-course',
       'kiwi-closer',
       'jimenez-escape',
       'garcia-home-soil',
       'matadors-flourish',
+      'harringtons-survival',
     ])
   })
 
@@ -230,7 +234,7 @@ describe('deriveAchievements', () => {
     const achievements = deriveAchievements([], COURSES, COUNTRIES)
     expect(achievements.filter((a) => a.section === 'course')).toHaveLength(6)
     expect(achievements.filter((a) => a.section === 'career')).toHaveLength(14)
-    expect(achievements.filter((a) => a.section === 'iconic')).toHaveLength(14)
+    expect(achievements.filter((a) => a.section === 'iconic')).toHaveLength(18)
   })
 
   it('unlocks "First Hole-in-One" from a hole-in-one on any course', () => {
@@ -392,6 +396,82 @@ describe('deriveAchievements', () => {
     for (const rounds of [noNicklaus, notBogeyFree, wrongCourse]) {
       expect(deriveAchievements(rounds, COURSES, COUNTRIES).find((a) => a.id === 'golden-bear')?.isUnlocked).toBe(false)
     }
+  })
+
+  it('unlocks "Mickelson\'s Pine Straw Miracle" for an eagle or hole-in-one by Mickelson on Augusta hole 13, not a birdie', () => {
+    const eagle = [round('augusta-national', { holeResults: [hole(13, 'eagle', -2, 'usa-mickelson')] })]
+    expect(
+      deriveAchievements(eagle, COURSES, COUNTRIES).find((a) => a.id === 'pine-straw-miracle')?.isUnlocked,
+    ).toBe(true)
+
+    const birdie = [round('augusta-national', { holeResults: [hole(13, 'birdie', -1, 'usa-mickelson')] })]
+    expect(
+      deriveAchievements(birdie, COURSES, COUNTRIES).find((a) => a.id === 'pine-straw-miracle')?.isUnlocked,
+    ).toBe(false)
+
+    const wrongHole = [round('augusta-national', { holeResults: [hole(12, 'eagle', -2, 'usa-mickelson')] })]
+    expect(
+      deriveAchievements(wrongHole, COURSES, COUNTRIES).find((a) => a.id === 'pine-straw-miracle')?.isUnlocked,
+    ).toBe(false)
+
+    const wrongGolfer = [round('augusta-national', { holeResults: [hole(13, 'eagle', -2, 'someone-else')] })]
+    expect(
+      deriveAchievements(wrongGolfer, COURSES, COUNTRIES).find((a) => a.id === 'pine-straw-miracle')?.isUnlocked,
+    ).toBe(false)
+  })
+
+  it('unlocks "Oosthuizen\'s Coronation" only for -16 or better at St Andrews with Louis Oosthuizen in the bag', () => {
+    const good = [round('st-andrews', { totalStrokesToPar: -16, holeResults: [hole(1, 'par', 0, 'rsa-oosthuizen')] })]
+    expect(
+      deriveAchievements(good, COURSES, COUNTRIES).find((a) => a.id === 'oosthuizen-coronation')?.isUnlocked,
+    ).toBe(true)
+
+    const worse = [round('st-andrews', { totalStrokesToPar: -15, holeResults: [hole(1, 'par', 0, 'rsa-oosthuizen')] })]
+    expect(
+      deriveAchievements(worse, COURSES, COUNTRIES).find((a) => a.id === 'oosthuizen-coronation')?.isUnlocked,
+    ).toBe(false)
+  })
+
+  it('unlocks "Seve\'s Home Course" only for a bogey-free round at Valderrama with Seve Ballesteros in the bag', () => {
+    const rounds = [
+      round('valderrama', { isBogeyFreeRound: true, holeResults: [hole(1, 'par', 0, 'esp-ballesteros')] }),
+    ]
+    expect(
+      deriveAchievements(rounds, COURSES, COUNTRIES).find((a) => a.id === 'seves-home-course')?.isUnlocked,
+    ).toBe(true)
+
+    const notBogeyFree = [
+      round('valderrama', { isBogeyFreeRound: false, holeResults: [hole(1, 'par', 0, 'esp-ballesteros')] }),
+    ]
+    const noSeve = [round('valderrama', { isBogeyFreeRound: true, holeResults: [hole(1, 'par', 0, 'someone-else')] })]
+    for (const bad of [notBogeyFree, noSeve]) {
+      expect(deriveAchievements(bad, COURSES, COUNTRIES).find((a) => a.id === 'seves-home-course')?.isUnlocked).toBe(
+        false,
+      )
+    }
+  })
+
+  it('unlocks "Harrington\'s Survival" for +3 or better at Royal Birkdale with Padraig Harrington in the bag', () => {
+    const good = [
+      round('royal-birkdale', { totalStrokesToPar: 3, holeResults: [hole(1, 'par', 0, 'irl-harrington')] }),
+    ]
+    expect(
+      deriveAchievements(good, COURSES, COUNTRIES).find((a) => a.id === 'harringtons-survival')?.isUnlocked,
+    ).toBe(true)
+
+    const worse = [
+      round('royal-birkdale', { totalStrokesToPar: 4, holeResults: [hole(1, 'par', 0, 'irl-harrington')] }),
+    ]
+    expect(
+      deriveAchievements(worse, COURSES, COUNTRIES).find((a) => a.id === 'harringtons-survival')?.isUnlocked,
+    ).toBe(false)
+
+    const noHarrington = [
+      round('royal-birkdale', { totalStrokesToPar: 3, holeResults: [hole(1, 'par', 0, 'someone-else')] }),
+    ]
+    expect(
+      deriveAchievements(noHarrington, COURSES, COUNTRIES).find((a) => a.id === 'harringtons-survival')?.isUnlocked,
+    ).toBe(false)
   })
 
   it('unlocks "The Carnoustie Comeback" only for -4 or better at Carnoustie with Paul Lawrie in the bag', () => {

@@ -80,6 +80,32 @@ const CUP_CLINCHER_COURSE_ID = 'marco-simone'
 const CUP_CLINCHER_HOLE_NUMBER = 17
 const CUP_CLINCHER_GOLFER_ID = 'nir-mcilroy'
 
+// Phil Mickelson's 6-iron from the pine straw between the trees on
+// Augusta's 13th, in the final round of the 2010 Masters — one of the
+// most famous "should never have attempted that" shots in golf. Set up
+// his eagle on the hole.
+const PINE_STRAW_MIRACLE_COURSE_ID = 'augusta-national'
+const PINE_STRAW_MIRACLE_HOLE_NUMBER = 13
+const PINE_STRAW_MIRACLE_GOLFER_ID = 'usa-mickelson'
+
+// Louis Oosthuizen's wire-to-wire win at the 2010 Open Championship — his
+// first major — finishing 16 under par, 7 shots clear of the field.
+const OOSTHUIZEN_CORONATION_COURSE_ID = 'st-andrews'
+const OOSTHUIZEN_CORONATION_GOLFER_ID = 'rsa-oosthuizen'
+const OOSTHUIZEN_CORONATION_MAX_TO_PAR = -16
+
+// Valderrama was designed by Seve Ballesteros, and he captained Europe to
+// its first-ever Ryder Cup win on Spanish soil there in 1997.
+const SEVES_HOME_COURSE_COURSE_ID = 'valderrama'
+const SEVES_HOME_COURSE_GOLFER_ID = 'esp-ballesteros'
+
+// Padraig Harrington won the 2008 Open Championship at Royal Birkdale in
+// brutal wind and rain, closing at 3-over-par — the highest winning score
+// at The Open in almost two decades.
+const HARRINGTONS_SURVIVAL_COURSE_ID = 'royal-birkdale'
+const HARRINGTONS_SURVIVAL_GOLFER_ID = 'irl-harrington'
+const HARRINGTONS_SURVIVAL_MAX_TO_PAR = 3
+
 // Paul Lawrie closed with a 4-under 67 in the final round to win the 1999
 // Open Championship at Carnoustie, coming from 10 shots back after Jean
 // van de Velde's collapse at the 18th forced a playoff.
@@ -264,12 +290,28 @@ function bogeyFreeRoundCount(rounds: RoundRecord[]): number {
   return rounds.filter((r) => r.isBogeyFreeRound).length
 }
 
-function hasGoneGoldenBear(rounds: RoundRecord[]): boolean {
+// Generalized so both Golden Bear (Nicklaus/Augusta) and Seve's Home
+// Course (Ballesteros/Valderrama) share the same "bogey-free with golfer Y
+// in the bag" shape.
+function hasGoneBogeyFreeWithGolferAt(rounds: RoundRecord[], courseId: string, golferId: string): boolean {
+  return rounds.some(
+    (r) => r.courseId === courseId && r.isBogeyFreeRound && r.holeResults.some((h) => h.golferId === golferId),
+  )
+}
+
+// Same shape as hasBirdieAt below, but requires eagle or better — used by
+// Mickelson's Pine Straw Miracle, where the real feat was an eagle, not
+// "merely" a birdie.
+function hasEagleOrBetterAt(rounds: RoundRecord[], courseId: string, holeNumber: number, golferId: string): boolean {
   return rounds.some(
     (r) =>
-      r.courseId === GOLDEN_BEAR_COURSE_ID &&
-      r.isBogeyFreeRound &&
-      r.holeResults.some((h) => h.golferId === GOLDEN_BEAR_GOLFER_ID),
+      r.courseId === courseId &&
+      r.holeResults.some(
+        (h) =>
+          h.holeNumber === holeNumber &&
+          h.golferId === golferId &&
+          (h.outcomeTier === 'eagle' || h.outcomeTier === 'hole_in_one'),
+      ),
   )
 }
 
@@ -587,8 +629,22 @@ export function deriveAchievements(
     name: 'Golden Bear',
     description: 'Go bogey-free at Augusta National with Jack Nicklaus in the bag.',
     section: 'iconic',
-    isUnlocked: hasGoneGoldenBear(rounds),
+    isUnlocked: hasGoneBogeyFreeWithGolferAt(rounds, GOLDEN_BEAR_COURSE_ID, GOLDEN_BEAR_GOLFER_ID),
     trivia: 'Jack Nicklaus — golf\'s "Golden Bear" — won a record six Masters titles at Augusta National, from 1963 to 1986.',
+  })
+  achievements.push({
+    id: 'pine-straw-miracle',
+    name: "Mickelson's Pine Straw Miracle",
+    description: "Eagle Augusta National's 13th with Phil Mickelson.",
+    section: 'iconic',
+    isUnlocked: hasEagleOrBetterAt(
+      rounds,
+      PINE_STRAW_MIRACLE_COURSE_ID,
+      PINE_STRAW_MIRACLE_HOLE_NUMBER,
+      PINE_STRAW_MIRACLE_GOLFER_ID,
+    ),
+    trivia:
+      "Phil Mickelson threaded a 6-iron between the pine trees from deep in the straw on Augusta's 13th during the final round of the 2010 Masters, setting up an eagle on his way to the win.",
   })
   achievements.push({
     id: 'ace-island-green',
@@ -646,6 +702,20 @@ export function deriveAchievements(
       'Scottie Scheffler closed with a final-round 62 at Le Golf National to win the gold medal at the 2024 Paris Olympics.',
   })
   achievements.push({
+    id: 'oosthuizen-coronation',
+    name: "Oosthuizen's Coronation",
+    description: `Score ${OOSTHUIZEN_CORONATION_MAX_TO_PAR} or better at St Andrews with Louis Oosthuizen in the bag.`,
+    section: 'iconic',
+    isUnlocked: hasScoredWithGolferAt(
+      rounds,
+      OOSTHUIZEN_CORONATION_COURSE_ID,
+      OOSTHUIZEN_CORONATION_GOLFER_ID,
+      OOSTHUIZEN_CORONATION_MAX_TO_PAR,
+    ),
+    trivia:
+      "Louis Oosthuizen led wire-to-wire at the 2010 Open Championship, finishing 16 under par — 7 shots clear of the field — for his first major title.",
+  })
+  achievements.push({
     id: 'lawrie-comeback',
     name: 'The Carnoustie Comeback',
     description: `Score ${LAWRIE_COMEBACK_MAX_TO_PAR} or better at Carnoustie with Paul Lawrie in the bag.`,
@@ -673,6 +743,15 @@ export function deriveAchievements(
     ),
     trivia:
       'Henrik Stenson — nicknamed "The Iceman" for his cool composure under pressure — closed with a 64 to win the 2013 DP World Tour Championship, and the Race to Dubai title with it, at Jumeirah Golf Estates\' Earth Course.',
+  })
+  achievements.push({
+    id: 'seves-home-course',
+    name: "Seve's Home Course",
+    description: 'Go bogey-free at Valderrama with Seve Ballesteros in the bag.',
+    section: 'iconic',
+    isUnlocked: hasGoneBogeyFreeWithGolferAt(rounds, SEVES_HOME_COURSE_COURSE_ID, SEVES_HOME_COURSE_GOLFER_ID),
+    trivia:
+      'Seve Ballesteros designed Valderrama himself, then captained Europe to its first-ever Ryder Cup win on Spanish soil there in 1997.',
   })
   achievements.push({
     id: 'kiwi-closer',
@@ -713,6 +792,20 @@ export function deriveAchievements(
     isUnlocked: hasBirdieAt(rounds, MATADORS_FLOURISH_COURSE_ID, MATADORS_FLOURISH_HOLE_NUMBER, MATADORS_FLOURISH_GOLFER_ID),
     trivia:
       "As golf lore has it, Seve Ballesteros drove the green on The Belfry's short, daring par-4 10th during a practice round — the kind of audacious play that made him a Ryder Cup legend across five appearances for Europe.",
+  })
+  achievements.push({
+    id: 'harringtons-survival',
+    name: "Harrington's Survival",
+    description: `Score ${HARRINGTONS_SURVIVAL_MAX_TO_PAR} or better at Royal Birkdale with Padraig Harrington in the bag.`,
+    section: 'iconic',
+    isUnlocked: hasScoredWithGolferAt(
+      rounds,
+      HARRINGTONS_SURVIVAL_COURSE_ID,
+      HARRINGTONS_SURVIVAL_GOLFER_ID,
+      HARRINGTONS_SURVIVAL_MAX_TO_PAR,
+    ),
+    trivia:
+      'Padraig Harrington won the 2008 Open Championship at Royal Birkdale in brutal wind and rain, closing at 3-over-par — the highest winning score at The Open in almost two decades.',
   })
 
   return achievements
