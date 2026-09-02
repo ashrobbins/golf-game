@@ -212,13 +212,13 @@ describe('deriveAchievements', () => {
       'the-impossible-chip',
       'amen-corner-answered',
       'golden-bear',
-      'pine-straw-miracle',
+      'pebble-beach-runaway',
       'ace-island-green',
       'postcard-perfect',
       'miracle-at-medinah',
       'cup-clincher',
       'scheffler-gold',
-      'oosthuizen-coronation',
+      'faldos-redemption',
       'lawrie-comeback',
       'stenson-finale',
       'seves-home-course',
@@ -398,37 +398,32 @@ describe('deriveAchievements', () => {
     }
   })
 
-  it('unlocks "Mickelson\'s Pine Straw Miracle" for an eagle or hole-in-one by Mickelson on Augusta hole 13, not a birdie', () => {
-    const eagle = [round('augusta-national', { holeResults: [hole(13, 'eagle', -2, 'usa-mickelson')] })]
+  it('unlocks "Tiger\'s Pebble Beach Runaway" only for -12 or better at Pebble Beach with Tiger Woods in the bag', () => {
+    const good = [round('pebble-beach', { totalStrokesToPar: -12, holeResults: [hole(1, 'par', 0, 'usa-woods')] })]
     expect(
-      deriveAchievements(eagle, COURSES, COUNTRIES).find((a) => a.id === 'pine-straw-miracle')?.isUnlocked,
+      deriveAchievements(good, COURSES, COUNTRIES).find((a) => a.id === 'pebble-beach-runaway')?.isUnlocked,
     ).toBe(true)
 
-    const birdie = [round('augusta-national', { holeResults: [hole(13, 'birdie', -1, 'usa-mickelson')] })]
+    const worse = [round('pebble-beach', { totalStrokesToPar: -11, holeResults: [hole(1, 'par', 0, 'usa-woods')] })]
     expect(
-      deriveAchievements(birdie, COURSES, COUNTRIES).find((a) => a.id === 'pine-straw-miracle')?.isUnlocked,
+      deriveAchievements(worse, COURSES, COUNTRIES).find((a) => a.id === 'pebble-beach-runaway')?.isUnlocked,
     ).toBe(false)
 
-    const wrongHole = [round('augusta-national', { holeResults: [hole(12, 'eagle', -2, 'usa-mickelson')] })]
+    const noTiger = [round('pebble-beach', { totalStrokesToPar: -12, holeResults: [hole(1, 'par', 0, 'someone-else')] })]
     expect(
-      deriveAchievements(wrongHole, COURSES, COUNTRIES).find((a) => a.id === 'pine-straw-miracle')?.isUnlocked,
-    ).toBe(false)
-
-    const wrongGolfer = [round('augusta-national', { holeResults: [hole(13, 'eagle', -2, 'someone-else')] })]
-    expect(
-      deriveAchievements(wrongGolfer, COURSES, COUNTRIES).find((a) => a.id === 'pine-straw-miracle')?.isUnlocked,
+      deriveAchievements(noTiger, COURSES, COUNTRIES).find((a) => a.id === 'pebble-beach-runaway')?.isUnlocked,
     ).toBe(false)
   })
 
-  it('unlocks "Oosthuizen\'s Coronation" only for -16 or better at St Andrews with Louis Oosthuizen in the bag', () => {
-    const good = [round('st-andrews', { totalStrokesToPar: -16, holeResults: [hole(1, 'par', 0, 'rsa-oosthuizen')] })]
+  it('unlocks "Faldo\'s Redemption" only for -5 or better at Augusta National with Nick Faldo in the bag', () => {
+    const good = [round('augusta-national', { totalStrokesToPar: -5, holeResults: [hole(1, 'par', 0, 'eng-faldo')] })]
     expect(
-      deriveAchievements(good, COURSES, COUNTRIES).find((a) => a.id === 'oosthuizen-coronation')?.isUnlocked,
+      deriveAchievements(good, COURSES, COUNTRIES).find((a) => a.id === 'faldos-redemption')?.isUnlocked,
     ).toBe(true)
 
-    const worse = [round('st-andrews', { totalStrokesToPar: -15, holeResults: [hole(1, 'par', 0, 'rsa-oosthuizen')] })]
+    const worse = [round('augusta-national', { totalStrokesToPar: -4, holeResults: [hole(1, 'par', 0, 'eng-faldo')] })]
     expect(
-      deriveAchievements(worse, COURSES, COUNTRIES).find((a) => a.id === 'oosthuizen-coronation')?.isUnlocked,
+      deriveAchievements(worse, COURSES, COUNTRIES).find((a) => a.id === 'faldos-redemption')?.isUnlocked,
     ).toBe(false)
   })
 
@@ -451,19 +446,35 @@ describe('deriveAchievements', () => {
     }
   })
 
-  it('unlocks "Harrington\'s Survival" for +3 or better at Royal Birkdale with Padraig Harrington in the bag', () => {
-    const good = [
+  it('unlocks "Harrington\'s Survival" only for +3 or WORSE at Royal Birkdale with Padraig Harrington in the bag', () => {
+    // The inverse of every other score achievement — a good round (better
+    // than +3) must NOT unlock this one.
+    const exactlyThree = [
       round('royal-birkdale', { totalStrokesToPar: 3, holeResults: [hole(1, 'par', 0, 'irl-harrington')] }),
     ]
     expect(
-      deriveAchievements(good, COURSES, COUNTRIES).find((a) => a.id === 'harringtons-survival')?.isUnlocked,
+      deriveAchievements(exactlyThree, COURSES, COUNTRIES).find((a) => a.id === 'harringtons-survival')?.isUnlocked,
     ).toBe(true)
 
     const worse = [
-      round('royal-birkdale', { totalStrokesToPar: 4, holeResults: [hole(1, 'par', 0, 'irl-harrington')] }),
+      round('royal-birkdale', { totalStrokesToPar: 8, holeResults: [hole(1, 'par', 0, 'irl-harrington')] }),
     ]
     expect(
       deriveAchievements(worse, COURSES, COUNTRIES).find((a) => a.id === 'harringtons-survival')?.isUnlocked,
+    ).toBe(true)
+
+    const tooGood = [
+      round('royal-birkdale', { totalStrokesToPar: 2, holeResults: [hole(1, 'par', 0, 'irl-harrington')] }),
+    ]
+    expect(
+      deriveAchievements(tooGood, COURSES, COUNTRIES).find((a) => a.id === 'harringtons-survival')?.isUnlocked,
+    ).toBe(false)
+
+    const evenBetter = [
+      round('royal-birkdale', { totalStrokesToPar: -4, holeResults: [hole(1, 'par', 0, 'irl-harrington')] }),
+    ]
+    expect(
+      deriveAchievements(evenBetter, COURSES, COUNTRIES).find((a) => a.id === 'harringtons-survival')?.isUnlocked,
     ).toBe(false)
 
     const noHarrington = [

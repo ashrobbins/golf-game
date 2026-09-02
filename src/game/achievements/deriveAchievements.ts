@@ -80,19 +80,19 @@ const CUP_CLINCHER_COURSE_ID = 'marco-simone'
 const CUP_CLINCHER_HOLE_NUMBER = 17
 const CUP_CLINCHER_GOLFER_ID = 'nir-mcilroy'
 
-// Phil Mickelson's 6-iron from the pine straw between the trees on
-// Augusta's 13th, in the final round of the 2010 Masters — one of the
-// most famous "should never have attempted that" shots in golf. Set up
-// his eagle on the hole.
-const PINE_STRAW_MIRACLE_COURSE_ID = 'augusta-national'
-const PINE_STRAW_MIRACLE_HOLE_NUMBER = 13
-const PINE_STRAW_MIRACLE_GOLFER_ID = 'usa-mickelson'
+// Tiger Woods won the 2000 US Open at Pebble Beach by a record 15
+// strokes, finishing 12 under par — the largest margin of victory in
+// major championship history.
+const PEBBLE_BEACH_RUNAWAY_COURSE_ID = 'pebble-beach'
+const PEBBLE_BEACH_RUNAWAY_GOLFER_ID = 'usa-woods'
+const PEBBLE_BEACH_RUNAWAY_MAX_TO_PAR = -12
 
-// Louis Oosthuizen's wire-to-wire win at the 2010 Open Championship — his
-// first major — finishing 16 under par, 7 shots clear of the field.
-const OOSTHUIZEN_CORONATION_COURSE_ID = 'st-andrews'
-const OOSTHUIZEN_CORONATION_GOLFER_ID = 'rsa-oosthuizen'
-const OOSTHUIZEN_CORONATION_MAX_TO_PAR = -16
+// Nick Faldo closed with a 67 in the final round of the 1996 Masters,
+// completing one of golf's greatest comebacks as Greg Norman's six-shot
+// lead collapsed behind him.
+const FALDOS_REDEMPTION_COURSE_ID = 'augusta-national'
+const FALDOS_REDEMPTION_GOLFER_ID = 'eng-faldo'
+const FALDOS_REDEMPTION_MAX_TO_PAR = -5
 
 // Valderrama was designed by Seve Ballesteros, and he captained Europe to
 // its first-ever Ryder Cup win on Spanish soil there in 1997.
@@ -101,10 +101,12 @@ const SEVES_HOME_COURSE_GOLFER_ID = 'esp-ballesteros'
 
 // Padraig Harrington won the 2008 Open Championship at Royal Birkdale in
 // brutal wind and rain, closing at 3-over-par — the highest winning score
-// at The Open in almost two decades.
+// at The Open in almost two decades. Deliberately the inverse of every
+// other score-threshold achievement here: it unlocks on a bad round
+// (+3 or worse), not a good one, so it plays as a bit of an easter egg.
 const HARRINGTONS_SURVIVAL_COURSE_ID = 'royal-birkdale'
 const HARRINGTONS_SURVIVAL_GOLFER_ID = 'irl-harrington'
-const HARRINGTONS_SURVIVAL_MAX_TO_PAR = 3
+const HARRINGTONS_SURVIVAL_MIN_TO_PAR = 3
 
 // Paul Lawrie closed with a 4-under 67 in the final round to win the 1999
 // Open Championship at Carnoustie, coming from 10 shots back after Jean
@@ -299,22 +301,6 @@ function hasGoneBogeyFreeWithGolferAt(rounds: RoundRecord[], courseId: string, g
   )
 }
 
-// Same shape as hasBirdieAt below, but requires eagle or better — used by
-// Mickelson's Pine Straw Miracle, where the real feat was an eagle, not
-// "merely" a birdie.
-function hasEagleOrBetterAt(rounds: RoundRecord[], courseId: string, holeNumber: number, golferId: string): boolean {
-  return rounds.some(
-    (r) =>
-      r.courseId === courseId &&
-      r.holeResults.some(
-        (h) =>
-          h.holeNumber === holeNumber &&
-          h.golferId === golferId &&
-          (h.outcomeTier === 'eagle' || h.outcomeTier === 'hole_in_one'),
-      ),
-  )
-}
-
 // Relative-to-par version of the same "score X with golfer Y in the bag, in
 // the same round" shape as hasGoneGoldenBear above, generalized for the
 // Carnoustie/Valderrama/Le Golf National real-round-recreation achievements.
@@ -328,6 +314,24 @@ function hasScoredWithGolferAt(
     (r) =>
       r.courseId === courseId &&
       r.totalStrokesToPar <= maxStrokesToPar &&
+      r.holeResults.some((h) => h.golferId === golferId),
+  )
+}
+
+// Inverse of hasScoredWithGolferAt above — unlocks on a bad round (score
+// at or worse than the threshold), not a good one. Used by Harrington's
+// Survival, the one achievement in the set that honors a rough day rather
+// than a great one.
+function hasScoredWorseWithGolferAt(
+  rounds: RoundRecord[],
+  courseId: string,
+  golferId: string,
+  minStrokesToPar: number,
+): boolean {
+  return rounds.some(
+    (r) =>
+      r.courseId === courseId &&
+      r.totalStrokesToPar >= minStrokesToPar &&
       r.holeResults.some((h) => h.golferId === golferId),
   )
 }
@@ -633,18 +637,18 @@ export function deriveAchievements(
     trivia: 'Jack Nicklaus — golf\'s "Golden Bear" — won a record six Masters titles at Augusta National, from 1963 to 1986.',
   })
   achievements.push({
-    id: 'pine-straw-miracle',
-    name: "Mickelson's Pine Straw Miracle",
-    description: "Eagle Augusta National's 13th with Phil Mickelson.",
+    id: 'pebble-beach-runaway',
+    name: "Tiger's Pebble Beach Runaway",
+    description: `Score ${PEBBLE_BEACH_RUNAWAY_MAX_TO_PAR} or better at Pebble Beach with Tiger Woods in the bag.`,
     section: 'iconic',
-    isUnlocked: hasEagleOrBetterAt(
+    isUnlocked: hasScoredWithGolferAt(
       rounds,
-      PINE_STRAW_MIRACLE_COURSE_ID,
-      PINE_STRAW_MIRACLE_HOLE_NUMBER,
-      PINE_STRAW_MIRACLE_GOLFER_ID,
+      PEBBLE_BEACH_RUNAWAY_COURSE_ID,
+      PEBBLE_BEACH_RUNAWAY_GOLFER_ID,
+      PEBBLE_BEACH_RUNAWAY_MAX_TO_PAR,
     ),
     trivia:
-      "Phil Mickelson threaded a 6-iron between the pine trees from deep in the straw on Augusta's 13th during the final round of the 2010 Masters, setting up an eagle on his way to the win.",
+      'Tiger Woods won the 2000 US Open at Pebble Beach by a record 15 strokes, finishing 12 under par — the largest margin of victory in major championship history.',
   })
   achievements.push({
     id: 'ace-island-green',
@@ -702,18 +706,18 @@ export function deriveAchievements(
       'Scottie Scheffler closed with a final-round 62 at Le Golf National to win the gold medal at the 2024 Paris Olympics.',
   })
   achievements.push({
-    id: 'oosthuizen-coronation',
-    name: "Oosthuizen's Coronation",
-    description: `Score ${OOSTHUIZEN_CORONATION_MAX_TO_PAR} or better at St Andrews with Louis Oosthuizen in the bag.`,
+    id: 'faldos-redemption',
+    name: "Faldo's Redemption",
+    description: `Score ${FALDOS_REDEMPTION_MAX_TO_PAR} or better at Augusta National with Nick Faldo in the bag.`,
     section: 'iconic',
     isUnlocked: hasScoredWithGolferAt(
       rounds,
-      OOSTHUIZEN_CORONATION_COURSE_ID,
-      OOSTHUIZEN_CORONATION_GOLFER_ID,
-      OOSTHUIZEN_CORONATION_MAX_TO_PAR,
+      FALDOS_REDEMPTION_COURSE_ID,
+      FALDOS_REDEMPTION_GOLFER_ID,
+      FALDOS_REDEMPTION_MAX_TO_PAR,
     ),
     trivia:
-      "Louis Oosthuizen led wire-to-wire at the 2010 Open Championship, finishing 16 under par — 7 shots clear of the field — for his first major title.",
+      "Nick Faldo closed with a 67 in the final round of the 1996 Masters, completing one of golf's greatest comebacks as Greg Norman's six-shot lead collapsed behind him.",
   })
   achievements.push({
     id: 'lawrie-comeback',
@@ -796,13 +800,13 @@ export function deriveAchievements(
   achievements.push({
     id: 'harringtons-survival',
     name: "Harrington's Survival",
-    description: `Score ${HARRINGTONS_SURVIVAL_MAX_TO_PAR} or better at Royal Birkdale with Padraig Harrington in the bag.`,
+    description: `Score ${HARRINGTONS_SURVIVAL_MIN_TO_PAR} or worse at Royal Birkdale with Padraig Harrington in the bag.`,
     section: 'iconic',
-    isUnlocked: hasScoredWithGolferAt(
+    isUnlocked: hasScoredWorseWithGolferAt(
       rounds,
       HARRINGTONS_SURVIVAL_COURSE_ID,
       HARRINGTONS_SURVIVAL_GOLFER_ID,
-      HARRINGTONS_SURVIVAL_MAX_TO_PAR,
+      HARRINGTONS_SURVIVAL_MIN_TO_PAR,
     ),
     trivia:
       'Padraig Harrington won the 2008 Open Championship at Royal Birkdale in brutal wind and rain, closing at 3-over-par — the highest winning score at The Open in almost two decades.',
