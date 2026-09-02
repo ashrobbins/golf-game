@@ -1,8 +1,10 @@
 import { forwardRef } from 'react'
 import type { CountriesContent, Country, Course } from '../../content/types'
+import type { Achievement } from '../../game/achievements/deriveAchievements'
 import { findTopPerformer } from '../../game/share/topPerformer'
 import type { SimulationResult } from '../../game/simulation/types'
 import { ResultsHero } from '../scorecard/ResultsHero'
+import { AchievementUnlockBanner } from './AchievementUnlockBanner'
 import { StackedScorecard } from './StackedScorecard'
 import { TopPerformerCard } from './TopPerformerCard'
 import styles from './ShareCard.module.css'
@@ -15,6 +17,9 @@ interface ShareCardProps {
   // run ~50 characters, too cramped at this font size, so callers pass an
   // already-truncated string.
   shareUrlDisplay: string
+  // Achievements this specific round newly unlocked (see GameProvider's
+  // before/after diff) — optional since most shared rounds unlock nothing.
+  newlyUnlockedAchievements?: Achievement[]
 }
 
 // Rendered off-screen at its real natural size (see ShareModal.tsx, which
@@ -25,7 +30,7 @@ interface ShareCardProps {
 // built specifically for this static-image layout (see their own files for
 // why they aren't just reused from the scrollable/live-reveal versions).
 export const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(function ShareCard(
-  { course, countries, result, shareUrlDisplay },
+  { course, countries, result, shareUrlDisplay, newlyUnlockedAchievements },
   ref,
 ) {
   const countryIndex = new Map<string, Country>(countries.countries.map((c) => [c.id, c]))
@@ -48,6 +53,10 @@ export const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(function Sha
         bogeyFreeThroughHole={result.bogeyFreeThroughHole}
         isBogeyFreeRound={result.isBogeyFreeRound}
       />
+
+      {newlyUnlockedAchievements && newlyUnlockedAchievements.length > 0 && (
+        <AchievementUnlockBanner achievements={newlyUnlockedAchievements} />
+      )}
 
       <StackedScorecard holes={course.holes} holeResults={result.holeResults} />
 

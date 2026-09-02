@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { toBlob } from 'html-to-image'
 import type { CountriesContent, Course } from '../../content/types'
+import type { Achievement } from '../../game/achievements/deriveAchievements'
 import { buildShareText, buildShareUrl } from '../../game/share/shareText'
 import { formatRelativeScore } from '../../game/simulation/formatTier'
 import type { SimulationResult } from '../../game/simulation/types'
@@ -18,6 +19,7 @@ interface ShareModalProps {
   course: Course
   countries: CountriesContent
   result: SimulationResult
+  newlyUnlockedAchievements?: Achievement[]
 }
 
 const PIXEL_RATIO = 2.5
@@ -27,7 +29,14 @@ function truncateForDisplay(url: string): string {
   return url.length > 40 ? `${url.slice(0, 38)}…` : url
 }
 
-export function ShareModal({ isOpen, onClose, course, countries, result }: ShareModalProps) {
+export function ShareModal({
+  isOpen,
+  onClose,
+  course,
+  countries,
+  result,
+  newlyUnlockedAchievements,
+}: ShareModalProps) {
   const closeRef = useRef<HTMLButtonElement>(null)
   const captureRef = useRef<HTMLDivElement>(null)
   const thumbWrapRef = useRef<HTMLDivElement>(null)
@@ -153,6 +162,7 @@ export function ShareModal({ isOpen, onClose, course, countries, result }: Share
                 countries={countries}
                 result={result}
                 shareUrlDisplay={truncateForDisplay(shareUrl)}
+                newlyUnlockedAchievements={newlyUnlockedAchievements}
               />
             </div>
           </div>
@@ -189,6 +199,7 @@ export function ShareModal({ isOpen, onClose, course, countries, result }: Share
           countries={countries}
           result={result}
           shareUrlDisplay={truncateForDisplay(shareUrl)}
+          newlyUnlockedAchievements={newlyUnlockedAchievements}
         />
       </div>
     </>

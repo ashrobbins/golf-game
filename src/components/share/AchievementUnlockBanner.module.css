@@ -1,0 +1,46 @@
+/* Same gold border/wash + trophy-row language as achievements/
+   NewAchievementCard.module.css, just more compact — this only ever shares
+   400px of card width with the hero, scorecard, and top-performer card
+   around it, so there's no room for descriptions or a CTA here. */
+.banner {
+  border-radius: 14px;
+  border: 2px solid var(--tier-gold);
+  background: linear-gradient(160deg, color-mix(in srgb, var(--tier-gold) 16%, var(--surface)), var(--surface));
+  padding: 10px 14px 12px;
+}
+
+.heading {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 8px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--tier-gold) 75%, var(--text));
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.row + .row {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid color-mix(in srgb, var(--tier-gold) 30%, transparent);
+}
+
+.trophy {
+  font-size: 16px;
+  line-height: 1;
+  flex: 0 0 auto;
+}
+
+.name {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+}

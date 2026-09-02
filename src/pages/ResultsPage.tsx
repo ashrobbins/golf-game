@@ -56,6 +56,7 @@ export function ResultsPage() {
             course={course}
             countries={content.countries}
             result={simulationResult}
+            newlyUnlockedAchievements={newlyUnlockedAchievements}
           />
         </>
       ) : (
