@@ -130,71 +130,106 @@
   outline-offset: 2px;
 }
 
-/* Course breakdowns collapse to one block per course (header + a compact
-   stats grid) rather than a full card each, so together they stay
-   visually lighter than the Career card above. */
-.courseList {
+/* Colours Best Round by sign — opt-in (see the `colorBySign` prop on
+   BestRoundValue) so the plain career/history use of this same button
+   isn't affected, only the course tiles below. Declared after
+   .bestRoundButton so it wins the (otherwise tied) specificity. */
+.bestRoundUnder {
+  color: var(--tier-green);
+}
+
+.bestRoundOver {
+  color: var(--tier-red);
+}
+
+/* Course breakdowns are a 2-up grid of compact tiles rather than one
+   full-width block per course — lets far more courses stay visible at
+   once without scrolling. Stacks to a single column on mobile (same
+   560px breakpoint used throughout the nav). */
+.courseTileGrid {
   margin: 0;
   padding: 0;
   list-style: none;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
 }
 
-.courseBlock {
-  padding: 14px 0;
-  border-bottom: 1px solid var(--border);
+@media (max-width: 560px) {
+  .courseTileGrid {
+    grid-template-columns: 1fr;
+  }
 }
 
-.courseBlock:first-child {
-  padding-top: 0;
+.courseTile {
+  /* Grid items default to min-width: auto, which for nowrap text means
+     "never shrink below the content's own full width" — without this, a
+     long meta line (see .courseTileMeta) refuses to fit its 1fr track and
+     blows the whole page out into horizontal overflow instead of eliding
+     with the ellipsis it already has. */
+  min-width: 0;
+  padding: 12px 12px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--accent) 3%, var(--surface));
 }
 
-.courseBlock:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
-}
-
-.courseHeader {
+.courseTileHeader {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
+  gap: 6px;
+  margin-bottom: 8px;
 }
 
-.courseFlag {
-  font-size: 15px;
+.courseTileFlag {
+  font-size: 13px;
   line-height: 1;
 }
 
-.courseName {
+.courseTileName {
+  min-width: 0;
   font-weight: 700;
-  font-size: 13px;
+  font-size: 12.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.courseGrid {
-  margin: 0;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px 8px;
-}
-
-.courseStatItem {
-  margin: 0;
-}
-
-.courseStatLabel {
-  margin: 0;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-
-.courseStatValue {
-  margin: 3px 0 0;
-  font-size: 16px;
+.courseTileBest {
+  margin-left: auto;
+  flex: 0 0 auto;
+  font-size: 15px;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
+}
+
+.courseTileMeta {
+  margin: 0;
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.courseTileMeta b {
+  color: var(--text);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The dot-separated meta line doesn't fit on one line at phone widths
+   without truncating real stats behind an ellipsis — wrap instead of
+   hiding data. A narrower threshold than the grid's own 560px, since even
+   a stacked single-column tile is only as wide as the phone screen, not
+   the full desktop card. */
+@media (max-width: 480px) {
+  .courseTileMeta {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    line-height: 1.5;
+  }
 }
 
 .history {

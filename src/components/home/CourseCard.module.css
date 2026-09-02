@@ -70,3 +70,34 @@
   font-size: 13px;
   color: var(--text-muted);
 }
+
+/* Much shorter and smaller-type below the same 560px breakpoint the rest
+   of the nav uses — the full-size card (140px tall, 24px name) is built
+   for a spacious desktop grid; on a phone that's one course per scroll of
+   thumb, so density matters more than the bigger type here. */
+@media (max-width: 560px) {
+  .card {
+    height: auto;
+    padding: 12px 14px;
+  }
+
+  .flag {
+    top: 12px;
+    right: 14px;
+    font-size: 15px;
+  }
+
+  .par {
+    font-size: 9px;
+    padding: 3px 8px;
+  }
+
+  .name {
+    font-size: 16px;
+    margin: 6px 0 1px;
+  }
+
+  .location {
+    font-size: 11px;
+  }
+}

@@ -61,19 +61,28 @@ export function StatsPage() {
 
           <section className={styles.card}>
             <h2 className={styles.cardTitle}>By course</h2>
-            <ul className={styles.courseList}>
+            <ul className={styles.courseTileGrid}>
               {courseIds.map((courseId) => {
                 const courseStats = deriveStatsForCourse(rounds, courseId)
                 const isoCode = courseIsoCode(courseId)
                 return (
-                  <li key={courseId} className={styles.courseBlock}>
-                    <div className={styles.courseHeader}>
+                  <li key={courseId} className={styles.courseTile}>
+                    <div className={styles.courseTileHeader}>
                       {isoCode && (
-                        <CountryFlag isoCode={isoCode} className={styles.courseFlag} ariaHidden />
+                        <CountryFlag isoCode={isoCode} className={styles.courseTileFlag} ariaHidden />
                       )}
-                      <span className={styles.courseName}>{courseName(courseId)}</span>
+                      <span className={styles.courseTileName}>{courseName(courseId)}</span>
+                      <span className={styles.courseTileBest}>
+                        <BestRoundValue round={courseStats.bestRound} onOpenRound={openRound} colorBySign />
+                      </span>
                     </div>
-                    <CourseStatsGrid stats={courseStats} onOpenRound={openRound} />
+                    <p className={styles.courseTileMeta}>
+                      <b>{courseStats.roundsPlayed}</b> {pluralize(courseStats.roundsPlayed, 'round')} ·{' '}
+                      <b>{courseStats.bogeyFreeRounds}</b> bogey-free ·{' '}
+                      <b>{courseStats.totalBirdieCount}</b> {pluralize(courseStats.totalBirdieCount, 'birdie')} ·{' '}
+                      <b>{courseStats.totalEagleCount}</b> {pluralize(courseStats.totalEagleCount, 'eagle')} ·{' '}
+                      <b>{courseStats.holeInOnes}</b> {pluralize(courseStats.holeInOnes, 'ace')}
+                    </p>
                   </li>
                 )
               })}
@@ -131,22 +140,38 @@ export function StatsPage() {
   )
 }
 
-// The "Best round" stat's value, in both the career and per-course grids —
-// a button rather than plain text so it doubles as a shortcut straight to
-// that round's detail in the same drawer round-history rows open.
+// The "Best round" stat's value, in both the career grid and the by-course
+// tiles — a button rather than plain text so it doubles as a shortcut
+// straight to that round's detail in the same drawer round-history rows
+// open. `colorBySign` is opt-in (used by the course tiles only) so the
+// plain career-grid appearance doesn't change.
 function BestRoundValue({
   round,
   onOpenRound,
+  colorBySign,
 }: {
   round: RoundRecord | null
   onOpenRound: (round: RoundRecord) => void
+  colorBySign?: boolean
 }) {
   if (!round) return null
+  const toneClass = colorBySign
+    ? round.totalStrokesToPar < 0
+      ? styles.bestRoundUnder
+      : round.totalStrokesToPar > 0
+        ? styles.bestRoundOver
+        : undefined
+    : undefined
+  const className = [styles.bestRoundButton, toneClass].filter(Boolean).join(' ')
   return (
-    <button type="button" className={styles.bestRoundButton} onClick={() => onOpenRound(round)}>
+    <button type="button" className={className} onClick={() => onOpenRound(round)}>
       {formatRelativeScore(round.totalStrokesToPar)}
     </button>
   )
+}
+
+function pluralize(count: number, singular: string): string {
+  return count === 1 ? singular : `${singular}s`
 }
 
 interface StatsGridProps {
@@ -182,32 +207,3 @@ function StatItem({ label, value, large }: { label: string; value: ReactNode; la
   )
 }
 
-interface CourseStatsGridProps {
-  stats: DerivedStats
-  onOpenRound: (round: RoundRecord) => void
-}
-
-function CourseStatsGrid({ stats, onOpenRound }: CourseStatsGridProps) {
-  return (
-    <dl className={styles.courseGrid}>
-      <CourseStatItem label="Rounds" value={stats.roundsPlayed} />
-      <CourseStatItem label="Bogey-free" value={stats.bogeyFreeRounds} />
-      <CourseStatItem
-        label="Best round"
-        value={<BestRoundValue round={stats.bestRound} onOpenRound={onOpenRound} />}
-      />
-      <CourseStatItem label="Birdies" value={stats.totalBirdieCount} />
-      <CourseStatItem label="Eagles" value={stats.totalEagleCount} />
-      <CourseStatItem label="Aces" value={stats.holeInOnes} />
-    </dl>
-  )
-}
-
-function CourseStatItem({ label, value }: { label: string; value: ReactNode }) {
-  return (
-    <div className={styles.courseStatItem}>
-      <dt className={styles.courseStatLabel}>{label}</dt>
-      <dd className={styles.courseStatValue}>{value ?? '—'}</dd>
-    </div>
-  )
-}
