@@ -194,16 +194,19 @@ export function ShareModal({
             if (key === 'achievements' && !hasNewAchievements) return null
             const isOn = visibleSections[key]
             return (
-              <button
-                key={key}
-                type="button"
-                role="switch"
-                aria-checked={isOn}
-                className={isOn ? `${styles.toggleChip} ${styles.toggleChipOn}` : styles.toggleChip}
-                onClick={() => toggleSection(key)}
-              >
-                {label}
-              </button>
+              <div key={key} className={styles.toggleRow}>
+                <span className={styles.toggleLabel}>{label}</span>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={isOn}
+                  aria-label={`${isOn ? 'Hide' : 'Show'} ${label.toLowerCase()} in image`}
+                  className={isOn ? `${styles.switchTrack} ${styles.switchTrackOn}` : styles.switchTrack}
+                  onClick={() => toggleSection(key)}
+                >
+                  <span className={isOn ? `${styles.switchThumb} ${styles.switchThumbOn}` : styles.switchThumb} />
+                </button>
+              </div>
             )
           })}
         </div>
