@@ -17,6 +17,16 @@
   margin: auto;
   width: min(360px, calc(100vw - 40px));
   height: fit-content;
+  /* On a short viewport (a small phone in landscape, a squat browser
+     window) the card preview alone can exceed the available height —
+     without a cap the modal would just overflow, pushing the Copy
+     buttons at the bottom off-screen with no way to reach them. dvh
+     (not vh) for the same reason as #root in index.css — it tracks the
+     real visible viewport as a mobile browser's toolbar collapses,
+     rather than staying pinned to the shorter toolbar-expanded size. */
+  max-height: calc(100dvh - 40px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   border-radius: 18px;
   background: var(--surface);
   box-shadow: var(--shadow);
