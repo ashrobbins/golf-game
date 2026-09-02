@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { AchievementHoleDots } from '../components/achievements/AchievementHoleDots'
 import { AchievementProgress } from '../components/achievements/AchievementProgress'
 import { AchievementRoster } from '../components/achievements/AchievementRoster'
 import { deriveAchievements } from '../game/achievements/deriveAchievements'
@@ -124,6 +125,7 @@ function AchievementCard({ achievements }: { achievements: Achievement[] }) {
                 <p className={styles.desc}>{achievement.description}</p>
                 {achievement.roster && <AchievementRoster roster={achievement.roster} />}
                 {achievement.progress && <AchievementProgress {...achievement.progress} />}
+                {achievement.holeProgress && <AchievementHoleDots holes={achievement.holeProgress} />}
               </div>
             </li>
           )

@@ -90,6 +90,11 @@ export interface AchievementRosterEntry {
   achieved: boolean
 }
 
+export interface AchievementHoleProgressEntry {
+  holeNumber: number
+  achieved: boolean
+}
+
 export interface Achievement {
   id: string
   name: string
@@ -106,6 +111,11 @@ export interface Achievement {
   // rendered as a highlighted name list by the reusable AchievementRoster
   // UI component, so it's obvious at a glance who's left.
   roster?: AchievementRosterEntry[]
+  // Optional per-hole checklist for achievements that require the same
+  // thing on every hole of a course (e.g. Birdie All Holes) — rendered as
+  // a grey/green dot strip by the reusable AchievementHoleDots UI
+  // component, one entry per hole in course order.
+  holeProgress?: AchievementHoleProgressEntry[]
 }
 
 function isBogeyFreeAt(rounds: RoundRecord[], courseId: string): boolean {
@@ -114,6 +124,33 @@ function isBogeyFreeAt(rounds: RoundRecord[], courseId: string): boolean {
 
 function hasBroken60At(rounds: RoundRecord[], course: Course): boolean {
   return rounds.some((r) => r.courseId === course.id && course.par + r.totalStrokesToPar < BREAK_60_STROKES)
+}
+
+// "Birdie or better" — birdie, eagle, or hole-in-one all count. Cumulative
+// across every round ever played at this course, not a single round, same
+// spirit as bogeyFreeRoundCount's own cross-round accumulation below.
+const BIRDIE_OR_BETTER_TIERS = new Set<RoundRecord['holeResults'][number]['outcomeTier']>([
+  'birdie',
+  'eagle',
+  'hole_in_one',
+])
+
+function birdieOrBetterHoleNumbersAt(rounds: RoundRecord[], courseId: string): Set<number> {
+  const holeNumbers = new Set<number>()
+  for (const r of rounds) {
+    if (r.courseId !== courseId) continue
+    for (const h of r.holeResults) {
+      if (BIRDIE_OR_BETTER_TIERS.has(h.outcomeTier)) holeNumbers.add(h.holeNumber)
+    }
+  }
+  return holeNumbers
+}
+
+// Empty holes list (e.g. course content not yet loaded) must not read as
+// "every hole birdied" — Array.every is vacuously true on an empty array,
+// so this is guarded explicitly rather than unlocking for free.
+function hasBirdiedAllHolesAt(achievedHoleNumbers: Set<number>, course: Course): boolean {
+  return course.holes.length > 0 && course.holes.every((h) => achievedHoleNumbers.has(h.number))
 }
 
 function hasAnyHoleInOne(rounds: RoundRecord[]): boolean {
@@ -305,6 +342,18 @@ export function deriveAchievements(
       description: `Shoot under 60 strokes at ${course.name}.`,
       section: 'course',
       isUnlocked: hasBroken60At(rounds, course),
+    })
+    const birdiedHoleNumbers = birdieOrBetterHoleNumbersAt(rounds, course.id)
+    achievements.push({
+      id: `birdie-all-${course.id}`,
+      name: `Birdie All Holes at ${course.name}`,
+      description: `Birdie or better on every hole at ${course.name}.`,
+      section: 'course',
+      isUnlocked: hasBirdiedAllHolesAt(birdiedHoleNumbers, course),
+      holeProgress: course.holes.map((h) => ({
+        holeNumber: h.number,
+        achieved: birdiedHoleNumbers.has(h.number),
+      })),
     })
   }
 

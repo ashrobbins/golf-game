@@ -1,0 +1,33 @@
+/* Same space-between-fills-the-gaps trick as HoleOutcomeDots' own .strip
+   (scorecard/HoleOutcomeDots.module.css), just smaller dots so all 18 fit
+   comfortably inside an achievement row rather than the wider results-hero
+   card that component was built for. */
+.strip {
+  display: flex;
+  justify-content: space-between;
+  gap: 3px;
+  flex-wrap: nowrap;
+  margin-top: 8px;
+  max-width: 220px;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--tier-grey);
+  flex: 0 0 auto;
+}
+
+.achieved {
+  background: var(--tier-green);
+}
+
+/* Below this width the 220px cap would leave the strip shorter than the
+   row itself — let it use the full row instead so it still reads as
+   "filling the row" the way it does everywhere else. */
+@media (max-width: 420px) {
+  .strip {
+    max-width: 100%;
+  }
+}

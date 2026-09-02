@@ -64,8 +64,8 @@ describe('deriveAchievements', () => {
   it('returns every achievement locked when there are no rounds at all', () => {
     const achievements = deriveAchievements([], COURSES, COUNTRIES)
     expect(achievements.every((a) => !a.isUnlocked)).toBe(true)
-    // 2 courses x 2 per-course achievements + 14 career milestones + 8 iconic moments
-    expect(achievements).toHaveLength(26)
+    // 2 courses x 3 per-course achievements + 14 career milestones + 8 iconic moments
+    expect(achievements).toHaveLength(28)
   })
 
   it('unlocks a course bogey-free achievement only when a bogey-free round exists at that course', () => {
@@ -121,13 +121,80 @@ describe('deriveAchievements', () => {
     expect(complete.find((a) => a.id === 'break-60-everywhere')?.isUnlocked).toBe(true)
   })
 
+  it('unlocks "Birdie All Holes" only once every hole at that course has been birdied-or-better at least once', () => {
+    const threeHoleCourse: Course = {
+      id: 'three-hole-course',
+      name: 'three-hole-course',
+      par: 12,
+      holes: [
+        { number: 1, par: 4, yardage: 400, archetype: 'closer' },
+        { number: 2, par: 4, yardage: 400, archetype: 'closer' },
+        { number: 3, par: 4, yardage: 400, archetype: 'closer' },
+      ],
+    }
+    const courses = [...COURSES, threeHoleCourse]
+
+    const partial = [round('three-hole-course', { holeResults: [hole(1, 'birdie'), hole(2, 'birdie')] })]
+    const partialResult = deriveAchievements(partial, courses, COUNTRIES).find((a) => a.id === 'birdie-all-three-hole-course')
+    expect(partialResult?.isUnlocked).toBe(false)
+    expect(partialResult?.holeProgress).toEqual([
+      { holeNumber: 1, achieved: true },
+      { holeNumber: 2, achieved: true },
+      { holeNumber: 3, achieved: false },
+    ])
+
+    // All three holes covered, but across two different rounds rather than
+    // one — cumulative across round history, same as bogey-free-5-rounds.
+    const complete = [
+      round('three-hole-course', { holeResults: [hole(1, 'birdie'), hole(2, 'par')] }),
+      round('three-hole-course', { holeResults: [hole(2, 'eagle'), hole(3, 'hole_in_one')] }),
+    ]
+    const completeResult = deriveAchievements(complete, courses, COUNTRIES).find(
+      (a) => a.id === 'birdie-all-three-hole-course',
+    )
+    expect(completeResult?.isUnlocked).toBe(true)
+    expect(completeResult?.holeProgress?.every((h) => h.achieved)).toBe(true)
+  })
+
+  it('does not unlock "Birdie All Holes" for a course with no hole data', () => {
+    // COURSES' fixture courses have an empty holes array — every() is
+    // vacuously true on an empty array, so this guards against that trap.
+    const rounds = [round('augusta', { holeResults: [hole(1, 'birdie')] })]
+    expect(deriveAchievements(rounds, COURSES, COUNTRIES).find((a) => a.id === 'birdie-all-augusta')?.isUnlocked).toBe(
+      false,
+    )
+  })
+
+  it('"Birdie All Holes" only counts birdie, eagle, or hole-in-one — not par or bogey', () => {
+    const threeHoleCourse: Course = {
+      id: 'three-hole-course',
+      name: 'three-hole-course',
+      par: 12,
+      holes: [
+        { number: 1, par: 4, yardage: 400, archetype: 'closer' },
+        { number: 2, par: 4, yardage: 400, archetype: 'closer' },
+        { number: 3, par: 4, yardage: 400, archetype: 'closer' },
+      ],
+    }
+    const courses = [...COURSES, threeHoleCourse]
+    const rounds = [round('three-hole-course', { holeResults: [hole(1, 'par'), hole(2, 'bogey_plus')] })]
+    const result = deriveAchievements(rounds, courses, COUNTRIES).find((a) => a.id === 'birdie-all-three-hole-course')
+    expect(result?.holeProgress).toEqual([
+      { holeNumber: 1, achieved: false },
+      { holeNumber: 2, achieved: false },
+      { holeNumber: 3, achieved: false },
+    ])
+  })
+
   it('returns achievements course-grouped in course order, career milestones last', () => {
     const achievements = deriveAchievements([], COURSES, COUNTRIES)
     expect(achievements.map((a) => a.id)).toEqual([
       'bogey-free-augusta',
       'break-60-augusta',
+      'birdie-all-augusta',
       'bogey-free-carnoustie',
       'break-60-carnoustie',
+      'birdie-all-carnoustie',
       'bogey-free-everywhere',
       'bogey-free-5-rounds',
       'bogey-free-10-rounds',
@@ -155,7 +222,7 @@ describe('deriveAchievements', () => {
 
   it('tags each achievement with the right section', () => {
     const achievements = deriveAchievements([], COURSES, COUNTRIES)
-    expect(achievements.filter((a) => a.section === 'course')).toHaveLength(4)
+    expect(achievements.filter((a) => a.section === 'course')).toHaveLength(6)
     expect(achievements.filter((a) => a.section === 'career')).toHaveLength(14)
     expect(achievements.filter((a) => a.section === 'iconic')).toHaveLength(8)
   })
