@@ -55,8 +55,11 @@ const JIMENEZ_ESCAPE_COURSE_ID = 'st-andrews'
 const JIMENEZ_ESCAPE_HOLE_NUMBER = 17
 const JIMENEZ_ESCAPE_GOLFER_ID = 'esp-jimenez'
 
+// Ian Poulter birdied his final five holes (14–18) in the Saturday
+// four-ball match at the 2012 Ryder Cup, sparking Europe's Miracle at
+// Medinah comeback from 10–6 down.
 const MIRACLE_AT_MEDINAH_COURSE_ID = 'medinah'
-const MIRACLE_AT_MEDINAH_HOLE_NUMBER = 18
+const MIRACLE_AT_MEDINAH_HOLE_NUMBERS = [14, 15, 16, 17, 18]
 const MIRACLE_AT_MEDINAH_GOLFER_ID = 'eng-poulter'
 
 const KIWI_CLOSER_COURSE_ID = 'royal-birkdale'
@@ -86,9 +89,9 @@ const SCHEFFLER_GOLD_MAX_TO_PAR = -9
 // THREE_PEAT_MAX_GROSS_SCORE above. Henrik Stenson closed with a 64 to win
 // the 2013 DP World Tour Championship — and the Race to Dubai title with
 // it — at Jumeirah Golf Estates' Earth Course.
-const STENSON_FINALE_COURSE_ID = 'earth-course'
-const STENSON_FINALE_GOLFER_ID = 'swe-stenson'
-const STENSON_FINALE_MAX_GROSS_SCORE = 64
+const STENSON_ICEMAN_COURSE_ID = 'earth-course'
+const STENSON_ICEMAN_GOLFER_ID = 'swe-stenson'
+const STENSON_ICEMAN_MAX_GROSS_SCORE = 64
 
 // Six legends, five birdies each, across the whole round history — not
 // tied to any single round the way the other Iconic Moments are.
@@ -210,6 +213,19 @@ function hasBirdieAt(rounds: RoundRecord[], courseId: string, holeNumber: number
     (r) =>
       r.courseId === courseId &&
       r.holeResults.some((h) => h.holeNumber === holeNumber && h.golferId === golferId && h.outcomeTier === 'birdie'),
+  )
+}
+
+// Same shape as hasBirdieAt above, but any one of a set of holes counts —
+// used by Miracle at Medinah, where the real feat (Poulter's five straight
+// birdies in the 2012 Ryder Cup) is a run, not a single fixed hole.
+function hasBirdieAtAnyOf(rounds: RoundRecord[], courseId: string, holeNumbers: number[], golferId: string): boolean {
+  return rounds.some(
+    (r) =>
+      r.courseId === courseId &&
+      r.holeResults.some(
+        (h) => holeNumbers.includes(h.holeNumber) && h.golferId === golferId && h.outcomeTier === 'birdie',
+      ),
   )
 }
 
@@ -610,18 +626,18 @@ export function deriveAchievements(
   })
   achievements.push({
     id: 'stenson-finale',
-    name: "Iron Byron's Finale",
-    description: `Shoot ${STENSON_FINALE_MAX_GROSS_SCORE} or better at the Earth Course with Henrik Stenson in the bag.`,
+    name: "The Iceman's Finale",
+    description: `Shoot ${STENSON_ICEMAN_MAX_GROSS_SCORE} or better at the Earth Course with Henrik Stenson in the bag.`,
     section: 'iconic',
     isUnlocked: hasShotGrossWithGolferAt(
       rounds,
       courses,
-      STENSON_FINALE_COURSE_ID,
-      STENSON_FINALE_GOLFER_ID,
-      STENSON_FINALE_MAX_GROSS_SCORE,
+      STENSON_ICEMAN_COURSE_ID,
+      STENSON_ICEMAN_GOLFER_ID,
+      STENSON_ICEMAN_MAX_GROSS_SCORE,
     ),
     trivia:
-      'Henrik Stenson — nicknamed "Iron Byron" for his ball-striking — closed with a 64 to win the 2013 DP World Tour Championship, and the Race to Dubai title with it, at Jumeirah Golf Estates\' Earth Course.',
+      'Henrik Stenson — nicknamed "The Iceman" for his cool composure under pressure — closed with a 64 to win the 2013 DP World Tour Championship, and the Race to Dubai title with it, at Jumeirah Golf Estates\' Earth Course.',
   })
   achievements.push({
     id: 'postcard-perfect',
@@ -644,11 +660,16 @@ export function deriveAchievements(
   achievements.push({
     id: 'miracle-at-medinah',
     name: 'Miracle at Medinah',
-    description: "Birdie Medinah's 18th with Ian Poulter.",
+    description: 'Birdie any of the final 5 holes at Medinah with Ian Poulter.',
     section: 'iconic',
-    isUnlocked: hasBirdieAt(rounds, MIRACLE_AT_MEDINAH_COURSE_ID, MIRACLE_AT_MEDINAH_HOLE_NUMBER, MIRACLE_AT_MEDINAH_GOLFER_ID),
+    isUnlocked: hasBirdieAtAnyOf(
+      rounds,
+      MIRACLE_AT_MEDINAH_COURSE_ID,
+      MIRACLE_AT_MEDINAH_HOLE_NUMBERS,
+      MIRACLE_AT_MEDINAH_GOLFER_ID,
+    ),
     trivia:
-      "Ian Poulter birdied Medinah's 18th during the 2012 Ryder Cup, part of a five-birdie finishing run that fired up Europe's historic comeback from 10-6 down.",
+      "Ian Poulter birdied his final five holes during the 2012 Ryder Cup's Saturday four-balls, part of a run that fired up Europe's historic comeback from 10-6 down.",
   })
   achievements.push({
     id: 'kiwi-closer',

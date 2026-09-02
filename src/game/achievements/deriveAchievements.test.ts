@@ -435,7 +435,7 @@ describe('deriveAchievements', () => {
     )
   })
 
-  it('unlocks "Iron Byron\'s Finale" only for 64-or-better gross at the Earth Course with Henrik Stenson in the bag', () => {
+  it('unlocks "The Iceman\'s Finale" only for 64-or-better gross at the Earth Course with Henrik Stenson in the bag', () => {
     const earthCourse: Course = { id: 'earth-course', name: 'earth-course', par: 72, holes: [] }
     const courses = [...COURSES, earthCourse]
 
@@ -663,16 +663,18 @@ describe('deriveAchievements', () => {
     }
   })
 
-  it('unlocks "Miracle at Medinah" for a birdie by Ian Poulter on Medinah hole 18', () => {
-    const rounds = [round('medinah', { holeResults: [hole(18, 'birdie', -1, 'eng-poulter')] })]
-    expect(
-      deriveAchievements(rounds, COURSES, COUNTRIES).find((a) => a.id === 'miracle-at-medinah')?.isUnlocked,
-    ).toBe(true)
+  it('unlocks "Miracle at Medinah" for a birdie by Ian Poulter on any of Medinah\'s final 5 holes', () => {
+    for (const holeNumber of [14, 15, 16, 17, 18]) {
+      const rounds = [round('medinah', { holeResults: [hole(holeNumber, 'birdie', -1, 'eng-poulter')] })]
+      expect(
+        deriveAchievements(rounds, COURSES, COUNTRIES).find((a) => a.id === 'miracle-at-medinah')?.isUnlocked,
+      ).toBe(true)
+    }
   })
 
   it('does not unlock "Miracle at Medinah" for the wrong golfer, hole, course, or outcome', () => {
     const wrongGolfer = [round('medinah', { holeResults: [hole(18, 'birdie', -1, 'someone-else')] })]
-    const wrongHole = [round('medinah', { holeResults: [hole(17, 'birdie', -1, 'eng-poulter')] })]
+    const wrongHole = [round('medinah', { holeResults: [hole(13, 'birdie', -1, 'eng-poulter')] })]
     const wrongCourse = [round('augusta', { holeResults: [hole(18, 'birdie', -1, 'eng-poulter')] })]
     const wrongOutcome = [round('medinah', { holeResults: [hole(18, 'par', 0, 'eng-poulter')] })]
     for (const rounds of [wrongGolfer, wrongHole, wrongCourse, wrongOutcome]) {
