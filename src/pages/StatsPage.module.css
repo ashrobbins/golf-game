@@ -288,3 +288,10 @@
   min-width: 28px;
   text-align: right;
 }
+
+/* Same red used for a bogey anywhere else in the app (ScoreMark,
+   PlayerLeaderboard) — any round that finished +1 or worse gets it here
+   too, on just the number itself. */
+.historyScore.overPar {
+  color: var(--tier-red);
+}

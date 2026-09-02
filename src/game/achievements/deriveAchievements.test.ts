@@ -64,8 +64,8 @@ describe('deriveAchievements', () => {
   it('returns every achievement locked when there are no rounds at all', () => {
     const achievements = deriveAchievements([], COURSES, COUNTRIES)
     expect(achievements.every((a) => !a.isUnlocked)).toBe(true)
-    // 2 courses x 2 per-course achievements + 13 career milestones + 8 iconic moments
-    expect(achievements).toHaveLength(25)
+    // 2 courses x 2 per-course achievements + 14 career milestones + 8 iconic moments
+    expect(achievements).toHaveLength(26)
   })
 
   it('unlocks a course bogey-free achievement only when a bogey-free round exists at that course', () => {
@@ -138,6 +138,7 @@ describe('deriveAchievements', () => {
       'perfect-match',
       'peoples-champion',
       'legendary-stuff',
+      'an-off-day',
       'take-mine-scrambled',
       'bombs-away',
       'grand-slam',
@@ -155,7 +156,7 @@ describe('deriveAchievements', () => {
   it('tags each achievement with the right section', () => {
     const achievements = deriveAchievements([], COURSES, COUNTRIES)
     expect(achievements.filter((a) => a.section === 'course')).toHaveLength(4)
-    expect(achievements.filter((a) => a.section === 'career')).toHaveLength(13)
+    expect(achievements.filter((a) => a.section === 'career')).toHaveLength(14)
     expect(achievements.filter((a) => a.section === 'iconic')).toHaveLength(8)
   })
 
@@ -426,6 +427,20 @@ describe('deriveAchievements', () => {
 
     expect(nonLegend?.progress).toEqual({ current: 0, target: 1000 })
     expect(negative?.progress).toEqual({ current: 0, target: 1000 })
+  })
+
+  it('unlocks "An Off Day" for a round of +5 to par or worse', () => {
+    const exactlyFive = [round('augusta', { totalStrokesToPar: 5 })]
+    const worse = [round('augusta', { totalStrokesToPar: 9 })]
+    const justUnder = [round('augusta', { totalStrokesToPar: 4 })]
+
+    expect(deriveAchievements(exactlyFive, COURSES, COUNTRIES).find((a) => a.id === 'an-off-day')?.isUnlocked).toBe(
+      true,
+    )
+    expect(deriveAchievements(worse, COURSES, COUNTRIES).find((a) => a.id === 'an-off-day')?.isUnlocked).toBe(true)
+    expect(deriveAchievements(justUnder, COURSES, COUNTRIES).find((a) => a.id === 'an-off-day')?.isUnlocked).toBe(
+      false,
+    )
   })
 
   it('unlocks the mismatch achievements only for a birdie by the right golfer archetype on the right hole archetype', () => {

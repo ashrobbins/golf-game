@@ -104,7 +104,13 @@ export function StatsPage() {
                       <span className={styles.historyDate}>
                         {new Date(round.playedAt).toLocaleDateString()}
                       </span>
-                      <span className={styles.historyScore}>
+                      <span
+                        className={
+                          round.totalStrokesToPar >= 1
+                            ? `${styles.historyScore} ${styles.overPar}`
+                            : styles.historyScore
+                        }
+                      >
                         {formatRelativeScore(round.totalStrokesToPar)}
                       </span>
                     </button>

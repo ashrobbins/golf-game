@@ -74,6 +74,10 @@ const GRAND_SLAM_BIRDIES_PER_GOLFER = 5
 // the 'legend' skill tier, summed across every round ever played.
 const LEGENDARY_STUFF_TARGET = 1000
 
+// Relative to par — +5 means 5 strokes over, regardless of the course's own
+// par value.
+const OFF_DAY_MIN_STROKES_TO_PAR = 5
+
 export type AchievementSection =  'career' | 'iconic' | 'course'
 
 export interface AchievementProgress {
@@ -206,6 +210,10 @@ function legendPointsEarned(rounds: RoundRecord[], countries: CountriesContent):
     }
   }
   return total
+}
+
+function hasOffDayRound(rounds: RoundRecord[]): boolean {
+  return rounds.some((r) => r.totalStrokesToPar >= OFF_DAY_MIN_STROKES_TO_PAR)
 }
 
 function holeArchetypeAt(courses: Course[], courseId: string, holeNumber: number): ArchetypeTag | null {
@@ -371,6 +379,13 @@ export function deriveAchievements(
     section: 'career',
     isUnlocked: legendPoints >= LEGENDARY_STUFF_TARGET,
     progress: { current: Math.max(0, legendPoints), target: LEGENDARY_STUFF_TARGET },
+  })
+  achievements.push({
+    id: 'an-off-day',
+    name: 'An Off Day',
+    description: 'Score +5 or worse in a round.',
+    section: 'career',
+    isUnlocked: hasOffDayRound(rounds),
   })
   achievements.push({
     id: 'take-mine-scrambled',
