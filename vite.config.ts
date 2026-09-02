@@ -11,7 +11,7 @@ export default defineConfig({
       includeAssets: ['favicon-16.png', 'favicon-32.png', 'apple-touch-icon.png'],
       manifest: {
         name: 'Beating Bogey',
-        short_name: 'Bogey',
+        short_name: 'Beating Bogey',
         description: 'Draft a bag of 18 golfers and chase a bogey-free round.',
         theme_color: '#5b4fe8',
         background_color: '#f5f5f7',
