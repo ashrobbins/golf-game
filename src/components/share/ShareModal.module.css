@@ -95,10 +95,12 @@
    alongside the preview below. Same recoloring switch-track control as
    SettingsDrawer's own toggles (SettingsDrawer.module.css), just scaled
    down — that one's built for a roomy drawer, this shares space with the
-   thumbnail preview right below it. */
+   thumbnail preview right below it. Two columns rather than one long
+   list, so 4 toggles (achievements included) take the same height as 2. */
 .toggleGroup {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 16px;
   margin-top: 12px;
 }
 
@@ -138,19 +140,28 @@
   outline-offset: 2px;
 }
 
+/* Centered via top:50%/translateY rather than a hardcoded top offset —
+   the thumb's height (14px) doesn't evenly divide the track's inner
+   height (16px, track height minus its 1px top+bottom border), so a fixed
+   top px value is always off by a subpixel in one direction depending on
+   how the browser rounds it. The translateY(-50%) stays exactly centered
+   regardless of that rounding. translateX for the "on" state combines
+   into the same transform (see .switchThumbOn) since a plain `left`
+   offset can't share a property with a transform-based centering trick. */
 .switchThumb {
   position: absolute;
-  top: 1px;
+  top: 50%;
   left: 1px;
   width: 14px;
   height: 14px;
   border-radius: 50%;
   background: var(--surface);
+  transform: translateY(-50%);
   transition: transform 0.15s ease;
 }
 
 .switchThumbOn {
-  transform: translateX(16px);
+  transform: translate(16px, -50%);
 }
 
 @media (prefers-reduced-motion: reduce) {
