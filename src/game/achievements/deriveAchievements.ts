@@ -800,7 +800,7 @@ export function deriveAchievements(
   achievements.push({
     id: 'harringtons-survival',
     name: "Harrington's Survival",
-    description: `Score ${HARRINGTONS_SURVIVAL_MIN_TO_PAR} or worse at Royal Birkdale with Padraig Harrington in the bag.`,
+    description: `Score +${HARRINGTONS_SURVIVAL_MIN_TO_PAR} or worse at Royal Birkdale with Padraig Harrington in the bag.`,
     section: 'iconic',
     isUnlocked: hasScoredWorseWithGolferAt(
       rounds,
