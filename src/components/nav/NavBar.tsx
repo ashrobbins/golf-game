@@ -12,7 +12,7 @@ export function NavBar() {
   return (
     <header className={styles.bar}>
       <button type="button" className={styles.logo} onClick={playAgain}>
-        <span className={styles.logoMark}>⛳</span>
+        <img src="/brand/beating-bogey-flag.svg" alt="" className={styles.logoImage} />
         Beating Bogey
       </button>
       <div className={styles.right}>

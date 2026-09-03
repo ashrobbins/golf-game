@@ -17,6 +17,12 @@
   --archetype-short-game: #a855c9;
   --archetype-scrambler: #d98c2b;
   --archetype-closer: #c23a5e;
+  /* The nav logo mark is a flat black SVG with no dark-theme variant of
+     its own — inverting it via filter is the cheap fix since it's a
+     single flat color already, no hue to preserve. none in light, full
+     invert in dark, following the same three-state pattern as every
+     other token here. */
+  --logo-invert: none;
   color-scheme: light dark;
   color: var(--text);
   background: var(--bg);
@@ -47,6 +53,7 @@
     --archetype-short-game: #c583de;
     --archetype-scrambler: #e6a850;
     --archetype-closer: #e0678c;
+    --logo-invert: invert(1);
   }
 }
 
@@ -72,6 +79,7 @@
   --archetype-short-game: #c583de;
   --archetype-scrambler: #e6a850;
   --archetype-closer: #e0678c;
+  --logo-invert: invert(1);
 }
 
 * {
