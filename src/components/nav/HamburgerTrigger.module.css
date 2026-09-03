@@ -1,15 +1,18 @@
-/* Same circle treatment as HowToPlayTrigger/HowToPlayDrawer's .trigger —
-   duplicated here (not imported) so the display:none/flex toggle below
-   isn't fighting cascade order against a second CSS module. */
+/* Rounded square rather than HowToPlayTrigger/SettingsTrigger's circle —
+   this is the only one of the nav triggers actually visible on mobile
+   (the others hide below 560px), so it's sized up and squared off to
+   match the app's own button/card radius convention (Button.module.css)
+   instead of copying the desktop-only circle triggers. Still
+   self-contained rather than imported, same reasoning as those. */
 .trigger {
   display: none;
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 38px;
+  height: 38px;
   padding: 0;
-  border-radius: 50%;
+  border-radius: 10px;
   border: 1.5px solid var(--border);
   background: transparent;
   color: var(--text-muted);
@@ -37,6 +40,6 @@
 }
 
 .icon {
-  width: 15px;
-  height: 15px;
+  width: 18px;
+  height: 18px;
 }
