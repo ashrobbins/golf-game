@@ -26,11 +26,20 @@
   cursor: pointer;
 }
 
+/* The injected SVG's black linework is fill/stroke="currentColor" (see
+   LogoMark.tsx), so it inherits .logo's own color: var(--text) here —
+   no explicit color needed, it flips with the theme for free. Its red
+   fill is a literal hex baked into the source file and never changes. */
 .logoImage {
   width: 32px;
   height: 32px;
   display: block;
-  filter: var(--logo-invert);
+}
+
+.logoImage svg {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 .right {

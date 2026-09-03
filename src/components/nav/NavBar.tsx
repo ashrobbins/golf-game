@@ -2,6 +2,7 @@ import { useGame } from '../../state/useGame'
 import { AchievementsTrigger } from './AchievementsTrigger'
 import { HamburgerTrigger } from './HamburgerTrigger'
 import { HowToPlayTrigger } from './HowToPlayTrigger'
+import { LogoMark } from './LogoMark'
 import { SettingsTrigger } from './SettingsTrigger'
 import { StatsTrigger } from './StatsTrigger'
 import styles from './NavBar.module.css'
@@ -12,7 +13,7 @@ export function NavBar() {
   return (
     <header className={styles.bar}>
       <button type="button" className={styles.logo} onClick={playAgain}>
-        <img src="/brand/beating-bogey-flag.svg" alt="" className={styles.logoImage} />
+        <LogoMark />
         Beating Bogey
       </button>
       <div className={styles.right}>
