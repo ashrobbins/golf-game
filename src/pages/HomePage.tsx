@@ -1,4 +1,5 @@
 import { CourseCard } from '../components/home/CourseCard'
+import { LogoMark } from '../components/nav/LogoMark'
 import { Button } from '../components/ui/Button'
 import { useGame } from '../state/useGame'
 import { useHowToPlay } from '../state/useHowToPlay'
@@ -13,7 +14,10 @@ export function HomePage() {
 
   return (
     <div className={styles.wrapper}>
-      <h1 className={styles.title}>Beating Bogey</h1>
+      <h1 className={styles.title}>
+        <LogoMark className={styles.titleMark} />
+        Beating Bogey
+      </h1>
       <p className={styles.subtitle}>Pick a course to start your round.</p>
       <Button variant="secondary" className={styles.howItWorks} onClick={open}>
         <span className={styles.howItWorksIcon} aria-hidden>

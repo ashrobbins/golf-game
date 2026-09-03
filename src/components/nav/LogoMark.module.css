@@ -1,0 +1,14 @@
+/* Sizeless by design — callers size this via their own wrapper (NavBar's
+   .logoImage, HomePage's .titleMark, etc.) so the same component works at
+   any scale rather than being pinned to the nav's own dimensions. */
+.mark {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.mark svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
