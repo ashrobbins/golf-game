@@ -54,8 +54,9 @@ function hole(
   outcomeTier: RoundRecord['holeResults'][number]['outcomeTier'],
   relativeScore = 0,
   golferId = 'golfer',
+  countryId = 'country',
 ): RoundRecord['holeResults'][number] {
-  return { holeNumber, golferId, countryId: 'country', outcomeTier, archetypeMatched: true, relativeScore }
+  return { holeNumber, golferId, countryId, outcomeTier, archetypeMatched: true, relativeScore }
 }
 
 const COURSES = [course('augusta', 72), course('carnoustie', 71)]
@@ -225,7 +226,7 @@ describe('deriveAchievements', () => {
       'kiwi-closer',
       'jimenez-escape',
       'garcia-home-soil',
-      'matadors-flourish',
+      'spirit-of-seve',
       'harringtons-survival',
     ])
   })
@@ -796,21 +797,27 @@ describe('deriveAchievements', () => {
     }
   })
 
-  it('unlocks "The Matador\'s Flourish" for a birdie by Seve Ballesteros on Brabazon hole 10', () => {
-    const rounds = [round('brabazon', { holeResults: [hole(10, 'birdie', -1, 'esp-ballesteros')] })]
+  it('unlocks "Spirit of Seve" for a birdie by any Spanish golfer on Brabazon hole 10', () => {
+    const withSeve = [round('brabazon', { holeResults: [hole(10, 'birdie', -1, 'esp-ballesteros', 'spain')] })]
     expect(
-      deriveAchievements(rounds, COURSES, COUNTRIES).find((a) => a.id === 'matadors-flourish')?.isUnlocked,
+      deriveAchievements(withSeve, COURSES, COUNTRIES).find((a) => a.id === 'spirit-of-seve')?.isUnlocked,
+    ).toBe(true)
+
+    // Any Spanish golfer counts, not just Seve specifically.
+    const otherSpaniard = [round('brabazon', { holeResults: [hole(10, 'birdie', -1, 'esp-garcia', 'spain')] })]
+    expect(
+      deriveAchievements(otherSpaniard, COURSES, COUNTRIES).find((a) => a.id === 'spirit-of-seve')?.isUnlocked,
     ).toBe(true)
   })
 
-  it('does not unlock "The Matador\'s Flourish" for the wrong golfer, hole, course, or outcome', () => {
-    const wrongGolfer = [round('brabazon', { holeResults: [hole(10, 'birdie', -1, 'someone-else')] })]
-    const wrongHole = [round('brabazon', { holeResults: [hole(9, 'birdie', -1, 'esp-ballesteros')] })]
-    const wrongCourse = [round('augusta', { holeResults: [hole(10, 'birdie', -1, 'esp-ballesteros')] })]
-    const wrongOutcome = [round('brabazon', { holeResults: [hole(10, 'par', 0, 'esp-ballesteros')] })]
-    for (const rounds of [wrongGolfer, wrongHole, wrongCourse, wrongOutcome]) {
+  it('does not unlock "Spirit of Seve" for the wrong country, hole, course, or outcome', () => {
+    const wrongCountry = [round('brabazon', { holeResults: [hole(10, 'birdie', -1, 'someone-else', 'usa')] })]
+    const wrongHole = [round('brabazon', { holeResults: [hole(9, 'birdie', -1, 'esp-ballesteros', 'spain')] })]
+    const wrongCourse = [round('augusta', { holeResults: [hole(10, 'birdie', -1, 'esp-ballesteros', 'spain')] })]
+    const wrongOutcome = [round('brabazon', { holeResults: [hole(10, 'par', 0, 'esp-ballesteros', 'spain')] })]
+    for (const rounds of [wrongCountry, wrongHole, wrongCourse, wrongOutcome]) {
       expect(
-        deriveAchievements(rounds, COURSES, COUNTRIES).find((a) => a.id === 'matadors-flourish')?.isUnlocked,
+        deriveAchievements(rounds, COURSES, COUNTRIES).find((a) => a.id === 'spirit-of-seve')?.isUnlocked,
       ).toBe(false)
     }
   })

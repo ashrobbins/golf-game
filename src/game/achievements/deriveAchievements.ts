@@ -68,10 +68,11 @@ const KIWI_CLOSER_GOLFER_ID = 'nzl-fox' // Ryan Fox, New Zealand.
 
 // The Belfry's short, daring par-4 10th — a green players can reach off
 // the tee — is part of Ryder Cup folklore for Seve Ballesteros's flair
-// there.
-const MATADORS_FLOURISH_COURSE_ID = 'brabazon'
-const MATADORS_FLOURISH_HOLE_NUMBER = 10
-const MATADORS_FLOURISH_GOLFER_ID = 'esp-ballesteros'
+// there. Any Spanish golfer counts, not just Seve himself — the
+// achievement is about channeling that same flair, not literally him.
+const SPIRIT_OF_SEVE_COURSE_ID = 'brabazon'
+const SPIRIT_OF_SEVE_HOLE_NUMBER = 10
+const SPIRIT_OF_SEVE_COUNTRY_ID = 'spain'
 
 // Rory McIlroy beat Sam Burns 3&1 in the final Sunday singles match of the
 // 2023 Ryder Cup — a match decided on the 17th green, sealing Europe's
@@ -255,6 +256,24 @@ function hasBirdieAt(rounds: RoundRecord[], courseId: string, holeNumber: number
     (r) =>
       r.courseId === courseId &&
       r.holeResults.some((h) => h.holeNumber === holeNumber && h.golferId === golferId && h.outcomeTier === 'birdie'),
+  )
+}
+
+// Same shape as hasBirdieAt above, but any golfer from the given country
+// counts — used by Spirit of Seve, which only cares about nationality, not
+// which specific Spanish golfer made the birdie.
+function hasBirdieAtByCountry(
+  rounds: RoundRecord[],
+  courseId: string,
+  holeNumber: number,
+  countryId: string,
+): boolean {
+  return rounds.some(
+    (r) =>
+      r.courseId === courseId &&
+      r.holeResults.some(
+        (h) => h.holeNumber === holeNumber && h.countryId === countryId && h.outcomeTier === 'birdie',
+      ),
   )
 }
 
@@ -789,11 +808,16 @@ export function deriveAchievements(
       'Sergio García fired a second-round 64 at Valderrama on his way to winning the 2018 Andalucía Valderrama Masters on home soil in Spain.',
   })
   achievements.push({
-    id: 'matadors-flourish',
-    name: "The Matador's Flourish",
-    description: "Birdie Brabazon's 10th with Seve Ballesteros.",
+    id: 'spirit-of-seve',
+    name: 'Spirit of Seve',
+    description: "Birdie Brabazon's 10th with any Spanish golfer.",
     section: 'iconic',
-    isUnlocked: hasBirdieAt(rounds, MATADORS_FLOURISH_COURSE_ID, MATADORS_FLOURISH_HOLE_NUMBER, MATADORS_FLOURISH_GOLFER_ID),
+    isUnlocked: hasBirdieAtByCountry(
+      rounds,
+      SPIRIT_OF_SEVE_COURSE_ID,
+      SPIRIT_OF_SEVE_HOLE_NUMBER,
+      SPIRIT_OF_SEVE_COUNTRY_ID,
+    ),
     trivia:
       "As golf lore has it, Seve Ballesteros drove the green on The Belfry's short, daring par-4 10th during a practice round — the kind of audacious play that made him a Ryder Cup legend across five appearances for Europe.",
   })
