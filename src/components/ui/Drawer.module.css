@@ -19,6 +19,11 @@
   background: var(--surface);
   box-shadow: var(--shadow);
   animation: slideIn 0.25s ease;
+  /* Programmatically focused when there's no close button to land focus
+     on instead (see Drawer.tsx's hideClose path) — no visible ring on
+     the whole panel needed, focus is already obvious from the drawer
+     itself sliding into view. */
+  outline: none;
 }
 
 @keyframes slideIn {

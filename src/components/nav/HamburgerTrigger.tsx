@@ -1,4 +1,4 @@
-import { HamburgerIcon } from '../ui/icons'
+import { CloseIcon, HamburgerIcon } from '../ui/icons'
 import { useNavDrawer } from '../../state/useNavDrawer'
 import styles from './HamburgerTrigger.module.css'
 
@@ -10,12 +10,23 @@ import styles from './HamburgerTrigger.module.css'
 // the visibility toggle at the mercy of cross-module CSS cascade order.
 // Hidden above the 560px breakpoint, where Stats/Achievements/theme toggle
 // already show inline instead.
+//
+// Doubles as the drawer's close control while it's open (swapping to a
+// cross icon) — MobileNavDrawer hides its own header close button
+// (hideClose) so this is the only affordance, rather than two ways to
+// close the same menu.
 export function HamburgerTrigger() {
-  const { open } = useNavDrawer()
+  const { isOpen, open, close } = useNavDrawer()
 
   return (
-    <button type="button" className={styles.trigger} aria-label="Menu" onClick={open}>
-      <HamburgerIcon className={styles.icon} />
+    <button
+      type="button"
+      className={styles.trigger}
+      aria-label={isOpen ? 'Close menu' : 'Menu'}
+      aria-expanded={isOpen}
+      onClick={isOpen ? close : open}
+    >
+      {isOpen ? <CloseIcon className={styles.icon} /> : <HamburgerIcon className={styles.icon} />}
     </button>
   )
 }

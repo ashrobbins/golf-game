@@ -32,7 +32,7 @@ export function MobileNavDrawer() {
   }
 
   return (
-    <Drawer isOpen={isOpen} onClose={close} titleId="mobile-nav-heading" title="Menu">
+    <Drawer isOpen={isOpen} onClose={close} titleId="mobile-nav-heading" title="Menu" hideClose>
       <nav className={styles.list}>
         <button type="button" className={styles.item} onClick={goToStats}>
           <StatsIcon className={styles.itemIcon} />

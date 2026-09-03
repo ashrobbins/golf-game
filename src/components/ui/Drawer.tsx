@@ -16,6 +16,11 @@ interface DrawerProps {
   // that isn't "close and re-open the hamburger."
   onBack?: () => void
   backLabel?: string
+  // Omits the header's own close button — used by MobileNavDrawer, whose
+  // trigger (HamburgerTrigger) becomes a close/cross icon itself while
+  // open, so a second close affordance in the header would be redundant.
+  // Backdrop click and Escape still close it either way.
+  hideClose?: boolean
 }
 
 // Generic slide-in-from-left drawer shell — backdrop, panel, header with a
@@ -26,13 +31,30 @@ interface DrawerProps {
 // No full focus trap (Tab still escapes into the page) — wasn't asked for
 // on the original drawer, and adding one blind is easy to get subtly
 // wrong; revisit if it's actually needed.
-export function Drawer({ isOpen, onClose, titleId, title, children, onBack, backLabel }: DrawerProps) {
+export function Drawer({
+  isOpen,
+  onClose,
+  titleId,
+  title,
+  children,
+  onBack,
+  backLabel,
+  hideClose,
+}: DrawerProps) {
   const closeRef = useRef<HTMLButtonElement>(null)
+  const panelRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!isOpen) return
 
-    closeRef.current?.focus()
+    // No close button to land on when it's hidden — focus the panel
+    // itself instead, same as any other dialog with no obvious first
+    // focusable control.
+    if (hideClose) {
+      panelRef.current?.focus()
+    } else {
+      closeRef.current?.focus()
+    }
     const previousOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
 
@@ -45,14 +67,21 @@ export function Drawer({ isOpen, onClose, titleId, title, children, onBack, back
       document.body.style.overflow = previousOverflow
       document.removeEventListener('keydown', handleKeyDown)
     }
-  }, [isOpen, onClose])
+  }, [isOpen, onClose, hideClose])
 
   if (!isOpen) return null
 
   return (
     <>
       <button type="button" className={styles.backdrop} aria-label="Close" onClick={onClose} />
-      <div className={styles.drawer} role="dialog" aria-modal="true" aria-labelledby={titleId}>
+      <div
+        ref={panelRef}
+        className={styles.drawer}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        tabIndex={-1}
+      >
         <div className={styles.header}>
           <h2 id={titleId} className={onBack ? `${styles.heading} ${styles.srOnly}` : styles.heading}>
             {title}
@@ -63,9 +92,11 @@ export function Drawer({ isOpen, onClose, titleId, title, children, onBack, back
               {backLabel ?? 'Back'}
             </button>
           )}
-          <button ref={closeRef} type="button" className={styles.close} aria-label="Close" onClick={onClose}>
-            <CloseIcon className={styles.closeIcon} />
-          </button>
+          {!hideClose && (
+            <button ref={closeRef} type="button" className={styles.close} aria-label="Close" onClick={onClose}>
+              <CloseIcon className={styles.closeIcon} />
+            </button>
+          )}
         </div>
 
         <div className={styles.body}>{children}</div>
