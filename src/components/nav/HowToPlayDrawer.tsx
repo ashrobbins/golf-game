@@ -21,6 +21,7 @@ export function HowToPlayDrawer() {
       title="How to Play"
       onBack={openedFromNav ? backToNav : undefined}
       backLabel="Menu"
+      hideClose
     >
       <div className={styles.section}>
         <p className={styles.sectionTitle}>The goal</p>

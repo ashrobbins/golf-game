@@ -21,8 +21,9 @@ export function SettingsDrawer() {
       title="Settings"
       onBack={openedFromNav ? backToNav : undefined}
       backLabel="Menu"
+      hideClose
     >
-      <p className={styles.groupLabel}>Appearance</p>
+      <p className={styles.groupLabel}>Settings</p>
       <div className={styles.toggleRow}>
         <span className={styles.toggleLabelGroup}>
           <PaintbrushIcon className={styles.toggleIcon} />
