@@ -3,6 +3,7 @@ import type { CountriesContent, Country, Course } from '../../content/types'
 import type { Achievement } from '../../game/achievements/deriveAchievements'
 import { findTopPerformer } from '../../game/share/topPerformer'
 import type { SimulationResult } from '../../game/simulation/types'
+import { LogoMark } from '../nav/LogoMark'
 import { ResultsHero } from '../scorecard/ResultsHero'
 import { AchievementUnlockBanner } from './AchievementUnlockBanner'
 import { StackedScorecard } from './StackedScorecard'
@@ -57,7 +58,7 @@ export const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(function Sha
   return (
     <div ref={ref} className={styles.card}>
       <div className={styles.brand}>
-        <span className={styles.brandMark}>⛳</span>
+        <LogoMark className={styles.brandMark} />
         <span className={styles.brandName}>Beating Bogey</span>
       </div>
 
