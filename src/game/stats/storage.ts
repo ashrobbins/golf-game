@@ -43,6 +43,56 @@ export function loadStats(): StatsStore {
   }
 }
 
+export function exportStats(): StatsStore {
+  return loadStats()
+}
+
+function isValidRoundRecord(value: unknown): value is RoundRecord {
+  if (typeof value !== 'object' || value === null) return false
+  const r = value as Record<string, unknown>
+  return (
+    typeof r.id === 'string' &&
+    typeof r.playedAt === 'string' &&
+    typeof r.courseId === 'string' &&
+    Array.isArray(r.holeResults) &&
+    typeof r.totalStrokesToPar === 'number' &&
+    typeof r.bogeyFreeThroughHole === 'number' &&
+    typeof r.isBogeyFreeRound === 'boolean'
+  )
+}
+
+// Replaces (not merges with) whatever is currently stored — this is meant for
+// restoring a backup onto a fresh install, e.g. after iOS wipes a home-screen
+// web app's storage when its icon is removed and re-added.
+export function importStats(data: unknown): StatsStore {
+  if (typeof data !== 'object' || data === null) {
+    throw new Error('That file doesn\'t look like a Beating Bogey backup.')
+  }
+  const candidate = data as Record<string, unknown>
+  if (candidate.version !== CURRENT_VERSION || !Array.isArray(candidate.rounds)) {
+    throw new Error('That file doesn\'t look like a Beating Bogey backup.')
+  }
+  if (!candidate.rounds.every(isValidRoundRecord)) {
+    throw new Error('That backup file is corrupted or from an incompatible version.')
+  }
+
+  const store: StatsStore = { version: CURRENT_VERSION, rounds: candidate.rounds }
+
+  if (storageDisabled) {
+    memoryStore = store
+    return store
+  }
+
+  try {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(store))
+  } catch {
+    storageDisabled = true
+    memoryStore = store
+  }
+
+  return store
+}
+
 export function recordRound(result: SimulationResult): RoundRecord {
   const record: RoundRecord = {
     ...result,
