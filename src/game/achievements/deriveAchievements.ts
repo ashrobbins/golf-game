@@ -1,4 +1,5 @@
 import type { ArchetypeTag, CountriesContent, Course } from '../../content/types'
+import { MAJOR_COURSE_IDS, TOTAL_ROUNDS } from '../season/storage'
 import { buildGolferIndex } from '../share/topPerformer'
 import { TIER_POINTS } from '../stats/deriveStats'
 import type { RoundRecord } from '../stats/types'
@@ -151,7 +152,7 @@ const LEGENDARY_STUFF_TARGET = 1000
 // par value.
 const OFF_DAY_MIN_STROKES_TO_PAR = 5
 
-export type AchievementSection =  'career' | 'iconic' | 'course'
+export type AchievementSection =  'career' | 'iconic' | 'course' | 'season'
 
 export interface AchievementProgress {
   current: number
@@ -198,6 +199,12 @@ export interface Achievement {
   // Moments, since those are the achievements actually tied to a specific
   // real event. Rendered as small print under the description.
   trivia?: string
+  // When true, AchievementsPage skips the plain comma-separated
+  // AchievementRoster list and shows only AchievementProgress's
+  // toggle+panel — for a roster too long to read as one inline sentence
+  // (Full House's 125 golfers, a country's 5-14), unlike Grand Slam/Major
+  // Slam's small 4-6 entry rosters, which read fine inline.
+  compactRoster?: boolean
 }
 
 function isBogeyFreeAt(rounds: RoundRecord[], courseId: string): boolean {
@@ -468,6 +475,60 @@ function grandSlamRoster(rounds: RoundRecord[], countries: CountriesContent): Ac
   })
 }
 
+// Every distinct golfer ever drafted, career-wide (Free Play + Season
+// combined — RoundRecord's holeResults don't distinguish, and this
+// achievement isn't scoped to either) — powers Full House.
+function draftedGolferIds(rounds: RoundRecord[]): Set<string> {
+  const ids = new Set<string>()
+  for (const r of rounds) {
+    for (const h of r.holeResults) ids.add(h.golferId)
+  }
+  return ids
+}
+
+// Every distinct golfer from one country with a birdie-or-better outcome,
+// career-wide — powers the per-country "Sweep" achievements. Same
+// birdie-or-better definition as birdieOrBetterHoleNumbersAt above, via the
+// shared BIRDIE_OR_BETTER_TIERS set.
+function birdieOrBetterGolferIdsFor(rounds: RoundRecord[], countryId: string): Set<string> {
+  const ids = new Set<string>()
+  for (const r of rounds) {
+    for (const h of r.holeResults) {
+      if (h.countryId === countryId && BIRDIE_OR_BETTER_TIERS.has(h.outcomeTier)) ids.add(h.golferId)
+    }
+  }
+  return ids
+}
+
+// Groups rounds by their season tag, dropping untagged Free Play rounds —
+// the only place season-scoped achievements need to reconstruct "which
+// rounds belong to the same season," derived purely from the seasonId tag
+// RoundRecord already carries (see game/season/), no need for the season
+// archive object itself.
+function roundsBySeason(rounds: RoundRecord[]): Map<string, RoundRecord[]> {
+  const groups = new Map<string, RoundRecord[]>()
+  for (const r of rounds) {
+    if (!r.seasonId) continue
+    const existing = groups.get(r.seasonId)
+    if (existing) existing.push(r)
+    else groups.set(r.seasonId, [r])
+  }
+  return groups
+}
+
+// Every golfer flagged as a legend, computed live from countries.json
+// rather than a curated/hardcoded list (unlike GRAND_SLAM_GOLFER_IDS) —
+// powers All-Star Season.
+function allLegendGolferIds(countries: CountriesContent): string[] {
+  const ids: string[] = []
+  for (const country of countries.countries) {
+    for (const golfer of country.golfers) {
+      if (golfer.skill === 'legend') ids.push(golfer.id)
+    }
+  }
+  return ids
+}
+
 // A "mismatch" birdie: the golfer who made it has golferArchetype among
 // their own archetype tags, but the hole they birdied is built for a
 // different archetype entirely (holeArchetype) — success despite being the
@@ -634,6 +695,137 @@ export function deriveAchievements(
     isUnlocked: grandSlamComplete >= GRAND_SLAM_GOLFER_IDS.length,
     progress: { current: grandSlamComplete, target: GRAND_SLAM_GOLFER_IDS.length },
     roster: grandSlamRosterEntries,
+  })
+
+  const draftedIds = draftedGolferIds(rounds)
+  const allGolfers = countries.countries.flatMap((country) => country.golfers)
+  const fullHouseRoster: AchievementRosterEntry[] = allGolfers.map((golfer) => ({
+    name: golfer.name,
+    achieved: draftedIds.has(golfer.id),
+  }))
+  achievements.push({
+    id: 'full-house',
+    name: 'Full House',
+    description: 'Draft every golfer in the game at least once.',
+    section: 'career',
+    isUnlocked: fullHouseRoster.every((entry) => entry.achieved),
+    progress: {
+      current: fullHouseRoster.filter((entry) => entry.achieved).length,
+      target: fullHouseRoster.length,
+    },
+    roster: fullHouseRoster,
+    compactRoster: true,
+  })
+
+  // One "Sweep" achievement per country in the game — birdie or better with
+  // every one of that country's golfers, career-wide. Id deliberately
+  // prefixed birdie-country- (not birdie-all-, which the per-course
+  // achievements above already use) so the two families never collide when
+  // grepped for.
+  for (const country of countries.countries) {
+    const birdiedIds = birdieOrBetterGolferIdsFor(rounds, country.id)
+    const countryRoster: AchievementRosterEntry[] = country.golfers.map((golfer) => ({
+      name: golfer.name,
+      achieved: birdiedIds.has(golfer.id),
+    }))
+    achievements.push({
+      id: `birdie-country-${country.id}`,
+      name: `${country.name} Sweep`,
+      description: `Get a birdie or better with every player from ${country.name}.`,
+      section: 'career',
+      isUnlocked: countryRoster.every((entry) => entry.achieved),
+      progress: {
+        current: countryRoster.filter((entry) => entry.achieved).length,
+        target: countryRoster.length,
+      },
+      roster: countryRoster,
+      compactRoster: true,
+    })
+  }
+
+  // ---- Seasons tab ----
+  const seasonGroups = roundsBySeason(rounds)
+  const completedSeasons = [...seasonGroups.values()].filter((rs) => rs.length >= TOTAL_ROUNDS)
+
+  achievements.push({
+    id: 'first-season',
+    name: 'First Season',
+    description: 'Complete all 16 rounds of a season.',
+    section: 'season',
+    isUnlocked: completedSeasons.length >= 1,
+  })
+
+  achievements.push({
+    id: 'first-major',
+    name: 'First Major',
+    description: 'Go bogey-free in a major round.',
+    section: 'season',
+    isUnlocked: rounds.some((r) => r.isMajor && r.isBogeyFreeRound),
+  })
+
+  const majorSlamRoster: AchievementRosterEntry[] = MAJOR_COURSE_IDS.map((courseId) => {
+    const course = courses.find((c) => c.id === courseId)
+    return {
+      name: course?.name ?? courseId,
+      achieved: isBogeyFreeAt(rounds, courseId),
+    }
+  })
+  achievements.push({
+    id: 'major-slam',
+    name: 'Major Slam',
+    description: 'Go bogey-free in all 4 majors across your career.',
+    section: 'season',
+    isUnlocked: majorSlamRoster.every((entry) => entry.achieved),
+    progress: {
+      current: majorSlamRoster.filter((entry) => entry.achieved).length,
+      target: majorSlamRoster.length,
+    },
+    roster: majorSlamRoster,
+  })
+
+  const BACK_TO_BACK_SEASONS_REQUIRED = 2
+  const seasonsUnderPar = completedSeasons.filter(
+    (seasonRounds) => seasonRounds.reduce((sum, r) => sum + r.totalStrokesToPar, 0) < 0,
+  ).length
+  achievements.push({
+    id: 'back-to-back',
+    name: 'Back-to-Back',
+    description: 'Finish two separate seasons under par.',
+    section: 'season',
+    isUnlocked: seasonsUnderPar >= BACK_TO_BACK_SEASONS_REQUIRED,
+    progress: {
+      current: Math.min(seasonsUnderPar, BACK_TO_BACK_SEASONS_REQUIRED),
+      target: BACK_TO_BACK_SEASONS_REQUIRED,
+    },
+  })
+
+  // Takes the single best season's legend coverage, not a sum across
+  // seasons — drafting a legend in season 1 and a different one in season 2
+  // doesn't inch toward this the way it would for a career-wide achievement
+  // like Full House; it has to happen within one season's 16 rounds.
+  const legendIds = allLegendGolferIds(countries)
+  const golferIndexForLegends = buildGolferIndex(countries)
+  let bestSeasonLegends = new Set<string>()
+  for (const seasonRounds of seasonGroups.values()) {
+    const draftedInSeason = draftedGolferIds(seasonRounds)
+    const legendsInSeason = legendIds.filter((id) => draftedInSeason.has(id))
+    if (legendsInSeason.length > bestSeasonLegends.size) {
+      bestSeasonLegends = new Set(legendsInSeason)
+    }
+  }
+  const allStarRoster: AchievementRosterEntry[] = legendIds.map((id) => ({
+    name: golferIndexForLegends.get(id)?.name ?? id,
+    achieved: bestSeasonLegends.has(id),
+  }))
+  achievements.push({
+    id: 'all-star-season',
+    name: 'All-Star Season',
+    description: "Draft every legend at least once across a single season's 16 rounds.",
+    section: 'season',
+    isUnlocked: bestSeasonLegends.size >= legendIds.length,
+    progress: { current: bestSeasonLegends.size, target: legendIds.length },
+    roster: allStarRoster,
+    compactRoster: true,
   })
 
   // Ordered by real-world reputation — how well-known each moment is in

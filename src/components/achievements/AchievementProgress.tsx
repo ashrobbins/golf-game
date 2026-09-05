@@ -6,10 +6,12 @@ import type {
 import styles from './AchievementProgress.module.css'
 
 interface AchievementProgressProps extends AchievementProgressData {
-  // Only present for achievements whose roster entries also carry a
-  // current/target breakdown (currently just The Grand Slam's per-golfer
-  // birdie counts). When that breakdown exists, the badge becomes a toggle
-  // that reveals it; otherwise it stays a plain, non-interactive "X/Y" pill.
+  // Present for any achievement with a named checklist — Grand Slam/Major
+  // Slam's per-golfer birdie counts (each entry also carries current/
+  // target), or a plain drafted-or-not/birdied-or-not checklist like Full
+  // House or a country Sweep (entries carry just `achieved`). Either way,
+  // the badge becomes a toggle revealing the full list; a row only shows
+  // its own fraction when that entry defines current/target.
   roster?: AchievementRosterEntry[]
 }
 
@@ -19,12 +21,7 @@ interface AchievementProgressProps extends AchievementProgressData {
 export function AchievementProgress({ current, target, roster }: AchievementProgressProps) {
   const [isOpen, setIsOpen] = useState(false)
 
-  const breakdown = roster?.filter(
-    (entry): entry is AchievementRosterEntry & { current: number; target: number } =>
-      entry.current !== undefined && entry.target !== undefined,
-  )
-
-  if (!breakdown || breakdown.length === 0) {
+  if (!roster || roster.length === 0) {
     return (
       <span className={styles.badge}>
         {current.toLocaleString()}/{target.toLocaleString()}
@@ -47,7 +44,7 @@ export function AchievementProgress({ current, target, roster }: AchievementProg
       </button>
       {isOpen && (
         <div className={styles.breakdown}>
-          {breakdown.map((entry) => (
+          {roster.map((entry) => (
             <div
               key={entry.name}
               className={entry.achieved ? `${styles.row} ${styles.achieved}` : styles.row}
@@ -60,9 +57,11 @@ export function AchievementProgress({ current, target, roster }: AchievementProg
                 )}
                 {entry.name}
               </span>
-              <span className={styles.count}>
-                {entry.current.toLocaleString()}/{entry.target.toLocaleString()}
-              </span>
+              {entry.current !== undefined && entry.target !== undefined && (
+                <span className={styles.count}>
+                  {entry.current.toLocaleString()}/{entry.target.toLocaleString()}
+                </span>
+              )}
             </div>
           ))}
         </div>

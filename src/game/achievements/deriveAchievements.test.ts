@@ -65,8 +65,9 @@ describe('deriveAchievements', () => {
   it('returns every achievement locked when there are no rounds at all', () => {
     const achievements = deriveAchievements([], COURSES, COUNTRIES)
     expect(achievements.every((a) => !a.isUnlocked)).toBe(true)
-    // 2 courses x 3 per-course achievements + 14 career milestones + 18 iconic moments
-    expect(achievements).toHaveLength(38)
+    // 2 courses x 3 per-course achievements + 18 career (14 original + Full House
+    // + 3 country Sweeps) + 18 iconic moments + 5 season achievements
+    expect(achievements).toHaveLength(47)
   })
 
   it('unlocks a course bogey-free achievement only when a bogey-free round exists at that course', () => {
@@ -210,6 +211,15 @@ describe('deriveAchievements', () => {
       'take-mine-scrambled',
       'bombs-away',
       'grand-slam',
+      'full-house',
+      'birdie-country-usa',
+      'birdie-country-rsa',
+      'birdie-country-nir',
+      'first-season',
+      'first-major',
+      'major-slam',
+      'back-to-back',
+      'all-star-season',
       'the-impossible-chip',
       'amen-corner-answered',
       'golden-bear',
@@ -234,8 +244,10 @@ describe('deriveAchievements', () => {
   it('tags each achievement with the right section', () => {
     const achievements = deriveAchievements([], COURSES, COUNTRIES)
     expect(achievements.filter((a) => a.section === 'course')).toHaveLength(6)
-    expect(achievements.filter((a) => a.section === 'career')).toHaveLength(14)
+    // 14 original milestones + Full House + 3 country Sweeps (one per fixture country)
+    expect(achievements.filter((a) => a.section === 'career')).toHaveLength(18)
     expect(achievements.filter((a) => a.section === 'iconic')).toHaveLength(18)
+    expect(achievements.filter((a) => a.section === 'season')).toHaveLength(5)
   })
 
   it('unlocks "First Hole-in-One" from a hole-in-one on any course', () => {
@@ -891,5 +903,163 @@ describe('deriveAchievements', () => {
     const result = deriveAchievements(oneShort, COURSES, COUNTRIES).find((a) => a.id === 'grand-slam')
     expect(result?.isUnlocked).toBe(false)
     expect(result?.progress).toEqual({ current: 5, target: 6 })
+  })
+
+  describe('Seasons tab', () => {
+    function seasonRound(seasonId: string, roundNumber: number, overrides: Partial<RoundRecord> = {}) {
+      return round('carnoustie', { seasonId, seasonRoundNumber: roundNumber, ...overrides })
+    }
+
+    it('unlocks "First Season" only once a season reaches all 16 rounds', () => {
+      const fifteen = Array.from({ length: 15 }, (_, i) => seasonRound('s1', i + 1))
+      const notYet = deriveAchievements(fifteen, COURSES, COUNTRIES).find((a) => a.id === 'first-season')
+      expect(notYet?.isUnlocked).toBe(false)
+
+      const sixteen = [...fifteen, seasonRound('s1', 16)]
+      const done = deriveAchievements(sixteen, COURSES, COUNTRIES).find((a) => a.id === 'first-season')
+      expect(done?.isUnlocked).toBe(true)
+    })
+
+    it('does not count untagged Free Play rounds toward "First Season"', () => {
+      const freePlay = Array.from({ length: 16 }, () => round('carnoustie'))
+      const result = deriveAchievements(freePlay, COURSES, COUNTRIES).find((a) => a.id === 'first-season')
+      expect(result?.isUnlocked).toBe(false)
+    })
+
+    it('unlocks "First Major" only for a bogey-free round flagged isMajor', () => {
+      const nonMajorBogeyFree = [round('augusta-national', { isMajor: false, isBogeyFreeRound: true })]
+      expect(
+        deriveAchievements(nonMajorBogeyFree, COURSES, COUNTRIES).find((a) => a.id === 'first-major')
+          ?.isUnlocked,
+      ).toBe(false)
+
+      const majorNotBogeyFree = [round('augusta-national', { isMajor: true, isBogeyFreeRound: false })]
+      expect(
+        deriveAchievements(majorNotBogeyFree, COURSES, COUNTRIES).find((a) => a.id === 'first-major')
+          ?.isUnlocked,
+      ).toBe(false)
+
+      const majorBogeyFree = [round('augusta-national', { isMajor: true, isBogeyFreeRound: true })]
+      expect(
+        deriveAchievements(majorBogeyFree, COURSES, COUNTRIES).find((a) => a.id === 'first-major')
+          ?.isUnlocked,
+      ).toBe(true)
+    })
+
+    it('unlocks "Major Slam" only once all 4 real major courses have a bogey-free round, career-wide', () => {
+      const threeOfFour = [
+        round('augusta-national', { isBogeyFreeRound: true }),
+        round('royal-birkdale', { isBogeyFreeRound: true }),
+        round('pebble-beach', { isBogeyFreeRound: true }),
+      ]
+      const notYet = deriveAchievements(threeOfFour, COURSES, COUNTRIES).find((a) => a.id === 'major-slam')
+      expect(notYet?.isUnlocked).toBe(false)
+      expect(notYet?.progress).toEqual({ current: 3, target: 4 })
+
+      // The 4th major's bogey-free round is a plain, untagged Free Play
+      // round — Major Slam counts it just the same as a season round.
+      const allFour = [...threeOfFour, round('pinehurst-no-2', { isBogeyFreeRound: true })]
+      const done = deriveAchievements(allFour, COURSES, COUNTRIES).find((a) => a.id === 'major-slam')
+      expect(done?.isUnlocked).toBe(true)
+      expect(done?.roster?.every((entry) => entry.achieved)).toBe(true)
+    })
+
+    it('unlocks "Back-to-Back" only once 2 separate completed seasons finish under par', () => {
+      const season1 = Array.from({ length: 16 }, (_, i) => seasonRound('s1', i + 1, { totalStrokesToPar: -1 }))
+      const oneSeason = deriveAchievements(season1, COURSES, COUNTRIES).find((a) => a.id === 'back-to-back')
+      expect(oneSeason?.isUnlocked).toBe(false)
+      expect(oneSeason?.progress).toEqual({ current: 1, target: 2 })
+
+      const season2 = Array.from({ length: 16 }, (_, i) => seasonRound('s2', i + 1, { totalStrokesToPar: -1 }))
+      const twoSeasons = deriveAchievements([...season1, ...season2], COURSES, COUNTRIES).find(
+        (a) => a.id === 'back-to-back',
+      )
+      expect(twoSeasons?.isUnlocked).toBe(true)
+    })
+
+    it('does not count an over-par or incomplete season toward "Back-to-Back"', () => {
+      const underPar = Array.from({ length: 16 }, (_, i) => seasonRound('s1', i + 1, { totalStrokesToPar: -1 }))
+      const overPar = Array.from({ length: 16 }, (_, i) => seasonRound('s2', i + 1, { totalStrokesToPar: 1 }))
+      const incomplete = Array.from({ length: 10 }, (_, i) => seasonRound('s3', i + 1, { totalStrokesToPar: -1 }))
+      const result = deriveAchievements([...underPar, ...overPar, ...incomplete], COURSES, COUNTRIES).find(
+        (a) => a.id === 'back-to-back',
+      )
+      expect(result?.progress).toEqual({ current: 1, target: 2 })
+    })
+
+    it('unlocks "All-Star Season" from a single season covering every legend, not a sum across seasons', () => {
+      // Fixture has 6 legends: usa-nicklaus, usa-woods, usa-hogan, usa-sarazen, rsa-player, nir-mcilroy.
+      const legendIds = ['usa-nicklaus', 'usa-woods', 'usa-hogan', 'usa-sarazen', 'rsa-player', 'nir-mcilroy']
+      function draftHole(golferId: string) {
+        return hole(1, 'par', 0, golferId)
+      }
+
+      // Split across two seasons, 3 legends each — neither season alone
+      // covers all 6, so this should NOT unlock even though every legend
+      // has been drafted somewhere in career history.
+      const splitAcrossSeasons = [
+        seasonRound('s1', 1, { holeResults: legendIds.slice(0, 3).map(draftHole) }),
+        seasonRound('s2', 1, { holeResults: legendIds.slice(3).map(draftHole) }),
+      ]
+      const split = deriveAchievements(splitAcrossSeasons, COURSES, COUNTRIES).find(
+        (a) => a.id === 'all-star-season',
+      )
+      expect(split?.isUnlocked).toBe(false)
+      expect(split?.progress).toEqual({ current: 3, target: 6 })
+
+      // All 6 within one season's rounds — unlocks.
+      const oneSeason = [seasonRound('s3', 1, { holeResults: legendIds.map(draftHole) })]
+      const result = deriveAchievements(oneSeason, COURSES, COUNTRIES).find((a) => a.id === 'all-star-season')
+      expect(result?.isUnlocked).toBe(true)
+      expect(result?.roster?.every((entry) => entry.achieved)).toBe(true)
+    })
+  })
+
+  describe('Career: Full House and country Sweeps', () => {
+    it('unlocks "Full House" only once every golfer in the fixture has been drafted at least once', () => {
+      const allGolferIds = [
+        'usa-nicklaus',
+        'usa-woods',
+        'usa-hogan',
+        'usa-sarazen',
+        'scrambler-golfer',
+        'long-hitter-golfer',
+        'golfer',
+        'rsa-player',
+        'nir-mcilroy',
+      ]
+      function draftHole(golferId: string) {
+        return hole(1, 'par', 0, golferId)
+      }
+
+      const allButOne = [round('augusta', { holeResults: allGolferIds.slice(0, -1).map(draftHole) })]
+      const notYet = deriveAchievements(allButOne, COURSES, COUNTRIES).find((a) => a.id === 'full-house')
+      expect(notYet?.isUnlocked).toBe(false)
+      expect(notYet?.progress).toEqual({ current: allGolferIds.length - 1, target: allGolferIds.length })
+
+      const everyone = [round('augusta', { holeResults: allGolferIds.map(draftHole) })]
+      const done = deriveAchievements(everyone, COURSES, COUNTRIES).find((a) => a.id === 'full-house')
+      expect(done?.isUnlocked).toBe(true)
+    })
+
+    it('creates one "Sweep" achievement per country, unlocked once every one of that country\'s golfers has birdied or better', () => {
+      const rsaSweepGolfers = deriveAchievements([], COURSES, COUNTRIES).find(
+        (a) => a.id === 'birdie-country-rsa',
+      )
+      // Fixture's rsa country has exactly one golfer (Gary Player).
+      expect(rsaSweepGolfers?.name).toBe('rsa Sweep')
+      expect(rsaSweepGolfers?.roster).toEqual([{ name: 'Gary Player', achieved: false }])
+
+      const rounds = [round('augusta', { holeResults: [hole(1, 'birdie', -1, 'rsa-player', 'rsa')] })]
+      const result = deriveAchievements(rounds, COURSES, COUNTRIES).find((a) => a.id === 'birdie-country-rsa')
+      expect(result?.isUnlocked).toBe(true)
+      expect(result?.roster).toEqual([{ name: 'Gary Player', achieved: true }])
+    })
+
+    it('does not unlock a country Sweep from a par (or worse) outcome, only birdie or better', () => {
+      const rounds = [round('augusta', { holeResults: [hole(1, 'par', 0, 'rsa-player', 'rsa')] })]
+      const result = deriveAchievements(rounds, COURSES, COUNTRIES).find((a) => a.id === 'birdie-country-rsa')
+      expect(result?.isUnlocked).toBe(false)
+    })
   })
 })

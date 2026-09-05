@@ -6,9 +6,9 @@ A handoff doc for picking this project up in a fresh chat. Paste this in, or poi
 
 A golf draft-and-simulate game, inspired by [38-0](https://38-0.app): draft a bag of 18 real golfers (one per hole) via a wheel-spin mechanic, then simulate a round hole-by-hole and chase a bogey-free 18. Original design doc: `golf-draft-game-plan.md` (repo root) — read that for the full original concept, including deferred future ideas (Tour Season, leaderboards, Supabase backend).
 
-**Current scope**: client-side only, no backend, no accounts — Phase A below (local-only stats) has since shipped on top of that, everything else is still ahead. See the pinned section immediately below for the accounts/season roadmap.
+**Current scope**: client-side only, no backend, no accounts, permanently (accounts were considered and explicitly ruled out — see the pinned section below). Stats, achievements, and a full 16-round Season Mode (with its own achievements) are all shipped on top of that.
 
-## ⏳ Active work: player stats (Phase A ✅ shipped on `main`) and a 16-round Season mode (Phase B/accounts dropped)
+## ✅ Player stats, Season Mode, and Season/Country achievements — all shipped. No active roadmap item right now.
 
 This is now the single most important thing for a new session to know. The user originally asked for a
 roadmap covering three related future features (stats, Supabase accounts, Season mode); a plan was
@@ -47,39 +47,41 @@ scoped to one season's rounds, rather than a new metric. Playtested end-to-end i
 (including forcing a season through to its 16th/final major round and confirming it archives
 correctly) before committing, per explicit user instruction.
 
-**Not built yet, deliberately deferred**: the Season achievements tab (First Season, First Major,
-Season Slam, Perfect Season, Repeat Champion — sketched in `sesons-mode.md`'s mockup) — no changes were
-made to `deriveAchievements.ts`/`AchievementSection`/`AchievementsPage.tsx` for this. Pick this up as
-its own follow-up whenever asked.
+**The Season achievements tab is now also built** (was deferred, then picked up as its own follow-up
+right after Season Mode itself). Final spec agreed and saved at
+`/Users/ash.robbins/.claude/plans/season-and-career-achievements.md` before building — the original
+mockup's "Season Slam"/"Perfect Season" pair turned out to be effectively impossible and got replaced/
+dropped after user feedback. What actually shipped, section `'season'` on `AchievementSection`
+(`deriveAchievements.ts`): **First Season** (any `seasonId` group reaches 16 rounds), **First Major**
+(`isMajor && isBogeyFreeRound`), **Major Slam** (bogey-free at all 4 real major course ids, career-
+wide — Free Play or Season rounds both count — roster panel of the 4 majors), **Back-to-Back** (2
+completed seasons finishing under par), **All-Star Season** (every real legend drafted within a
+single season's 16 rounds — takes the *best one season*, not a sum across seasons). Also added to the
+existing Career tab in the same pass: **Full House** (every golfer in the game drafted at least once,
+125 currently) and **19 per-country "Sweep" achievements** (one per country in `countries.json`,
+including the synthetic "Others" bucket — birdie-or-better with every one of that country's golfers),
+rendered as their own "Country Sweeps" sub-list under Career milestones so 19 near-identical rows
+don't drown the dozen-or-so original ones. All of this is derived purely from the existing `rounds`
+array (grouped by the `seasonId` tag already on `RoundRecord`) — no signature change to
+`deriveAchievements()`. `AchievementProgress.tsx`'s toggle+breakdown panel (built for Grand Slam) was
+generalized to activate for any roster regardless of whether entries carry a per-entry numeric
+count — Full House/Sweep/All-Star Season entries are boolean checklist rows (checkmark + name only),
+Grand Slam/Major Slam rows keep their `current/target` fraction. A new `Achievement.compactRoster`
+flag suppresses the plain inline comma-list for large rosters (Full House, Sweeps, All-Star Season),
+leaving Grand Slam/Major Slam's small rosters showing both the inline list and the toggle panel as
+before. Playtested in the browser with a seeded mix of season + Free Play rounds covering enough
+golfers/countries/majors to unlock several of these and leave others partially/fully locked (including
+expanding Full House's 125-row panel) before committing.
 
-**The full plan lives outside this repo**, at `/Users/ash.robbins/.claude/plans/ok-so-for-an-crystalline-ladybug.md` — read that file in full before starting any of this work; the summary below is not a substitute for it. **The user has since also committed a copy into the repo directly**, at root-level `phased-feature-development-plan.md` (commit `7d03159`, made by the user outside any session, not by Claude) — same content, now durable in-repo either way.
-
-**Three phases, meant to be built independently, in order:**
-
-1. **Phase A — local stats tracking — ✅ built and committed (`a91e491`, session history #29–30).** Times gone bogey-free, lowest bogeys / highest birdies / highest eagles in a round, career hole-in-ones — tracked both career-wide and per-course. New `src/game/stats/` module (`types.ts` / `storage.ts` / `deriveStats.ts`, mirroring how `draft`/`simulation` split types from engine logic), storing one full `RoundRecord` (a `SimulationResult` plus `id`/`playedAt`) per completed round in `localStorage` under a versioned `{ version: 1, rounds: RoundRecord[] }` shape — **full `holeResults` are stored, not just derived counts**, both for a future round-history UI and so a future Supabase upload is a near-1:1 mapping. Hooks into `GameProvider.tsx`'s `finishDraft()` (right after `setSimulationResult(result)`). Surfaced as **a new dedicated page** (`StatsPage.tsx`, a new `'stats'` value on `GameContext`'s `View` union) with its own nav entry point — explicitly *not* a drawer like `HowToPlayDrawer`, since a round-history table needs more room than a 400px panel. **Grew well beyond the original plan's scope, same session, across several follow-up asks**: a career "Top players" leaderboard (`rankGolfers()` + `PlayerLeaderboard` component, with a per-golfer tier-count breakdown), a Career-vs-per-course visual hierarchy redesign (Career is now the clear focal point; per-course stats collapsed into a compact "By course" list), real per-course country flags, a site-wide footer with golf-flavored disclaimer copy, a "Let's Go" CTA on the empty stats state, and a "Tee off" CTA that replaced the old auto-simulate-on-draft-complete behavior — see session history #29–30 for the full detail on each.
-2. **Phase B — Supabase accounts (deferred until Phase C needs them).** Verified current pricing (Free: 500MB DB / 50k MAU / $0, likely sufficient for a long time, but **projects auto-pause after a week idle** — a real risk since seasons play out over days/weeks; Pro is $25/mo and removes the pause). Schema (`profiles` / `rounds` / `hole_results` / `seasons` tables) designed as a direct upload target for Phase A's local data. **Auth: OAuth via Google + Apple** — Apple specifically because the original design doc's planned Capacitor iOS wrapper means App Store review will require Sign-in-with-Apple once any other social login is offered, so building it in from the start avoids a forced rework later.
-3. **Phase C — Season mode (16 rounds: 12 regular + 4 majors, local-only — does not need Phase B).** This section was stale
-   as of the note below — the shortlist described here (Carnoustie as a major, Southern Hills/Wentworth
-   West/Jumeirah Golf Estates as regular stops) was an early, since-superseded proposal, not what was
-   actually decided. **The current, authoritative Season Mode design lives at
-   `/Users/ash.robbins/.claude/plans/sesons-mode.md`** (design/mockup phase, approved but not yet
-   built) — read that file, not this paragraph, for the real plan. Confirmed course list: majors are
-   **Augusta National, Pebble Beach, Royal Birkdale, and Pinehurst No. 2**; the other 12 season rounds
-   use the remaining 12 non-major courses already in `courses.json` (all 16 minus the 4 majors). **All
-   16 courses
-   Season Mode needs now have real hole-by-hole content** — `courses.json` was extended from 12 to 16
-   courses (Pinehurst No. 2, Whistling Straits, Royal Melbourne, Royal County Down added, scorecard-
-   verified via WebSearch against USGA/PGA Tour/official club sources), so the "content isn't built
-   yet" blocker that paused Season Mode is now resolved. Season Mode itself (data model, UI, the
-   season-tagged `RoundRecord` fields, the Season achievements tab) is still fully unbuilt.
-
-**Next step, whenever this is picked up**: Phase A is built, verified, committed, and merged to `main`.
-All 16 courses Season Mode needs are now in `courses.json` with real data. Phase B (Supabase accounts)
-was explicitly ruled out by the user — see the note below this list, they've decided to keep the game
-free/web-only and are not monetizing it. Season Mode (Phase C) can proceed without accounts, since it
-was always designed to be local-only/localStorage-based (see `sesons-mode.md`'s data model) — the
-original Phase B dependency assumed a monetized, account-gated version that the user has since decided
-against. The user hasn't yet said whether/when to start building Season Mode itself.
+**Phase B (Supabase accounts) was explicitly ruled out by the user** — they floated monetizing Season
+Mode behind a paywall in a later session, got a feasibility/legal-risk writeup (payment processing
+costs, App Store rejection risk, and real legal exposure from charging for a product built on real
+golfers'/courses' names — including a documented precedent of Augusta National suing a golf simulator
+over exactly this), and decided to keep the game free and web-only, permanently — their words: "making
+money from it was never the original intention." Don't resurrect accounts/monetization unless the user
+raises it again. The old Phase A/B/C roadmap below is kept for historical reference only — Phase A
+(local stats) shipped long ago, Phase B is dead, and Phase C (Season Mode + its achievements) is now
+also fully shipped, superseding everything the roadmap said about it being upcoming/blocked.
 
 ---
 

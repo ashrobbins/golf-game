@@ -15,7 +15,14 @@ const TABS: Array<{ section: AchievementSection; label: string }> = [
   { section: 'career', label: 'Career' },
   { section: 'iconic', label: 'Iconic' },
   { section: 'course', label: 'Course' },
+  { section: 'season', label: 'Seasons' },
 ]
+
+// Id prefix used by the per-country "Sweep" achievements (see
+// deriveAchievements.ts) — split out of the flat career list into their own
+// labeled sub-section below, since 19 of them would otherwise drown the
+// dozen-or-so other career milestones in one undifferentiated list.
+const COUNTRY_SWEEP_ID_PREFIX = 'birdie-country-'
 
 type ActiveTab = 'all' | AchievementSection
 
@@ -35,7 +42,12 @@ export function AchievementsPage() {
   const unlockedCount = achievements.filter((a) => a.isUnlocked).length
   const courseAchievements = achievements.filter((a) => a.section === 'course')
   const careerAchievements = achievements.filter((a) => a.section === 'career')
+  const careerMilestones = careerAchievements.filter((a) => !a.id.startsWith(COUNTRY_SWEEP_ID_PREFIX))
+  const countrySweepAchievements = careerAchievements.filter((a) =>
+    a.id.startsWith(COUNTRY_SWEEP_ID_PREFIX),
+  )
   const iconicAchievements = achievements.filter((a) => a.section === 'iconic')
+  const seasonAchievements = achievements.filter((a) => a.section === 'season')
 
   const showsSection = (section: AchievementSection) => activeTab === 'all' || activeTab === section
 
@@ -80,7 +92,9 @@ export function AchievementsPage() {
       {showsSection('career') && (
         <>
           <p className={styles.sectionLabel}>Career milestones</p>
-          <AchievementCard achievements={careerAchievements} />
+          <AchievementCard achievements={careerMilestones} />
+          <p className={styles.sectionLabel}>Country Sweeps</p>
+          <AchievementCard achievements={countrySweepAchievements} />
         </>
       )}
 
@@ -95,6 +109,13 @@ export function AchievementsPage() {
         <>
           <p className={styles.sectionLabel}>By Course</p>
           <AchievementCard achievements={courseAchievements} />
+        </>
+      )}
+
+      {showsSection('season') && (
+        <>
+          <p className={styles.sectionLabel}>Seasons</p>
+          <AchievementCard achievements={seasonAchievements} />
         </>
       )}
 
@@ -123,7 +144,9 @@ function AchievementCard({ achievements }: { achievements: Achievement[] }) {
               <div className={styles.body}>
                 <div className={styles.name}>{achievement.name}</div>
                 <p className={styles.desc}>{achievement.description}</p>
-                {achievement.roster && <AchievementRoster roster={achievement.roster} />}
+                {achievement.roster && !achievement.compactRoster && (
+                  <AchievementRoster roster={achievement.roster} />
+                )}
                 {achievement.progress && (
                   <AchievementProgress {...achievement.progress} roster={achievement.roster} />
                 )}
