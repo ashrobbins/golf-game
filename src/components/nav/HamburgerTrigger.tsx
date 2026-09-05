@@ -1,5 +1,7 @@
 import { CloseIcon, HamburgerIcon } from '../ui/icons'
 import { useNavDrawer } from '../../state/useNavDrawer'
+import { useSettingsDrawer } from '../../state/useSettingsDrawer'
+import { useHowToPlay } from '../../state/useHowToPlay'
 import styles from './HamburgerTrigger.module.css'
 
 // Mobile-only entry point into the nav drawer (Stats/Achievements/theme).
@@ -16,17 +18,27 @@ import styles from './HamburgerTrigger.module.css'
 // (hideClose) so this is the only affordance, rather than two ways to
 // close the same menu.
 export function HamburgerTrigger() {
-  const { isOpen, open, close } = useNavDrawer()
+  const { isOpen: navOpen, open, close } = useNavDrawer()
+  const { openedFromNav: settingsOpenedFromNav } = useSettingsDrawer()
+  const { openedFromNav: helpOpenedFromNav } = useHowToPlay()
+
+  // Drilling into "How to play" or "Settings" from the nav drawer swaps the
+  // overlay's `active.kind` away from 'nav', so useNavDrawer().isOpen alone
+  // goes false even though the mobile menu is still visually open one level
+  // deep. Track those nav-originated states too so the trigger keeps
+  // showing (and acting as) a close button for the whole time the menu
+  // system is open, not just at its top level.
+  const isMenuOpen = navOpen || settingsOpenedFromNav || helpOpenedFromNav
 
   return (
     <button
       type="button"
       className={styles.trigger}
-      aria-label={isOpen ? 'Close menu' : 'Menu'}
-      aria-expanded={isOpen}
-      onClick={isOpen ? close : open}
+      aria-label={isMenuOpen ? 'Close menu' : 'Menu'}
+      aria-expanded={isMenuOpen}
+      onClick={isMenuOpen ? close : open}
     >
-      {isOpen ? <CloseIcon className={styles.icon} /> : <HamburgerIcon className={styles.icon} />}
+      {isMenuOpen ? <CloseIcon className={styles.icon} /> : <HamburgerIcon className={styles.icon} />}
     </button>
   )
 }
