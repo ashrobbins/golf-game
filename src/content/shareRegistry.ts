@@ -27,6 +27,10 @@ export const COURSE_REGISTRY: readonly string[] = [
   'medinah',
   'le-golf-national',
   'earth-course',
+  'pinehurst-no-2',
+  'whistling-straits',
+  'royal-melbourne',
+  'royal-county-down',
 ]
 
 export const GOLFER_REGISTRY: readonly string[] = [

@@ -8,9 +8,32 @@ A golf draft-and-simulate game, inspired by [38-0](https://38-0.app): draft a ba
 
 **Current scope**: client-side only, no backend, no accounts — Phase A below (local-only stats) has since shipped on top of that, everything else is still ahead. See the pinned section immediately below for the accounts/season roadmap.
 
-## ⏳ Active work: player stats (Phase A ✅ shipped on `main`), accounts (Supabase), and a 16-round Season mode
+## ⏳ Active work: player stats (Phase A ✅ shipped on `main`) and a 16-round Season mode (Phase B/accounts dropped)
 
-This is now the single most important thing for a new session to know. The user asked for a roadmap covering three related future features; a plan was researched, refined through several rounds of follow-up questions, and approved. Work happened on a `stats` branch, PR'd, and **merged into `main` via PR #1 (merge commit `ced2a14`)** — `stats` is now fully merged and stale; don't branch from it, everything is on `main`. **Phase A is built, manually verified in the browser, committed, and merged** — see session history items 29–34 below for exactly what shipped, including several follow-up refinements that went well beyond the original plan's scope. The user hasn't said whether/when to start Phase B or C.
+This is now the single most important thing for a new session to know. The user originally asked for a
+roadmap covering three related future features (stats, Supabase accounts, Season mode); a plan was
+researched, refined through several rounds of follow-up questions, and approved. Work happened on a
+`stats` branch, PR'd, and **merged into `main` via PR #1 (merge commit `ced2a14`)** — `stats` is now
+fully merged and stale; don't branch from it, everything is on `main`. **Phase A is built, manually
+verified in the browser, committed, and merged** — see session history items 29–34 below for exactly
+what shipped, including several follow-up refinements that went well beyond the original plan's scope.
+
+**Phase B (Supabase accounts) has since been explicitly dropped.** In a later session the user floated
+monetizing Season Mode behind a paywall, which was the only reason accounts existed in this roadmap at
+all. After a feasibility/legal-risk writeup (real-money payment processing costs, App Store commission
+and 4.2 rejection risk, and — more materially — real legal exposure from charging money for a product
+built on real golfers' names and real course names, including a documented near-identical precedent of
+Augusta National suing a golf simulator over exactly this), **the user decided to keep the game free and
+web-only, permanently** — their words: "making money from it was never the original intention." Season
+Mode is now planned as fully local-only/localStorage-based (see `sesons-mode.md`'s data model), with no
+accounts dependency. Don't resurrect the accounts/monetization angle unless the user explicitly raises
+it again.
+
+**Season Mode's course-content blocker is now resolved.** Building Season Mode surfaced that its
+16-round schedule needed 4 more real courses than existed; the user chose to build those first rather
+than ship an uncompletable season. That's now done — see the "16 courses now" note under
+`courses.json` below. Season Mode itself (the actual feature — data model, UI, achievements) is still
+fully unbuilt; the user hasn't yet said when to start it.
 
 **The full plan lives outside this repo**, at `/Users/ash.robbins/.claude/plans/ok-so-for-an-crystalline-ladybug.md` — read that file in full before starting any of this work; the summary below is not a substitute for it. **The user has since also committed a copy into the repo directly**, at root-level `phased-feature-development-plan.md` (commit `7d03159`, made by the user outside any session, not by Claude) — same content, now durable in-repo either way.
 
@@ -18,9 +41,28 @@ This is now the single most important thing for a new session to know. The user 
 
 1. **Phase A — local stats tracking — ✅ built and committed (`a91e491`, session history #29–30).** Times gone bogey-free, lowest bogeys / highest birdies / highest eagles in a round, career hole-in-ones — tracked both career-wide and per-course. New `src/game/stats/` module (`types.ts` / `storage.ts` / `deriveStats.ts`, mirroring how `draft`/`simulation` split types from engine logic), storing one full `RoundRecord` (a `SimulationResult` plus `id`/`playedAt`) per completed round in `localStorage` under a versioned `{ version: 1, rounds: RoundRecord[] }` shape — **full `holeResults` are stored, not just derived counts**, both for a future round-history UI and so a future Supabase upload is a near-1:1 mapping. Hooks into `GameProvider.tsx`'s `finishDraft()` (right after `setSimulationResult(result)`). Surfaced as **a new dedicated page** (`StatsPage.tsx`, a new `'stats'` value on `GameContext`'s `View` union) with its own nav entry point — explicitly *not* a drawer like `HowToPlayDrawer`, since a round-history table needs more room than a 400px panel. **Grew well beyond the original plan's scope, same session, across several follow-up asks**: a career "Top players" leaderboard (`rankGolfers()` + `PlayerLeaderboard` component, with a per-golfer tier-count breakdown), a Career-vs-per-course visual hierarchy redesign (Career is now the clear focal point; per-course stats collapsed into a compact "By course" list), real per-course country flags, a site-wide footer with golf-flavored disclaimer copy, a "Let's Go" CTA on the empty stats state, and a "Tee off" CTA that replaced the old auto-simulate-on-draft-complete behavior — see session history #29–30 for the full detail on each.
 2. **Phase B — Supabase accounts (deferred until Phase C needs them).** Verified current pricing (Free: 500MB DB / 50k MAU / $0, likely sufficient for a long time, but **projects auto-pause after a week idle** — a real risk since seasons play out over days/weeks; Pro is $25/mo and removes the pause). Schema (`profiles` / `rounds` / `hole_results` / `seasons` tables) designed as a direct upload target for Phase A's local data. **Auth: OAuth via Google + Apple** — Apple specifically because the original design doc's planned Capacitor iOS wrapper means App Store review will require Sign-in-with-Apple once any other social login is offered, so building it in from the start avoids a forced rework later.
-3. **Phase C — Season mode (16 rounds: 12 regular + 4 majors, needs Phase B).** The user originally said "12 courses," but the stated pattern (3 regular + 1 major, ×4) is actually 16 — confirmed with the user, who meant 16. Season scoring: each round contributes `totalStrokesToPar × weight` to the season total (majors `weight = 2`, regular `weight = 1`), bogey-free bonus scales the same way (−1 regular / −2 major). A `Course.isMajor: boolean` field finally wires up the `.major` CSS variant that's existed, unused, in `CourseCard.module.css` since the home-page redesign (session history #27 below). **Proposed course shortlist** (real venues, not yet content-verified): majors are Augusta National + Carnoustie (already in the app) + **Pebble Beach** + **Pinehurst No. 2** (both US Open venues — the user explicitly asked for Pinehurst as the 4th major, swapping out an originally-proposed PGA Championship venue); the 12 regular stops are TPC Sawgrass, Southern Hills, Whistling Straits (USA), St Andrews, Royal Birkdale, Wentworth West, Royal County Down (UK/Ireland), Marco Simone, Valderrama, Le Golf National (continental Europe), Royal Melbourne, and **Jumeirah Golf Estates** (Dubai — swapped in twice, per user feedback, for an originally-proposed South African course) for global spread, per the user's explicit steer not to make the list USA-heavy. None of these 14 new courses have real hole-by-hole data yet — that's the bulk of the actual work in Phase C, needing verification against real scorecards to the same bar as the existing 2.
+3. **Phase C — Season mode (16 rounds: 12 regular + 4 majors, local-only — does not need Phase B).** This section was stale
+   as of the note below — the shortlist described here (Carnoustie as a major, Southern Hills/Wentworth
+   West/Jumeirah Golf Estates as regular stops) was an early, since-superseded proposal, not what was
+   actually decided. **The current, authoritative Season Mode design lives at
+   `/Users/ash.robbins/.claude/plans/sesons-mode.md`** (design/mockup phase, approved but not yet
+   built) — read that file, not this paragraph, for the real plan. Confirmed course list: majors are
+   **Augusta National, Pebble Beach, Royal Birkdale, and Pinehurst No. 2**; the other 12 season rounds
+   use the remaining 12 non-major courses already in `courses.json` (all 16 minus the 4 majors). **All
+   16 courses
+   Season Mode needs now have real hole-by-hole content** — `courses.json` was extended from 12 to 16
+   courses (Pinehurst No. 2, Whistling Straits, Royal Melbourne, Royal County Down added, scorecard-
+   verified via WebSearch against USGA/PGA Tour/official club sources), so the "content isn't built
+   yet" blocker that paused Season Mode is now resolved. Season Mode itself (data model, UI, the
+   season-tagged `RoundRecord` fields, the Season achievements tab) is still fully unbuilt.
 
-**Next step, whenever this is picked up**: Phase A is built, verified, committed, and merged to `main`. Phase B/C remain unstarted; the user hasn't said which to pick up next.
+**Next step, whenever this is picked up**: Phase A is built, verified, committed, and merged to `main`.
+All 16 courses Season Mode needs are now in `courses.json` with real data. Phase B (Supabase accounts)
+was explicitly ruled out by the user — see the note below this list, they've decided to keep the game
+free/web-only and are not monetizing it. Season Mode (Phase C) can proceed without accounts, since it
+was always designed to be local-only/localStorage-based (see `sesons-mode.md`'s data model) — the
+original Phase B dependency assumed a monetized, account-gated version that the user has since decided
+against. The user hasn't yet said whether/when to start building Season Mode itself.
 
 ---
 
@@ -102,7 +144,16 @@ Underneath the current-hole reveal card, the same per-hole commentary list that'
 
 **Content is static JSON**, fetched at runtime from `public/content/`:
 - `countries.json` — 19 countries, 124 golfers, including a synthetic 19th "Others" country (id `others`, isoCode `OTH`, deliberately falls through to the white-flag emoji default) for real players who don't cleanly fit one curated nation. Each golfer has 1–2 `archetypes` and an optional `skill` tier. A `Country` can carry an optional `repeatCap` (currently only USA/England, both 5) overriding the default max-picks-per-country (`REPEAT_CAP = 3`).
-- `courses.json` — 4 courses now (session history #36 added the last 2), array order = home page display order: Augusta National (par 72), Carnoustie (par 71), Valderrama (par 71), TPC Sawgrass (par 72) — all verified against real scorecards (yardage/par sourced via `WebSearch`/`WebFetch` for the newer two, not memory). Only Augusta/Carnoustie have real per-hole `name`s — Valderrama/Sawgrass deliberately don't, since neither has official names for *every* hole and partial naming was judged worse than none.
+- `courses.json` — 16 courses now, array order = home page display order. The original 12 (Augusta
+  National, Carnoustie, Valderrama, Royal Birkdale, TPC Sawgrass, Marco Simone, Pebble Beach, St
+  Andrews, Brabazon, Le Golf National, Medinah, Earth Course) were added across earlier sessions; the
+  latest 4 (Pinehurst No. 2, Whistling Straits, Royal Melbourne — the Composite Course, and Royal
+  County Down) were added specifically to unblock Season Mode's 16-round schedule, since Pinehurst No.
+  2 is one of the mode's 4 majors. All 16 are verified against real scorecards (`WebSearch` against
+  USGA/PGA Tour/official club sources, not memory) — see `sesons-mode.md` for the sourcing detail on
+  the newest 4. Only Augusta/Carnoustie/St Andrews/**Whistling Straits** have real per-hole `name`s —
+  every other course deliberately doesn't, since none of them has official names for *every* hole and
+  partial naming was judged worse than none.
 - `odds-config.json` — per-par-type `matched`/`unmatched` outcome distributions, with non-zero floors enforced in tests so archetype fit never guarantees an outcome.
 
 **State/routing**: `src/state/GameProvider.tsx` + `GameContext.ts` + `useGame.ts`. No react-router — a `View` enum (`'home' | 'course-info' | 'draft' | 'results' | 'stats'`) drives which page renders in `App.tsx`. `viewStats()` (new, Phase A) is a plain `setView('stats')` action, same shape as `beginDraft`/`playAgain` — stats is a real page in the main nav flow, not overlay chrome, so it didn't need a second context the way the rules drawer did. A second, unrelated context lives alongside `GameContext` the same way — `HowToPlayContext.ts` + `HowToPlayProvider.tsx` + `useHowToPlay.ts` — purely UI chrome (is the rules drawer open), deliberately kept separate since it's not game state. Both providers wrap `App.tsx`'s tree independently (order between them doesn't matter, they don't interact).

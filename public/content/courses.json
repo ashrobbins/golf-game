@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 4,
   "courses": [
     {
       "id": "augusta-national",
@@ -323,6 +323,114 @@
         { "number": 16, "par": 5, "yardage": 555, "archetype": "closer" },
         { "number": 17, "par": 4, "yardage": 425, "archetype": "closer" },
         { "number": 18, "par": 4, "yardage": 460, "archetype": "closer" }
+      ]
+    },
+    {
+      "id": "pinehurst-no-2",
+      "name": "Pinehurst No. 2",
+      "location": "Village of Pinehurst, North Carolina, USA",
+      "countryIsoCode": "US",
+      "par": 70,
+      "holes": [
+        { "number": 1, "par": 4, "yardage": 398, "archetype": "precision_iron" },
+        { "number": 2, "par": 4, "yardage": 500, "archetype": "precision_iron" },
+        { "number": 3, "par": 4, "yardage": 387, "archetype": "scrambler" },
+        { "number": 4, "par": 4, "yardage": 528, "archetype": "scrambler" },
+        { "number": 5, "par": 5, "yardage": 588, "archetype": "long_hitter" },
+        { "number": 6, "par": 3, "yardage": 216, "archetype": "short_game_specialist" },
+        { "number": 7, "par": 4, "yardage": 426, "archetype": "precision_iron" },
+        { "number": 8, "par": 4, "yardage": 492, "archetype": "precision_iron" },
+        { "number": 9, "par": 3, "yardage": 184, "archetype": "short_game_specialist" },
+        { "number": 10, "par": 5, "yardage": 617, "archetype": "long_hitter" },
+        { "number": 11, "par": 4, "yardage": 478, "archetype": "scrambler" },
+        { "number": 12, "par": 4, "yardage": 486, "archetype": "precision_iron" },
+        { "number": 13, "par": 4, "yardage": 381, "archetype": "scrambler" },
+        { "number": 14, "par": 4, "yardage": 472, "archetype": "scrambler" },
+        { "number": 15, "par": 3, "yardage": 199, "archetype": "short_game_specialist" },
+        { "number": 16, "par": 4, "yardage": 536, "archetype": "closer" },
+        { "number": 17, "par": 3, "yardage": 207, "archetype": "closer" },
+        { "number": 18, "par": 4, "yardage": 448, "archetype": "closer" }
+      ]
+    },
+    {
+      "id": "whistling-straits",
+      "name": "Whistling Straits",
+      "location": "Haven, Wisconsin, USA",
+      "countryIsoCode": "US",
+      "par": 72,
+      "holes": [
+        { "number": 1, "par": 4, "yardage": 493, "archetype": "precision_iron", "name": "Outward Bound" },
+        { "number": 2, "par": 5, "yardage": 597, "archetype": "long_hitter", "name": "Cross Country" },
+        { "number": 3, "par": 3, "yardage": 188, "archetype": "short_game_specialist", "name": "O'Man" },
+        { "number": 4, "par": 4, "yardage": 494, "archetype": "scrambler", "name": "Glory" },
+        { "number": 5, "par": 5, "yardage": 603, "archetype": "long_hitter", "name": "Snake" },
+        { "number": 6, "par": 4, "yardage": 409, "archetype": "scrambler", "name": "Gremlin's Ear" },
+        { "number": 7, "par": 3, "yardage": 221, "archetype": "short_game_specialist", "name": "Shipwreck" },
+        { "number": 8, "par": 4, "yardage": 506, "archetype": "precision_iron", "name": "On The Rocks" },
+        { "number": 9, "par": 4, "yardage": 442, "archetype": "precision_iron", "name": "Down And Dirty" },
+        { "number": 10, "par": 4, "yardage": 391, "archetype": "scrambler", "name": "Voyageur" },
+        { "number": 11, "par": 5, "yardage": 645, "archetype": "long_hitter", "name": "Sand Box" },
+        { "number": 12, "par": 3, "yardage": 163, "archetype": "short_game_specialist", "name": "Pop Up" },
+        { "number": 13, "par": 4, "yardage": 402, "archetype": "scrambler", "name": "Cliff Hanger" },
+        { "number": 14, "par": 4, "yardage": 396, "archetype": "precision_iron", "name": "Widow's Watch" },
+        { "number": 15, "par": 4, "yardage": 503, "archetype": "precision_iron", "name": "Grand Strand" },
+        { "number": 16, "par": 5, "yardage": 568, "archetype": "closer", "name": "Endless Bite" },
+        { "number": 17, "par": 3, "yardage": 249, "archetype": "closer", "name": "Pinched Nerve" },
+        { "number": 18, "par": 4, "yardage": 520, "archetype": "closer", "name": "Dyeabolical" }
+      ]
+    },
+    {
+      "id": "royal-melbourne",
+      "name": "Royal Melbourne",
+      "location": "Black Rock, Victoria, Australia",
+      "countryIsoCode": "AU",
+      "par": 71,
+      "holes": [
+        { "number": 1, "par": 4, "yardage": 373, "archetype": "scrambler" },
+        { "number": 2, "par": 5, "yardage": 534, "archetype": "long_hitter" },
+        { "number": 3, "par": 3, "yardage": 176, "archetype": "short_game_specialist" },
+        { "number": 4, "par": 4, "yardage": 439, "archetype": "precision_iron" },
+        { "number": 5, "par": 3, "yardage": 148, "archetype": "short_game_specialist" },
+        { "number": 6, "par": 4, "yardage": 312, "archetype": "scrambler" },
+        { "number": 7, "par": 4, "yardage": 455, "archetype": "precision_iron" },
+        { "number": 8, "par": 4, "yardage": 476, "archetype": "precision_iron" },
+        { "number": 9, "par": 4, "yardage": 439, "archetype": "precision_iron" },
+        { "number": 10, "par": 4, "yardage": 433, "archetype": "scrambler" },
+        { "number": 11, "par": 4, "yardage": 332, "archetype": "scrambler" },
+        { "number": 12, "par": 4, "yardage": 440, "archetype": "precision_iron" },
+        { "number": 13, "par": 4, "yardage": 383, "archetype": "scrambler" },
+        { "number": 14, "par": 3, "yardage": 189, "archetype": "short_game_specialist" },
+        { "number": 15, "par": 5, "yardage": 569, "archetype": "long_hitter" },
+        { "number": 16, "par": 4, "yardage": 472, "archetype": "closer" },
+        { "number": 17, "par": 4, "yardage": 429, "archetype": "closer" },
+        { "number": 18, "par": 4, "yardage": 448, "archetype": "closer" }
+      ]
+    },
+    {
+      "id": "royal-county-down",
+      "name": "Royal County Down",
+      "location": "Newcastle, County Down, Northern Ireland",
+      "countryIsoCode": "GB-NIR",
+      "par": 71,
+      "holes": [
+        { "number": 1, "par": 5, "yardage": 539, "archetype": "long_hitter" },
+        { "number": 2, "par": 4, "yardage": 444, "archetype": "precision_iron" },
+        { "number": 3, "par": 4, "yardage": 475, "archetype": "precision_iron" },
+        { "number": 4, "par": 3, "yardage": 229, "archetype": "short_game_specialist" },
+        { "number": 5, "par": 4, "yardage": 440, "archetype": "scrambler" },
+        { "number": 6, "par": 4, "yardage": 396, "archetype": "scrambler" },
+        { "number": 7, "par": 3, "yardage": 144, "archetype": "short_game_specialist" },
+        { "number": 8, "par": 4, "yardage": 429, "archetype": "scrambler" },
+        { "number": 9, "par": 4, "yardage": 483, "archetype": "precision_iron" },
+        { "number": 10, "par": 3, "yardage": 196, "archetype": "short_game_specialist" },
+        { "number": 11, "par": 4, "yardage": 442, "archetype": "precision_iron" },
+        { "number": 12, "par": 5, "yardage": 545, "archetype": "long_hitter" },
+        { "number": 13, "par": 4, "yardage": 446, "archetype": "precision_iron" },
+        { "number": 14, "par": 3, "yardage": 212, "archetype": "short_game_specialist" },
+        { "number": 15, "par": 4, "yardage": 468, "archetype": "scrambler" },
+        { "number": 16, "par": 4, "yardage": 337, "archetype": "closer" },
+        { "number": 17, "par": 4, "yardage": 433, "archetype": "closer" },
+        { "number": 18, "par": 5, "yardage": 548, "archetype": "closer" }
       ]
     }
   ]
