@@ -19,16 +19,17 @@ import styles from './HamburgerTrigger.module.css'
 // close the same menu.
 export function HamburgerTrigger() {
   const { isOpen: navOpen, open, close } = useNavDrawer()
-  const { openedFromNav: settingsOpenedFromNav } = useSettingsDrawer()
-  const { openedFromNav: helpOpenedFromNav } = useHowToPlay()
+  const { isOpen: settingsOpen } = useSettingsDrawer()
+  const { isOpen: helpOpen } = useHowToPlay()
 
-  // Drilling into "How to play" or "Settings" from the nav drawer swaps the
-  // overlay's `active.kind` away from 'nav', so useNavDrawer().isOpen alone
-  // goes false even though the mobile menu is still visually open one level
-  // deep. Track those nav-originated states too so the trigger keeps
-  // showing (and acting as) a close button for the whole time the menu
-  // system is open, not just at its top level.
-  const isMenuOpen = navOpen || settingsOpenedFromNav || helpOpenedFromNav
+  // OverlayProvider only ever has one of these open at a time (they share
+  // one slide-in panel slot), and however it was opened — the nav drawer
+  // itself, drilling into Settings/How to play from the nav, or a direct
+  // trigger elsewhere entirely (HomePage's "How it works" button, the
+  // desktop cog) — the mobile hamburger is still the one control that can
+  // dismiss it. So it tracks all three and doubles as a close button
+  // whenever any of them is open, not just the nav drawer.
+  const isMenuOpen = navOpen || settingsOpen || helpOpen
 
   return (
     <button
