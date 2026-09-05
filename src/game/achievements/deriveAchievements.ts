@@ -807,31 +807,54 @@ export function deriveAchievements(
     },
   })
 
-  // Takes the single best season's legend coverage, not a sum across
-  // seasons — drafting a legend in season 1 and a different one in season 2
-  // doesn't inch toward this the way it would for a career-wide achievement
-  // like Full House; it has to happen within one season's 16 rounds.
+  // Has to happen within one season's 16 rounds, not summed across several
+  // — but unlike Major Slam/Full House (career-wide, never reset), this one
+  // deliberately DOES reset: once achieved (in a past season or the current
+  // one), it stays unlocked forever like every other achievement, but until
+  // then the displayed progress only ever reflects the current in-progress
+  // season, not the best of any past, incomplete attempt — starting a new
+  // season starts this back at 0/19, it doesn't carry over a previous
+  // season's partial roster.
   const legendIds = allLegendGolferIds(countries)
   const golferIndexForLegends = buildGolferIndex(countries)
-  let bestSeasonLegends = new Set<string>()
-  for (const seasonRounds of seasonGroups.values()) {
-    const draftedInSeason = draftedGolferIds(seasonRounds)
-    const legendsInSeason = legendIds.filter((id) => draftedInSeason.has(id))
-    if (legendsInSeason.length > bestSeasonLegends.size) {
-      bestSeasonLegends = new Set(legendsInSeason)
-    }
+
+  function seasonHasEveryLegend(seasonRounds: RoundRecord[]): boolean {
+    const drafted = draftedGolferIds(seasonRounds)
+    return legendIds.every((id) => drafted.has(id))
   }
+
+  const seasonRoundLists = [...seasonGroups.values()]
+  const completedSeasonRoundLists = seasonRoundLists.filter((rs) => rs.length >= TOTAL_ROUNDS)
+  // The game only ever leaves one season in progress at a time (starting a
+  // new one requires the last to have finished), so at most one group here
+  // is short of TOTAL_ROUNDS — that one, if it exists, is "the current
+  // season" for display purposes.
+  const currentSeasonRounds = seasonRoundLists.find((rs) => rs.length < TOTAL_ROUNDS)
+
+  const achievedPreviously = completedSeasonRoundLists.some(seasonHasEveryLegend)
+  const achievedThisSeason = currentSeasonRounds ? seasonHasEveryLegend(currentSeasonRounds) : false
+
+  const displaySeasonRounds = achievedThisSeason
+    ? currentSeasonRounds
+    : achievedPreviously
+      ? completedSeasonRoundLists.find(seasonHasEveryLegend)
+      : currentSeasonRounds
+  const draftedForDisplay = displaySeasonRounds ? draftedGolferIds(displaySeasonRounds) : new Set<string>()
+
   const allStarRoster: AchievementRosterEntry[] = legendIds.map((id) => ({
     name: golferIndexForLegends.get(id)?.name ?? id,
-    achieved: bestSeasonLegends.has(id),
+    achieved: draftedForDisplay.has(id),
   }))
   achievements.push({
     id: 'all-star-season',
     name: 'All-Star Season',
     description: "Draft every legend at least once across a single season's 16 rounds.",
     section: 'season',
-    isUnlocked: bestSeasonLegends.size >= legendIds.length,
-    progress: { current: bestSeasonLegends.size, target: legendIds.length },
+    isUnlocked: achievedPreviously || achievedThisSeason,
+    progress: {
+      current: allStarRoster.filter((entry) => entry.achieved).length,
+      target: legendIds.length,
+    },
     roster: allStarRoster,
     compactRoster: true,
   })

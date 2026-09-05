@@ -1026,6 +1026,47 @@ describe('deriveAchievements', () => {
       expect(result?.isUnlocked).toBe(true)
       expect(result?.roster?.every((entry) => entry.achieved)).toBe(true)
     })
+
+    it('resets "All-Star Season" progress to zero for a new season rather than carrying over a past incomplete attempt', () => {
+      const legendIds = ['usa-nicklaus', 'usa-woods', 'usa-hogan', 'usa-sarazen', 'rsa-player', 'nir-mcilroy']
+      function draftHole(golferId: string) {
+        return hole(1, 'par', 0, golferId)
+      }
+
+      // A finished (16-round) season that drafted 4 of the 6 legends but
+      // never got the last 2 — a completed miss, not an in-progress one.
+      const missedSeason = Array.from({ length: 16 }, (_, i) =>
+        seasonRound('s1', i + 1, i === 0 ? { holeResults: legendIds.slice(0, 4).map(draftHole) } : {}),
+      )
+      // A brand-new season just started (1 round played, 0 legends yet).
+      const newSeasonJustStarted = [...missedSeason, seasonRound('s2', 1, {})]
+
+      const result = deriveAchievements(newSeasonJustStarted, COURSES, COUNTRIES).find(
+        (a) => a.id === 'all-star-season',
+      )
+      expect(result?.isUnlocked).toBe(false)
+      // Not 4/6 carried over from the finished season — reset to 0 for s2.
+      expect(result?.progress).toEqual({ current: 0, target: 6 })
+      expect(result?.roster?.every((entry) => !entry.achieved)).toBe(true)
+    })
+
+    it('keeps "All-Star Season" unlocked forever once earned, even after a later season resets its own progress', () => {
+      const legendIds = ['usa-nicklaus', 'usa-woods', 'usa-hogan', 'usa-sarazen', 'rsa-player', 'nir-mcilroy']
+      function draftHole(golferId: string) {
+        return hole(1, 'par', 0, golferId)
+      }
+
+      // Season 1 completes having drafted every legend.
+      const wonSeason = Array.from({ length: 16 }, (_, i) =>
+        seasonRound('s1', i + 1, i === 0 ? { holeResults: legendIds.map(draftHole) } : {}),
+      )
+      // Season 2 is brand new, 0 legends drafted so far.
+      const rounds = [...wonSeason, seasonRound('s2', 1, {})]
+
+      const result = deriveAchievements(rounds, COURSES, COUNTRIES).find((a) => a.id === 'all-star-season')
+      expect(result?.isUnlocked).toBe(true)
+      expect(result?.roster?.every((entry) => entry.achieved)).toBe(true)
+    })
   })
 
   describe('Career: Full House and country Sweeps', () => {
