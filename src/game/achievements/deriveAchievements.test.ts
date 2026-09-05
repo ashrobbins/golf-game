@@ -946,22 +946,35 @@ describe('deriveAchievements', () => {
       ).toBe(true)
     })
 
-    it('unlocks "Major Slam" only once all 4 real major courses have a bogey-free round, career-wide', () => {
+    it('unlocks "Major Slam" only once all 4 real major courses have a bogey-free round played as a season major', () => {
+      function majorRound(courseId: string, seasonId: string) {
+        return round(courseId, { seasonId, isMajor: true, isBogeyFreeRound: true })
+      }
       const threeOfFour = [
-        round('augusta-national', { isBogeyFreeRound: true }),
-        round('royal-birkdale', { isBogeyFreeRound: true }),
-        round('pebble-beach', { isBogeyFreeRound: true }),
+        majorRound('augusta-national', 's1'),
+        majorRound('royal-birkdale', 's1'),
+        majorRound('pebble-beach', 's1'),
       ]
       const notYet = deriveAchievements(threeOfFour, COURSES, COUNTRIES).find((a) => a.id === 'major-slam')
       expect(notYet?.isUnlocked).toBe(false)
       expect(notYet?.progress).toEqual({ current: 3, target: 4 })
 
-      // The 4th major's bogey-free round is a plain, untagged Free Play
-      // round — Major Slam counts it just the same as a season round.
-      const allFour = [...threeOfFour, round('pinehurst-no-2', { isBogeyFreeRound: true })]
+      const allFour = [...threeOfFour, majorRound('pinehurst-no-2', 's1')]
       const done = deriveAchievements(allFour, COURSES, COUNTRIES).find((a) => a.id === 'major-slam')
       expect(done?.isUnlocked).toBe(true)
       expect(done?.roster?.every((entry) => entry.achieved)).toBe(true)
+    })
+
+    it('does not count a bogey-free major-course round toward "Major Slam" unless it was played as a season major', () => {
+      const freePlayBogeyFree = [
+        round('augusta-national', { isBogeyFreeRound: true }), // untagged Free Play round
+        round('royal-birkdale', { seasonId: 's1', isMajor: false, isBogeyFreeRound: true }), // season round, but not flagged as its major
+        round('pebble-beach', { seasonId: 's1', isMajor: true, isBogeyFreeRound: false }), // season major, but not bogey-free
+      ]
+      const result = deriveAchievements(freePlayBogeyFree, COURSES, COUNTRIES).find(
+        (a) => a.id === 'major-slam',
+      )
+      expect(result?.progress).toEqual({ current: 0, target: 4 })
     })
 
     it('unlocks "Back-to-Back" only once 2 separate completed seasons finish under par', () => {

@@ -211,6 +211,14 @@ function isBogeyFreeAt(rounds: RoundRecord[], courseId: string): boolean {
   return rounds.some((r) => r.courseId === courseId && r.isBogeyFreeRound)
 }
 
+// Same as isBogeyFreeAt, but only counts a round if it was actually played
+// as a season's major round — a bogey-free Free Play round at, say, Pebble
+// Beach doesn't count toward Major Slam, only winning it as a major inside
+// a season does.
+function isBogeyFreeAsMajorAt(rounds: RoundRecord[], courseId: string): boolean {
+  return rounds.some((r) => r.seasonId && r.isMajor && r.courseId === courseId && r.isBogeyFreeRound)
+}
+
 function hasBroken60At(rounds: RoundRecord[], course: Course): boolean {
   return rounds.some((r) => r.courseId === course.id && course.par + r.totalStrokesToPar < BREAK_60_STROKES)
 }
@@ -767,13 +775,13 @@ export function deriveAchievements(
     const course = courses.find((c) => c.id === courseId)
     return {
       name: course?.name ?? courseId,
-      achieved: isBogeyFreeAt(rounds, courseId),
+      achieved: isBogeyFreeAsMajorAt(rounds, courseId),
     }
   })
   achievements.push({
     id: 'major-slam',
     name: 'Major Slam',
-    description: 'Go bogey-free in all 4 majors across your career.',
+    description: 'Go bogey-free in all 4 majors, across any of your seasons.',
     section: 'season',
     isUnlocked: majorSlamRoster.every((entry) => entry.achieved),
     progress: {
