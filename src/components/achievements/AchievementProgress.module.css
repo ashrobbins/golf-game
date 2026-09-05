@@ -1,5 +1,7 @@
 .badge {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   margin-top: 6px;
   padding: 2px 8px;
   border-radius: 999px;
@@ -8,4 +10,77 @@
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   color: var(--text-muted);
+}
+
+/* Only applied when the badge doubles as a show/hide toggle for a
+   per-entry breakdown (see AchievementProgress.tsx) — a plain <span>
+   badge gets none of this. */
+.toggle {
+  background: var(--surface);
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.toggle:hover {
+  border-color: var(--tier-green);
+  color: var(--text);
+}
+
+.chevron {
+  font-size: 11px;
+  line-height: 1;
+  transition: transform 0.15s ease;
+}
+
+.toggle[aria-expanded='true'] .chevron {
+  transform: rotate(180deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chevron {
+    transition: none;
+  }
+}
+
+.breakdown {
+  margin-top: 10px;
+  border-top: 1px solid var(--border);
+  padding-top: 8px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 5px 0;
+  font-size: 12.5px;
+}
+
+.name {
+  color: var(--text-muted);
+  min-width: 0;
+}
+
+.row.achieved .name {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.count {
+  flex: 0 0 auto;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+
+.row.achieved .count {
+  color: var(--tier-green);
+}
+
+.check {
+  display: inline-block;
+  width: 14px;
+  text-align: center;
+  color: var(--tier-green);
 }

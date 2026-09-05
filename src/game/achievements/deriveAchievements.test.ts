@@ -859,12 +859,12 @@ describe('deriveAchievements', () => {
     // Sarazen (the 6th id) is the one left out of fiveGolfersDone, so his
     // roster entry should be the only one not yet achieved.
     expect(incomplete?.roster).toEqual([
-      { name: 'Jack Nicklaus', achieved: true },
-      { name: 'Gary Player', achieved: true },
-      { name: 'Tiger Woods', achieved: true },
-      { name: 'Rory McIlroy', achieved: true },
-      { name: 'Ben Hogan', achieved: true },
-      { name: 'Gene Sarazen', achieved: false },
+      { name: 'Jack Nicklaus', achieved: true, current: 5, target: 5 },
+      { name: 'Gary Player', achieved: true, current: 5, target: 5 },
+      { name: 'Tiger Woods', achieved: true, current: 5, target: 5 },
+      { name: 'Rory McIlroy', achieved: true, current: 5, target: 5 },
+      { name: 'Ben Hogan', achieved: true, current: 5, target: 5 },
+      { name: 'Gene Sarazen', achieved: false, current: 0, target: 5 },
     ])
 
     const allSixDone = [
@@ -874,6 +874,7 @@ describe('deriveAchievements', () => {
     expect(complete?.isUnlocked).toBe(true)
     expect(complete?.progress).toEqual({ current: 6, target: 6 })
     expect(complete?.roster?.every((entry) => entry.achieved)).toBe(true)
+    expect(complete?.roster?.every((entry) => entry.current === 5 && entry.target === 5)).toBe(true)
   })
 
   it('does not count a golfer toward "The Grand Slam" until they individually reach 5 birdies', () => {

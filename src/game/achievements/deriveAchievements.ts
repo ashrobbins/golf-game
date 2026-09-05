@@ -161,6 +161,11 @@ export interface AchievementProgress {
 export interface AchievementRosterEntry {
   name: string
   achieved: boolean
+  // Optional per-entry progress (e.g. The Grand Slam's birdie count per
+  // golfer) — when present, AchievementProgress renders its "X/Y" badge as
+  // an expandable toggle showing this breakdown instead of a static badge.
+  current?: number
+  target?: number
 }
 
 export interface AchievementHoleProgressEntry {
@@ -452,10 +457,15 @@ function birdieCountFor(rounds: RoundRecord[], golferId: string): number {
 // from countries.json, rather than dropping them from the list silently.
 function grandSlamRoster(rounds: RoundRecord[], countries: CountriesContent): AchievementRosterEntry[] {
   const golferIndex = buildGolferIndex(countries)
-  return GRAND_SLAM_GOLFER_IDS.map((golferId) => ({
-    name: golferIndex.get(golferId)?.name ?? golferId,
-    achieved: birdieCountFor(rounds, golferId) >= GRAND_SLAM_BIRDIES_PER_GOLFER,
-  }))
+  return GRAND_SLAM_GOLFER_IDS.map((golferId) => {
+    const current = birdieCountFor(rounds, golferId)
+    return {
+      name: golferIndex.get(golferId)?.name ?? golferId,
+      achieved: current >= GRAND_SLAM_BIRDIES_PER_GOLFER,
+      current,
+      target: GRAND_SLAM_BIRDIES_PER_GOLFER,
+    }
+  })
 }
 
 // A "mismatch" birdie: the golfer who made it has golferArchetype among
