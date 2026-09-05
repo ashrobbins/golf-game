@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { RevealSequence } from '../components/scorecard/RevealSequence'
 import { Scorecard } from '../components/scorecard/Scorecard'
+import { SeasonRoundBanner } from '../components/season/SeasonRoundBanner'
 import { ShareModal } from '../components/share/ShareModal'
 import { Button } from '../components/ui/Button'
 import { ShareIcon } from '../components/ui/icons'
@@ -8,7 +9,16 @@ import { useHoleRevealSequencer } from '../hooks/useHoleRevealSequencer'
 import { useGame } from '../state/useGame'
 
 export function ResultsPage() {
-  const { content, course, simulationResult, playAgain, newlyUnlockedAchievements, viewAchievements } = useGame()
+  const {
+    content,
+    course,
+    simulationResult,
+    playAgain,
+    newlyUnlockedAchievements,
+    viewAchievements,
+    seasonRoundContext,
+    continueSeason,
+  } = useGame()
   const { revealedCount, isComplete, skipToEnd } = useHoleRevealSequencer(
     simulationResult?.holeResults ?? [],
   )
@@ -25,12 +35,19 @@ export function ResultsPage() {
 
   if (content.status !== 'ready' || !course || !simulationResult) return null
 
+  const primaryCta = seasonRoundContext ? (
+    <Button onClick={continueSeason}>Continue Season</Button>
+  ) : (
+    <Button onClick={playAgain}>Play again</Button>
+  )
+
   return (
     <div>
       {isComplete ? (
         <>
+          {seasonRoundContext && <SeasonRoundBanner context={seasonRoundContext} />}
           <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginBottom: 16 }}>
-            <Button onClick={playAgain}>Play again</Button>
+            {primaryCta}
             <Button variant="secondary" onClick={() => setIsShareOpen(true)}>
               <ShareIcon style={{ width: 16, height: 16 }} />
               Share
@@ -44,7 +61,7 @@ export function ResultsPage() {
             onViewAchievements={viewAchievements}
           />
           <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginTop: 24 }}>
-            <Button onClick={playAgain}>Play again</Button>
+            {primaryCta}
             <Button variant="secondary" onClick={() => setIsShareOpen(true)}>
               <ShareIcon style={{ width: 16, height: 16 }} />
               Share
@@ -68,6 +85,7 @@ export function ResultsPage() {
           countries={content.countries}
           revealedCount={revealedCount}
           onSkip={skipToEnd}
+          seasonRoundContext={seasonRoundContext}
         />
       )}
     </div>

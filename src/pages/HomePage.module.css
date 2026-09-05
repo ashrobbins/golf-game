@@ -1,5 +1,5 @@
 .wrapper {
-  max-width: 900px;
+  max-width: 640px;
   width: 100%;
   margin: 0 auto;
   text-align: center;
@@ -61,7 +61,13 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 20px;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
   text-align: left;
+}
+
+@media (max-width: 560px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
 }

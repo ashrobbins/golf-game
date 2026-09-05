@@ -57,7 +57,10 @@ function isValidRoundRecord(value: unknown): value is RoundRecord {
     Array.isArray(r.holeResults) &&
     typeof r.totalStrokesToPar === 'number' &&
     typeof r.bogeyFreeThroughHole === 'number' &&
-    typeof r.isBogeyFreeRound === 'boolean'
+    typeof r.isBogeyFreeRound === 'boolean' &&
+    (r.seasonId === undefined || typeof r.seasonId === 'string') &&
+    (r.seasonRoundNumber === undefined || typeof r.seasonRoundNumber === 'number') &&
+    (r.isMajor === undefined || typeof r.isMajor === 'boolean')
   )
 }
 
@@ -93,11 +96,15 @@ export function importStats(data: unknown): StatsStore {
   return store
 }
 
-export function recordRound(result: SimulationResult): RoundRecord {
+export function recordRound(
+  result: SimulationResult,
+  seasonTag?: { seasonId: string; seasonRoundNumber: number; isMajor: boolean },
+): RoundRecord {
   const record: RoundRecord = {
     ...result,
     id: crypto.randomUUID(),
     playedAt: new Date().toISOString(),
+    ...seasonTag,
   }
 
   const updated: StatsStore = {

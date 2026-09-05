@@ -1,0 +1,307 @@
+.wrapper {
+  max-width: 620px;
+  width: 100%;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.title {
+  font-size: 30px;
+  margin: 0 0 4px;
+}
+
+.subtitle {
+  color: var(--text-muted);
+  margin: 0 0 8px;
+}
+
+.crumbLink {
+  display: inline-block;
+  margin: 0 0 20px;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.crumbLink:hover {
+  text-decoration: underline;
+}
+
+/* ---- no-active-season states ---- */
+.startCard {
+  text-align: center;
+  padding: 32px 24px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: linear-gradient(160deg, color-mix(in srgb, var(--accent) 10%, var(--surface)), var(--surface));
+  box-shadow: var(--shadow);
+}
+
+.startIcon {
+  font-size: 34px;
+  margin-bottom: 12px;
+}
+
+.startTitle {
+  font-size: 22px;
+  font-weight: 800;
+  margin: 0 0 6px;
+}
+
+.startDesc {
+  color: var(--text-muted);
+  font-size: 13.5px;
+  margin: 0 auto 20px;
+  max-width: 380px;
+  line-height: 1.5;
+}
+
+.startFeatures {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  max-width: 420px;
+  margin: 0 auto 22px;
+  text-align: left;
+}
+
+@media (max-width: 460px) {
+  .startFeatures {
+    grid-template-columns: 1fr;
+  }
+}
+
+.startFeature {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+.startFeature b {
+  color: var(--text);
+}
+
+.recapCard {
+  margin-top: 20px;
+  padding: 16px 18px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  text-align: left;
+}
+
+.recapLabel {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 0 0 10px;
+}
+
+.recapRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.recapStat {
+  font-size: 13px;
+}
+
+.recapStat b {
+  color: var(--text);
+}
+
+.recapGood {
+  color: var(--tier-green);
+}
+
+/* ---- active season ---- */
+.scoreCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 22px;
+  border-radius: 16px;
+  background: linear-gradient(160deg, color-mix(in srgb, var(--accent) 16%, var(--surface)), var(--surface));
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  text-align: left;
+}
+
+.scoreCardLabel {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 6px;
+}
+
+.scoreCardValue {
+  font-size: 40px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.metaStats {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-end;
+  text-align: right;
+}
+
+.metaStat {
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+.metaStatValue {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.roundDots {
+  display: flex;
+  justify-content: space-between;
+  gap: 4px;
+  margin: 20px 0;
+}
+
+.roundDot {
+  flex: 0 0 auto;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--border);
+}
+
+.roundDot.dotDone {
+  background: var(--tier-green);
+}
+
+.roundDot.dotMajor {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--tier-gold) 60%, transparent);
+}
+
+.roundDot.dotCurrent {
+  background: var(--accent);
+  transform: scale(1.3);
+}
+
+.ladder {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  background: var(--surface);
+  text-align: left;
+}
+
+.roundRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.roundRow:last-child {
+  border-bottom: none;
+}
+
+.roundRow.rowMajor {
+  background: color-mix(in srgb, var(--tier-gold) 6%, transparent);
+}
+
+.roundRow.rowCurrent {
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+.roundRow.rowLocked {
+  opacity: 0.55;
+}
+
+.roundNum {
+  flex: 0 0 auto;
+  width: 20px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.roundBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.roundCourse {
+  font-weight: 700;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.majorTag {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--tier-gold);
+  border: 1px solid var(--tier-gold);
+  border-radius: 999px;
+  padding: 1px 6px;
+}
+
+.roundMeta {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin-top: 1px;
+}
+
+.scoreOver,
+.scoreUnder {
+  flex: 0 0 auto;
+  font-weight: 800;
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+}
+
+.scoreOver {
+  color: var(--tier-red);
+}
+
+.scoreUnder {
+  color: var(--tier-green);
+}
+
+.playCta {
+  flex: 0 0 auto;
+  padding: 6px 14px;
+  border-radius: 10px;
+  background: var(--accent);
+  color: var(--accent-contrast);
+  border: none;
+  font-size: 12.5px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+}

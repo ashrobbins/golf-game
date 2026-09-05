@@ -8,12 +8,22 @@ import type { Achievement } from '../game/achievements/deriveAchievements'
 import { deriveAchievements } from '../game/achievements/deriveAchievements'
 import { assertWheelHasCapacity } from '../game/draft/engine'
 import type { DraftPick } from '../game/draft/types'
+import {
+  archiveSeason,
+  createSeason,
+  isSeasonComplete,
+  loadActiveSeason,
+  loadSeasonArchive,
+  recordSeasonRoundResult,
+  saveActiveSeason,
+} from '../game/season/storage'
+import type { ActiveSeason, CompletedSeason } from '../game/season/types'
 import { simulateRound } from '../game/simulation/engine'
 import type { SimulationResult } from '../game/simulation/types'
 import type { RoundRecord } from '../game/stats/types'
 import { loadStats, recordRound } from '../game/stats/storage'
 import { GameContext } from './GameContext'
-import type { ContentState, GameContextValue, View } from './GameContext'
+import type { ContentState, GameContextValue, SeasonRoundContext, View } from './GameContext'
 
 export function GameProvider({ children }: { children: ReactNode }) {
   const [content, setContent] = useState<ContentState>({ status: 'loading' })
@@ -24,6 +34,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const [sharedRoundCode, setSharedRoundCode] = useState<string | undefined>()
   const [newlyUnlockedAchievements, setNewlyUnlockedAchievements] = useState<Achievement[]>([])
   const [isAutoPick, setIsAutoPick] = useState(false)
+  const [activeSeason, setActiveSeason] = useState<ActiveSeason | null>(() => loadActiveSeason())
+  const [seasonArchive, setSeasonArchive] = useState<CompletedSeason[]>(() => loadSeasonArchive())
+  const [seasonRoundContext, setSeasonRoundContext] = useState<SeasonRoundContext | undefined>()
 
   useEffect(() => {
     let cancelled = false
@@ -107,7 +120,13 @@ export function GameProvider({ children }: { children: ReactNode }) {
       // (rather than "is it unlocked at all") so a round that merely keeps
       // an already-unlocked achievement unlocked doesn't get re-announced.
       const roundsBefore = loadStats().rounds
-      const newRecord = recordRound(result)
+      const newRecord = seasonRoundContext
+        ? recordRound(result, {
+            seasonId: seasonRoundContext.seasonId,
+            seasonRoundNumber: seasonRoundContext.roundNumber,
+            isMajor: seasonRoundContext.isMajor,
+          })
+        : recordRound(result)
       const roundsAfter = [...roundsBefore, newRecord]
       const unlockedBefore = new Set(
         deriveAchievements(roundsBefore, content.courses.courses, content.countries)
@@ -119,9 +138,29 @@ export function GameProvider({ children }: { children: ReactNode }) {
         achievementsAfter.filter((a) => a.isUnlocked && !unlockedBefore.has(a.id)),
       )
 
+      if (seasonRoundContext && activeSeason) {
+        const updatedSeason = recordSeasonRoundResult(activeSeason, {
+          roundNumber: seasonRoundContext.roundNumber,
+          courseId: course.id,
+          isMajor: seasonRoundContext.isMajor,
+          isBogeyFreeRound: result.isBogeyFreeRound,
+          totalStrokesToPar: result.totalStrokesToPar,
+          roundRecordId: newRecord.id,
+        })
+        if (isSeasonComplete(updatedSeason)) {
+          const completed: CompletedSeason = { ...updatedSeason, completedAt: new Date().toISOString() }
+          archiveSeason(completed)
+          setSeasonArchive((prev) => [...prev, completed])
+          setActiveSeason(null)
+        } else {
+          saveActiveSeason(updatedSeason)
+          setActiveSeason(updatedSeason)
+        }
+      }
+
       setView('results')
     },
-    [content, course],
+    [content, course, seasonRoundContext, activeSeason],
   )
 
   const viewStats = useCallback(() => {
@@ -132,6 +171,46 @@ export function GameProvider({ children }: { children: ReactNode }) {
     setView('achievements')
   }, [])
 
+  const goFreePlay = useCallback(() => setView('free-play'), [])
+  const viewSeasons = useCallback(() => setView('season'), [])
+  const viewSeasonHistory = useCallback(() => setView('season-history'), [])
+
+  const startSeason = useCallback(() => {
+    if (content.status !== 'ready') return
+    const season = createSeason(seasonArchive, content.courses.courses)
+    saveActiveSeason(season)
+    setActiveSeason(season)
+  }, [content, seasonArchive])
+
+  const startSeasonRound = useCallback(() => {
+    if (content.status !== 'ready' || !activeSeason) return
+    const nextEntry = activeSeason.schedule[activeSeason.results.length]
+    if (!nextEntry) return
+    const selected = content.courses.courses.find((c) => c.id === nextEntry.courseId)
+    if (!selected) return
+    setCourse(selected)
+    setSimulationResult(undefined)
+    setSeasonRoundContext({
+      seasonId: activeSeason.id,
+      seasonNumber: activeSeason.seasonNumber,
+      roundNumber: nextEntry.roundNumber,
+      isMajor: nextEntry.isMajor,
+    })
+    setView('course-info')
+  }, [content, activeSeason])
+
+  // The results page's primary CTA for a season round — same transient-
+  // state resets as playAgain, but returns to the Season Hub instead of
+  // the home landing, and doesn't touch the debug-param/shared-round URL
+  // cleanup (not relevant to a season round).
+  const continueSeason = useCallback(() => {
+    setCourse(undefined)
+    setSimulationResult(undefined)
+    setNewlyUnlockedAchievements([])
+    setSeasonRoundContext(undefined)
+    setView('season')
+  }, [])
+
   const playAgain = useCallback(() => {
     setCourse(undefined)
     setSimulationResult(undefined)
@@ -139,6 +218,11 @@ export function GameProvider({ children }: { children: ReactNode }) {
     setSharedRoundCode(undefined)
     setNewlyUnlockedAchievements([])
     setIsAutoPick(false)
+    // A season round abandoned via the nav logo (rather than finished)
+    // simply never gets recorded — only finishDraft ever mutates season
+    // state — but the stale context still needs clearing so it doesn't
+    // leak onto a later, unrelated Free Play round.
+    setSeasonRoundContext(undefined)
     setView('home')
 
     // Drop the debug shortcut params so leaving the mock results page
@@ -171,12 +255,21 @@ export function GameProvider({ children }: { children: ReactNode }) {
       sharedRoundCode,
       newlyUnlockedAchievements,
       isAutoPick,
+      activeSeason,
+      seasonArchive,
+      seasonRoundContext,
       startRound,
       beginDraft,
       finishDraft,
       playAgain,
       viewStats,
       viewAchievements,
+      goFreePlay,
+      viewSeasons,
+      viewSeasonHistory,
+      startSeason,
+      startSeasonRound,
+      continueSeason,
     }),
     [
       content,
@@ -187,12 +280,21 @@ export function GameProvider({ children }: { children: ReactNode }) {
       sharedRoundCode,
       newlyUnlockedAchievements,
       isAutoPick,
+      activeSeason,
+      seasonArchive,
+      seasonRoundContext,
       startRound,
       beginDraft,
       finishDraft,
       playAgain,
       viewStats,
       viewAchievements,
+      goFreePlay,
+      viewSeasons,
+      viewSeasonHistory,
+      startSeason,
+      startSeasonRound,
+      continueSeason,
     ],
   )
 

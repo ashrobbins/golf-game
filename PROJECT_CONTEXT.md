@@ -29,11 +29,28 @@ Mode is now planned as fully local-only/localStorage-based (see `sesons-mode.md`
 accounts dependency. Don't resurrect the accounts/monetization angle unless the user explicitly raises
 it again.
 
-**Season Mode's course-content blocker is now resolved.** Building Season Mode surfaced that its
-16-round schedule needed 4 more real courses than existed; the user chose to build those first rather
-than ship an uncompletable season. That's now done — see the "16 courses now" note under
-`courses.json` below. Season Mode itself (the actual feature — data model, UI, achievements) is still
-fully unbuilt; the user hasn't yet said when to start it.
+**Season Mode is now built** (core loop only — the Season achievements tab was explicitly deferred to
+a follow-up). New module `src/game/season/` (`types.ts`, `storage.ts`, `deriveSeasonStats.ts`, both
+with unit tests) holds the pure logic: a fixed 16-round schedule (majors at rounds 4/8/12/16 — Augusta
+National, Royal Birkdale, Pebble Beach, Pinehurst No. 2 — the other 12 rounds fill with every other
+real course), persisted separately from stats (`beating-bogey:season` for the in-progress one,
+`beating-bogey:seasons` for the archive). `RoundRecord` (`game/stats/types.ts`) gained optional
+`seasonId`/`seasonRoundNumber`/`isMajor` tags — a season round is still just a normal `RoundRecord` in
+the same array everything else reads from, so every existing career/course/iconic achievement already
+triggers from season rounds with zero changes, confirmed in the browser. The home page split into a
+new landing (`HomePage.tsx`, mode-select cards) with the old course-grid content moved to
+`FreePlayPage.tsx`; new `SeasonHubPage.tsx` (start/resume/ladder) and `SeasonHistoryPage.tsx` round out
+the new views, wired through `GameContext`'s `View` union (`'free-play' | 'season' | 'season-history'`)
+and a `seasonRoundContext` on `GameProvider` that `CoursePreviewPage`/`ResultsPage` read for the small
+season/major eyebrow banner. "Top performer" reuses the existing `rankGolfers` leaderboard logic
+scoped to one season's rounds, rather than a new metric. Playtested end-to-end in the browser
+(including forcing a season through to its 16th/final major round and confirming it archives
+correctly) before committing, per explicit user instruction.
+
+**Not built yet, deliberately deferred**: the Season achievements tab (First Season, First Major,
+Season Slam, Perfect Season, Repeat Champion — sketched in `sesons-mode.md`'s mockup) — no changes were
+made to `deriveAchievements.ts`/`AchievementSection`/`AchievementsPage.tsx` for this. Pick this up as
+its own follow-up whenever asked.
 
 **The full plan lives outside this repo**, at `/Users/ash.robbins/.claude/plans/ok-so-for-an-crystalline-ladybug.md` — read that file in full before starting any of this work; the summary below is not a substitute for it. **The user has since also committed a copy into the repo directly**, at root-level `phased-feature-development-plan.md` (commit `7d03159`, made by the user outside any session, not by Claude) — same content, now durable in-repo either way.
 

@@ -8,8 +8,11 @@ import { Footer } from './components/ui/Footer'
 import { AchievementsPage } from './pages/AchievementsPage'
 import { CoursePreviewPage } from './pages/CoursePreviewPage'
 import { DraftPage } from './pages/DraftPage'
+import { FreePlayPage } from './pages/FreePlayPage'
 import { HomePage } from './pages/HomePage'
 import { ResultsPage } from './pages/ResultsPage'
+import { SeasonHistoryPage } from './pages/SeasonHistoryPage'
+import { SeasonHubPage } from './pages/SeasonHubPage'
 import { SharedRoundPage } from './pages/SharedRoundPage'
 import { StatsPage } from './pages/StatsPage'
 import { GameProvider } from './state/GameProvider'
@@ -35,6 +38,8 @@ function GameView() {
   switch (view) {
     case 'home':
       return <HomePage />
+    case 'free-play':
+      return <FreePlayPage />
     case 'course-info':
       return <CoursePreviewPage />
     case 'draft':
@@ -47,6 +52,10 @@ function GameView() {
       return <SharedRoundPage />
     case 'achievements':
       return <AchievementsPage />
+    case 'season':
+      return <SeasonHubPage />
+    case 'season-history':
+      return <SeasonHistoryPage />
   }
 }
 

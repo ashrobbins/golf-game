@@ -2,6 +2,8 @@ import { useMemo } from 'react'
 import type { CountriesContent, Country, Golfer, Hole } from '../../content/types'
 import { generateHoleCommentary } from '../../game/simulation/commentary'
 import type { HoleResult } from '../../game/simulation/types'
+import type { SeasonRoundContext } from '../../state/GameContext'
+import { SeasonRoundBanner } from '../season/SeasonRoundBanner'
 import { Button } from '../ui/Button'
 import { CurrentHoleCard } from './CurrentHoleCard'
 import { HoleResultRow } from './HoleResultRow'
@@ -17,6 +19,7 @@ interface RevealSequenceProps {
   countries: CountriesContent
   revealedCount: number
   onSkip: () => void
+  seasonRoundContext?: SeasonRoundContext
 }
 
 export function RevealSequence({
@@ -27,6 +30,7 @@ export function RevealSequence({
   countries,
   revealedCount,
   onSkip,
+  seasonRoundContext,
 }: RevealSequenceProps) {
   const golferIndex = useMemo(() => {
     const map = new Map<string, Golfer>()
@@ -70,6 +74,7 @@ export function RevealSequence({
 
   return (
     <div className={styles.wrapper}>
+      {seasonRoundContext && <SeasonRoundBanner context={seasonRoundContext} />}
       <RoundHero
         courseName={courseName}
         countryIsoCode={countryIsoCode}

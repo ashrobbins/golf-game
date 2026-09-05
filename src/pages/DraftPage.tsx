@@ -4,15 +4,17 @@ import { GolferReels } from '../components/picker/GolferReels'
 import { GolferReelsSkeleton } from '../components/picker/GolferReelsSkeleton'
 import { DraftRoster } from '../components/draft/DraftRoster'
 import { HoleHeader } from '../components/draft/HoleHeader'
+import { SeasonRoundBanner } from '../components/season/SeasonRoundBanner'
 import { Button } from '../components/ui/Button'
 import type { CountriesContent, Country, Course, Golfer } from '../content/types'
 import type { DraftPick } from '../game/draft/types'
 import { useDraftGame } from '../hooks/useDraftGame'
+import type { SeasonRoundContext } from '../state/GameContext'
 import { useGame } from '../state/useGame'
 import styles from './DraftPage.module.css'
 
 export function DraftPage() {
-  const { content, course, finishDraft, isAutoPick } = useGame()
+  const { content, course, finishDraft, isAutoPick, seasonRoundContext } = useGame()
 
   if (content.status !== 'ready' || !course) return null
 
@@ -22,6 +24,7 @@ export function DraftPage() {
       course={course}
       onComplete={finishDraft}
       autoPick={isAutoPick}
+      seasonRoundContext={seasonRoundContext}
     />
   )
 }
@@ -31,11 +34,13 @@ function DraftPageInner({
   course,
   onComplete,
   autoPick,
+  seasonRoundContext,
 }: {
   countries: CountriesContent
   course: Course
   onComplete: (picks: DraftPick[]) => void
   autoPick: boolean
+  seasonRoundContext?: SeasonRoundContext
 }) {
   const { state, spin, confirmSpin, pick } = useDraftGame(course, countries, autoPick)
 
@@ -67,6 +72,7 @@ function DraftPageInner({
   if (state.status === 'complete') {
     return (
       <div>
+        {seasonRoundContext && <SeasonRoundBanner context={seasonRoundContext} />}
         <div className={styles.completeHeader}>
           <h2 className={styles.completeTitle}>Your bag is set</h2>
           <p className={styles.completeSubtitle}>All 18 golfers drafted. Ready to play?</p>
@@ -91,6 +97,7 @@ function DraftPageInner({
 
   return (
     <div>
+      {seasonRoundContext && <SeasonRoundBanner context={seasonRoundContext} />}
       <HoleHeader
         courseName={course.name}
         countryIsoCode={course.countryIsoCode}
