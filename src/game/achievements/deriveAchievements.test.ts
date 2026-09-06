@@ -66,8 +66,11 @@ describe('deriveAchievements', () => {
     const achievements = deriveAchievements([], COURSES, COUNTRIES)
     expect(achievements.every((a) => !a.isUnlocked)).toBe(true)
     // 2 courses x 3 per-course achievements + 18 career (14 original + Full House
-    // + 3 country Sweeps) + 18 iconic moments + 5 season achievements
-    expect(achievements).toHaveLength(47)
+    // + 3 country Sweeps; the fixture courses have no countryIsoCode, so no Home
+    // Town Heroes achievements exist here) + 18 iconic moments + 7 season
+    // achievements (First Season, First Major, Major Slam, Course Slam,
+    // Century Men, Back-to-Back, All-Star Season)
+    expect(achievements).toHaveLength(49)
   })
 
   it('unlocks a course bogey-free achievement only when a bogey-free round exists at that course', () => {
@@ -218,6 +221,8 @@ describe('deriveAchievements', () => {
       'first-season',
       'first-major',
       'major-slam',
+      'course-slam',
+      'century-men',
       'back-to-back',
       'all-star-season',
       'the-impossible-chip',
@@ -247,7 +252,9 @@ describe('deriveAchievements', () => {
     // 14 original milestones + Full House + 3 country Sweeps (one per fixture country)
     expect(achievements.filter((a) => a.section === 'career')).toHaveLength(18)
     expect(achievements.filter((a) => a.section === 'iconic')).toHaveLength(18)
-    expect(achievements.filter((a) => a.section === 'season')).toHaveLength(5)
+    // First Season, First Major, Major Slam, Course Slam, Century Men,
+    // Back-to-Back, All-Star Season
+    expect(achievements.filter((a) => a.section === 'season')).toHaveLength(7)
   })
 
   it('unlocks "First Hole-in-One" from a hole-in-one on any course', () => {
@@ -977,6 +984,52 @@ describe('deriveAchievements', () => {
       expect(result?.progress).toEqual({ current: 0, target: 4 })
     })
 
+    it('unlocks "Course Slam" only once every course in the fixture has a bogey-free round played as part of a season', () => {
+      const oneCourse = [round('augusta', { seasonId: 's1', isBogeyFreeRound: true })]
+      const notYet = deriveAchievements(oneCourse, COURSES, COUNTRIES).find((a) => a.id === 'course-slam')
+      expect(notYet?.isUnlocked).toBe(false)
+      expect(notYet?.progress).toEqual({ current: 1, target: 2 })
+
+      const bothCourses = [...oneCourse, round('carnoustie', { seasonId: 's1', isBogeyFreeRound: true })]
+      const done = deriveAchievements(bothCourses, COURSES, COUNTRIES).find((a) => a.id === 'course-slam')
+      expect(done?.isUnlocked).toBe(true)
+      expect(done?.roster?.every((entry) => entry.achieved)).toBe(true)
+    })
+
+    it('does not count an untagged Free Play bogey-free round toward "Course Slam"', () => {
+      const rounds = [
+        round('augusta', { isBogeyFreeRound: true }), // untagged Free Play round
+        round('carnoustie', { seasonId: 's1', isBogeyFreeRound: true }),
+      ]
+      const result = deriveAchievements(rounds, COURSES, COUNTRIES).find((a) => a.id === 'course-slam')
+      expect(result?.progress).toEqual({ current: 1, target: 2 })
+    })
+
+    function seasonWithTotal(seasonId: string, total: number) {
+      return Array.from({ length: 16 }, (_, i) => seasonRound(seasonId, i + 1, { totalStrokesToPar: i === 15 ? total : 0 }))
+    }
+
+    it('unlocks "Century Men" only once a completed season finishes at 100 strokes under par or better', () => {
+      const ninetyNine = seasonWithTotal('s1', -99)
+      const notYet = deriveAchievements(ninetyNine, COURSES, COUNTRIES).find((a) => a.id === 'century-men')
+      expect(notYet?.isUnlocked).toBe(false)
+      expect(notYet?.progress).toEqual({ current: 99, target: 100 })
+
+      const oneHundred = seasonWithTotal('s2', -100)
+      const done = deriveAchievements([...ninetyNine, ...oneHundred], COURSES, COUNTRIES).find(
+        (a) => a.id === 'century-men',
+      )
+      expect(done?.isUnlocked).toBe(true)
+      expect(done?.progress).toEqual({ current: 100, target: 100 })
+    })
+
+    it('does not count an incomplete season toward "Century Men"', () => {
+      const incomplete = Array.from({ length: 10 }, (_, i) => seasonRound('s1', i + 1, { totalStrokesToPar: -20 }))
+      const result = deriveAchievements(incomplete, COURSES, COUNTRIES).find((a) => a.id === 'century-men')
+      expect(result?.isUnlocked).toBe(false)
+      expect(result?.progress).toEqual({ current: 0, target: 100 })
+    })
+
     it('unlocks "Back-to-Back" only once 2 separate completed seasons finish under par', () => {
       const season1 = Array.from({ length: 16 }, (_, i) => seasonRound('s1', i + 1, { totalStrokesToPar: -1 }))
       const oneSeason = deriveAchievements(season1, COURSES, COUNTRIES).find((a) => a.id === 'back-to-back')
@@ -1114,6 +1167,60 @@ describe('deriveAchievements', () => {
       const rounds = [round('augusta', { holeResults: [hole(1, 'par', 0, 'rsa-player', 'rsa')] })]
       const result = deriveAchievements(rounds, COURSES, COUNTRIES).find((a) => a.id === 'birdie-country-rsa')
       expect(result?.isUnlocked).toBe(false)
+    })
+  })
+
+  describe('Home Town Heroes', () => {
+    // A standalone fixture with a real countryIsoCode <-> Course.countryIsoCode
+    // match — the shared COUNTRIES/COURSES fixtures above deliberately don't
+    // have one (the shared country() helper hardcodes isoCode 'US' for every
+    // fixture country, and course() never sets countryIsoCode at all).
+    const spain: Country = {
+      id: 'spain',
+      name: 'Spain',
+      isoCode: 'ES',
+      golfers: [golfer('esp-ballesteros', { name: 'Seve Ballesteros' }), golfer('esp-garcia', { name: 'Sergio Garcia' })],
+    }
+    const otherCountry: Country = {
+      id: 'other',
+      name: 'Other',
+      isoCode: 'XX',
+      golfers: [golfer('other-golfer', { name: 'Other Golfer' })],
+    }
+    const homeTownCountries: CountriesContent = { version: 1, countries: [spain, otherCountry] }
+    const valderrama: Course = { id: 'valderrama', name: 'Valderrama', par: 71, holes: [], countryIsoCode: 'ES' }
+    const noMatchCourse: Course = { id: 'no-match', name: 'No Match', par: 72, holes: [] }
+    const homeTownCourses = [valderrama, noMatchCourse]
+
+    it('unlocks "Spain Home Town Heroes" only once every Spanish golfer birdies or better at a course in Spain', () => {
+      const oneGolfer = [round('valderrama', { holeResults: [hole(1, 'birdie', -1, 'esp-ballesteros')] })]
+      const notYet = deriveAchievements(oneGolfer, homeTownCourses, homeTownCountries).find(
+        (a) => a.id === 'home-town-heroes-spain',
+      )
+      expect(notYet?.isUnlocked).toBe(false)
+      expect(notYet?.progress).toEqual({ current: 1, target: 2 })
+
+      const bothGolfers = [
+        ...oneGolfer,
+        round('valderrama', { holeResults: [hole(2, 'eagle', -2, 'esp-garcia')] }),
+      ]
+      const done = deriveAchievements(bothGolfers, homeTownCourses, homeTownCountries).find(
+        (a) => a.id === 'home-town-heroes-spain',
+      )
+      expect(done?.isUnlocked).toBe(true)
+    })
+
+    it('does not count a birdie at a course outside the golfer\'s home country toward "Home Town Heroes"', () => {
+      const rounds = [round('no-match', { holeResults: [hole(1, 'birdie', -1, 'esp-ballesteros')] })]
+      const result = deriveAchievements(rounds, homeTownCourses, homeTownCountries).find(
+        (a) => a.id === 'home-town-heroes-spain',
+      )
+      expect(result?.progress).toEqual({ current: 0, target: 2 })
+    })
+
+    it('does not create a "Home Town Heroes" achievement for a country with no matching course', () => {
+      const achievements = deriveAchievements([], homeTownCourses, homeTownCountries)
+      expect(achievements.some((a) => a.id === 'home-town-heroes-other')).toBe(false)
     })
   })
 })

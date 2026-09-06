@@ -219,6 +219,13 @@ function isBogeyFreeAsMajorAt(rounds: RoundRecord[], courseId: string): boolean 
   return rounds.some((r) => r.seasonId && r.isMajor && r.courseId === courseId && r.isBogeyFreeRound)
 }
 
+// Same as isBogeyFreeAsMajorAt, but for any season round at the course, not
+// just its major slot — a bogey-free Free Play round doesn't count, only
+// winning it as part of an actual season does. Powers Course Slam.
+function isBogeyFreeAsSeasonRoundAt(rounds: RoundRecord[], courseId: string): boolean {
+  return rounds.some((r) => r.seasonId && r.courseId === courseId && r.isBogeyFreeRound)
+}
+
 function hasBroken60At(rounds: RoundRecord[], course: Course): boolean {
   return rounds.some((r) => r.courseId === course.id && course.par + r.totalStrokesToPar < BREAK_60_STROKES)
 }
@@ -508,6 +515,21 @@ function birdieOrBetterGolferIdsFor(rounds: RoundRecord[], countryId: string): S
   return ids
 }
 
+// Same "birdie or better" definition as birdieOrBetterGolferIdsFor, but
+// keyed by which courses the round was played at, not which country the
+// golfer is from — powers Home Town Heroes, where the courses in question
+// are "every course located in this golfer's home country."
+function birdieOrBetterGolferIdsAtCourses(rounds: RoundRecord[], courseIds: string[]): Set<string> {
+  const ids = new Set<string>()
+  for (const r of rounds) {
+    if (!courseIds.includes(r.courseId)) continue
+    for (const h of r.holeResults) {
+      if (BIRDIE_OR_BETTER_TIERS.has(h.outcomeTier)) ids.add(h.golferId)
+    }
+  }
+  return ids
+}
+
 // Groups rounds by their season tag, dropping untagged Free Play rounds —
 // the only place season-scoped achievements need to reconstruct "which
 // rounds belong to the same season," derived purely from the seasonId tag
@@ -751,6 +773,49 @@ export function deriveAchievements(
     })
   }
 
+  // One "Home Town Heroes" achievement per country that has at least one
+  // real course located in it — birdie or better with every one of that
+  // country's golfers, but only counting rounds played at a course in
+  // their own home country (unlike the Sweep achievements above, which
+  // count a birdie anywhere in the world). Countries with no matching
+  // course (there's no France/UAE entry in countries.json, so Le Golf
+  // National and the Earth Course don't have a "home country" to check
+  // against) simply don't get one — nothing to build a roster from.
+  const coursesByCountryIso = new Map<string, Course[]>()
+  for (const course of courses) {
+    if (!course.countryIsoCode) continue
+    const existing = coursesByCountryIso.get(course.countryIsoCode)
+    if (existing) existing.push(course)
+    else coursesByCountryIso.set(course.countryIsoCode, [course])
+  }
+
+  for (const country of countries.countries) {
+    const homeCourses = coursesByCountryIso.get(country.isoCode)
+    if (!homeCourses) continue
+
+    const achievedIds = birdieOrBetterGolferIdsAtCourses(
+      rounds,
+      homeCourses.map((c) => c.id),
+    )
+    const homeRoster: AchievementRosterEntry[] = country.golfers.map((golfer) => ({
+      name: golfer.name,
+      achieved: achievedIds.has(golfer.id),
+    }))
+    achievements.push({
+      id: `home-town-heroes-${country.id}`,
+      name: `${country.name} Home Town Heroes`,
+      description: `Get a birdie or better with every ${country.name} golfer, on home soil.`,
+      section: 'career',
+      isUnlocked: homeRoster.every((entry) => entry.achieved),
+      progress: {
+        current: homeRoster.filter((entry) => entry.achieved).length,
+        target: homeRoster.length,
+      },
+      roster: homeRoster,
+      compactRoster: true,
+    })
+  }
+
   // ---- Seasons tab ----
   const seasonGroups = roundsBySeason(rounds)
   const completedSeasons = [...seasonGroups.values()].filter((rs) => rs.length >= TOTAL_ROUNDS)
@@ -789,6 +854,46 @@ export function deriveAchievements(
       target: majorSlamRoster.length,
     },
     roster: majorSlamRoster,
+  })
+
+  // Deliberately a superset of Major Slam — every one of the 16 real
+  // courses gets exactly one schedule slot per season, so the 4 major
+  // courses' single appearance already *is* their major round. Course Slam
+  // just extends the same "bogey-free as a season round" bar to all 16.
+  const courseSlamRoster: AchievementRosterEntry[] = courses.map((course) => ({
+    name: course.name,
+    achieved: isBogeyFreeAsSeasonRoundAt(rounds, course.id),
+  }))
+  achievements.push({
+    id: 'course-slam',
+    name: 'Course Slam',
+    description: 'Go bogey-free at every course in the game, each as a season round, across any of your seasons.',
+    section: 'season',
+    isUnlocked: courseSlamRoster.every((entry) => entry.achieved),
+    progress: {
+      current: courseSlamRoster.filter((entry) => entry.achieved).length,
+      target: courseSlamRoster.length,
+    },
+    roster: courseSlamRoster,
+    compactRoster: true,
+  })
+
+  const CENTURY_TARGET_UNDER_PAR = 100
+  const bestSeasonTotal = completedSeasons.reduce((best, seasonRounds) => {
+    const total = seasonRounds.reduce((sum, r) => sum + r.totalStrokesToPar, 0)
+    return total < best ? total : best
+  }, 0)
+  const bestSeasonUnderPar = Math.max(0, -bestSeasonTotal)
+  achievements.push({
+    id: 'century-men',
+    name: 'Century Men',
+    description: 'Finish a season at 100 strokes under par or better.',
+    section: 'season',
+    isUnlocked: bestSeasonUnderPar >= CENTURY_TARGET_UNDER_PAR,
+    progress: {
+      current: Math.min(bestSeasonUnderPar, CENTURY_TARGET_UNDER_PAR),
+      target: CENTURY_TARGET_UNDER_PAR,
+    },
   })
 
   const BACK_TO_BACK_SEASONS_REQUIRED = 2

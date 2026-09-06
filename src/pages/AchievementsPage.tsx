@@ -24,6 +24,11 @@ const TABS: Array<{ section: AchievementSection; label: string }> = [
 // dozen-or-so other career milestones in one undifferentiated list.
 const COUNTRY_SWEEP_ID_PREFIX = 'birdie-country-'
 
+// Split out of the flat career list the same way COUNTRY_SWEEP_ID_PREFIX
+// is, for the same reason — 7 "birdie on home soil" achievements would
+// otherwise drown in the same list as the dozen-or-so plain milestones.
+const HOME_TOWN_HEROES_ID_PREFIX = 'home-town-heroes-'
+
 type ActiveTab = 'all' | AchievementSection
 
 export function AchievementsPage() {
@@ -42,9 +47,14 @@ export function AchievementsPage() {
   const unlockedCount = achievements.filter((a) => a.isUnlocked).length
   const courseAchievements = achievements.filter((a) => a.section === 'course')
   const careerAchievements = achievements.filter((a) => a.section === 'career')
-  const careerMilestones = careerAchievements.filter((a) => !a.id.startsWith(COUNTRY_SWEEP_ID_PREFIX))
+  const careerMilestones = careerAchievements.filter(
+    (a) => !a.id.startsWith(COUNTRY_SWEEP_ID_PREFIX) && !a.id.startsWith(HOME_TOWN_HEROES_ID_PREFIX),
+  )
   const countrySweepAchievements = careerAchievements.filter((a) =>
     a.id.startsWith(COUNTRY_SWEEP_ID_PREFIX),
+  )
+  const homeTownHeroesAchievements = careerAchievements.filter((a) =>
+    a.id.startsWith(HOME_TOWN_HEROES_ID_PREFIX),
   )
   const iconicAchievements = achievements.filter((a) => a.section === 'iconic')
   const seasonAchievements = achievements.filter((a) => a.section === 'season')
@@ -95,6 +105,8 @@ export function AchievementsPage() {
           <AchievementCard achievements={careerMilestones} />
           <p className={styles.sectionLabel}>Country Sweeps</p>
           <AchievementCard achievements={countrySweepAchievements} />
+          <p className={styles.sectionLabel}>Home Town Heroes</p>
+          <AchievementCard achievements={homeTownHeroesAchievements} />
         </>
       )}
 

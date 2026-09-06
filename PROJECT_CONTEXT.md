@@ -132,6 +132,28 @@ playing the real final round through the UI (auto-pick + skip-reveal) to confirm
 Season"/"Review Season" appear on the genuine final-round results page with correct data, and that
 "Finish Season" lands on the real "Start Season N+1" screen afterward.
 
+**Three more achievements added** (`src/game/achievements/deriveAchievements.ts`), on top of the
+Season/Career achievements built earlier this session — same patterns, no new architecture. Two
+new Seasons-tab entries: **Course Slam** (bogey-free at every one of the 16 real courses, each as
+an actual season round — deliberately a superset of Major Slam, since every course's one schedule
+slot per season already is its major round for the 4 major courses; roster-of-16,
+`compactRoster: true`) and **Century Men** (finish any completed season at 100 strokes under par
+or better — a plain progress badge, reusing the same `completedSeasons` array Back-to-Back already
+derives). New Career sub-group, **Home Town Heroes**: one achievement per country that has at
+least one real course located in it — `Course.countryIsoCode` matched against `Country.isoCode`
+finds 7 matches today (USA, Scotland, England, Northern Ireland, Spain, Italy, Australia) —
+unlocked once every one of that country's golfers has birdied-or-better at a course in their own
+country specifically (not anywhere, unlike the existing Sweep achievements). Two courses — Le Golf
+National (France) and the Earth Course (UAE) — have no matching country entry in `countries.json`
+at all, so they simply don't get one; nothing was invented to fill that gap, and the achievement
+would pick either up automatically if a France/UAE country is ever added later. `AchievementsPage.tsx`
+gained a third Career sub-list ("Home Town Heroes") using the exact same id-prefix-filter pattern
+the existing "Country Sweeps" split already uses. Verified with 180 passing tests (7 new) and in
+the browser with a seeded season exercising all three at once (partial Course Slam progress, a
+fully-unlocked Century Men from a −105 season, and partial progress on 3 of the 7 Home Town Heroes
+cards) — all counts/progress badges matched the seeded data exactly, including the Career/Seasons
+tab-bar unlocked-count badges.
+
 **Phase B (Supabase accounts) was explicitly ruled out by the user** — they floated monetizing Season
 Mode behind a paywall in a later session, got a feasibility/legal-risk writeup (payment processing
 costs, App Store rejection risk, and real legal exposure from charging for a product built on real
