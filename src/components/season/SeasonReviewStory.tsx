@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { SeasonReview, SeasonReviewNation } from '../../game/season/deriveSeasonReview'
 import { CountryFlag } from '../picker/CountryFlag'
 import { Confetti } from '../scorecard/Confetti'
-import { ScorecardGrid } from '../scorecard/ScorecardGrid'
+import { StackedScorecard } from '../share/StackedScorecard'
 import { CloseIcon } from '../ui/icons'
 import styles from './SeasonReviewStory.module.css'
 
@@ -322,7 +322,7 @@ export function SeasonReviewStory({ review, onClose }: SeasonReviewStoryProps) {
                   {formatToPar(review.bestRound.totalStrokesToPar)}
                 </div>
                 <div className={styles.scorecardWrap}>
-                  <ScorecardGrid holes={review.bestRound.holes} holeResults={review.bestRound.holeResults} />
+                  <StackedScorecard holes={review.bestRound.holes} holeResults={review.bestRound.holeResults} />
                 </div>
                 <p className={styles.slideSub}>Round {review.bestRound.roundNumber}</p>
               </>

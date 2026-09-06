@@ -335,12 +335,16 @@
   padding: 1px 7px;
 }
 
-/* ScorecardGrid/ScoreMark are styled entirely off CSS custom properties
+/* StackedScorecard/ScoreMark are styled entirely off CSS custom properties
    (--text/--bg/--border/--tier-*), so rather than duplicate the grid as a
    second bespoke component, pin those tokens locally to the app's own
    real dark-theme values — the grid then always renders in genuine dark
    mode here, independent of whichever theme the rest of the site is
-   currently in (this overlay is always dark, unlike the rest of the app). */
+   currently in (this overlay is always dark, unlike the rest of the app).
+   StackedScorecard (front 9 / back 9, two fixed-column grids) is used
+   here rather than ScorecardGrid (one wide scrollable table) since this
+   slide can't scroll — the share card faces exactly the same "static
+   image, no scrolling" constraint and already solved it this way. */
 .scorecardWrap {
   --text: #f3f4f6;
   --bg: #12131a;
