@@ -12,7 +12,9 @@ import { useSeasonLeaderboard } from '../../state/useSeasonLeaderboard'
 // useSeasonLeaderboard().open(seasonId, seasonNumber) and this renders
 // whichever season that was. Reuses PlayerLeaderboard wholesale (same
 // row/tier-chip styling as the Stats page's Top players leaderboard),
-// pinned to the top 5 with no "show all" toggle.
+// showing every golfer who played that season rather than just the top 5
+// — a season's roster is small enough that there's no need for a
+// "show all" toggle here the way the career-wide Stats page needs one.
 export function SeasonLeaderboardDrawer() {
   const { seasonId, seasonNumber, close } = useSeasonLeaderboard()
   const { content } = useGame()
@@ -29,7 +31,12 @@ export function SeasonLeaderboardDrawer() {
       title={`Season ${seasonNumber} Leaderboard`}
     >
       {stats && content.status === 'ready' && (
-        <PlayerLeaderboard ranking={stats.ranking} countries={content.countries} limit={5} showToggle={false} />
+        <PlayerLeaderboard
+          ranking={stats.ranking}
+          countries={content.countries}
+          limit={stats.ranking.length}
+          showToggle={false}
+        />
       )}
     </Drawer>
   )

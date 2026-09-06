@@ -74,12 +74,14 @@ golfers/countries/majors to unlock several of these and leave others partially/f
 expanding Full House's 125-row panel) before committing.
 
 **Season leaderboard drawer is now also built** — the "Top performer" stat on both the Season Hub
-hero card and each Seasons History card is now tappable, opening a left-side drawer showing the
-top 5 golfers for that season (points + tier-chip breakdown), reusing the Stats page's
-`PlayerLeaderboard.tsx` wholesale (generalized with new optional `limit`/`showToggle` props so the
-drawer can pin it to "top 5, no toggle" while the Stats page keeps its default "top 5 + show all"
-behavior unchanged). `deriveSeasonStats.ts` now also returns the full `ranking: GolferRanking[]`
-array (previously only kept index 0 for `topPerformer`). New drawer state
+hero card and each Seasons History card is now tappable, opening a left-side drawer showing
+*every* golfer who played that season (points + tier-chip breakdown; originally shipped capped at
+the top 5, then changed to the full list per user follow-up feedback — no "show all" toggle needed
+since nothing is hidden), reusing the Stats page's `PlayerLeaderboard.tsx` wholesale (generalized
+with new optional `limit`/`showToggle` props — the drawer passes `limit={ranking.length}` +
+`showToggle={false}`, while the Stats page keeps its own default "top 5 + show all" behavior
+unchanged). `deriveSeasonStats.ts` now also returns the full `ranking: GolferRanking[]` array
+(previously only kept index 0 for `topPerformer`). New drawer state
 (`SeasonLeaderboardContext`/`Provider`/`useSeasonLeaderboard`, mounted once in `App.tsx` alongside
 `SeasonLeaderboardDrawer`) mirrors the existing `RoundDetailContext` pattern exactly. Approved via
 a mockup-first pass (published Artifact, iterated once on a text-wrap layout bug) before being
@@ -87,7 +89,39 @@ built for real — the trigger shows "Top performer" as a 9px muted label stacke
 name + a small `›` chevron, to avoid the wrapping issue the mockup round caught. Seasons History's
 version calls `stopPropagation()` since that card is already a click-to-expand accordion —
 confirmed in the browser it doesn't also toggle the card. Playtested end-to-end with a seeded
-season covering 5+ golfers across different outcome tiers before being called done.
+season covering 7+ golfers across different outcome tiers before being called done.
+
+**Season Review is now also built** — a full-screen, Instagram-Stories-style recap shown
+automatically-available (not auto-opened) the moment a season's *final* round finishes, and
+re-openable any time from a completed card on Seasons History. Mockup-first as usual (published
+Artifact, iterated through several rounds: podium centering, swapping the CTA's rainbow gradient
+for an indigo→pink one rooted in the app's own `--accent` — explicitly "not the same as
+Instagram" — press-and-hold-to-pause plus an explicit pause button, and fixing the cover slide's
+16-round dot strip to two even rows of 8) before being built for real. New pure derivation,
+`src/game/season/deriveSeasonReview.ts` (`deriveSeasonReview(season, allCompletedSeasons, rounds,
+courses, countries)`), composes entirely from existing logic — `deriveSeasonStats` for bogey-free
+count + full ranking, `findBestRound` (`game/stats/deriveStats.ts`) scoped to the season for the
+standout round, `rankGolfers`'s per-golfer `countryId` summed for a top-3 nations podium — rather
+than re-deriving anything. New `src/components/season/SeasonReviewStory.tsx` renders 4 slides
+(score + round-dot strip, bogey-free count with a "new record" ribbon when it beats every prior
+season, best round via the real `ScorecardGrid` component with its CSS custom properties locally
+pinned to the app's own real dark-theme token values so it renders correctly regardless of the
+viewer's actual theme, top players + nations podium) with its own always-dark "Stories" visual
+language deliberately distinct from the rest of the app's light/dark surfaces — the timer/pause
+state is entirely ref-driven (not React state) so the `requestAnimationFrame` progress-bar loop
+never causes a 60fps re-render. `ReviewSeasonButton.tsx` is the shared CTA (`variant: 'button' |
+'chip'`). On `ResultsPage.tsx`, `isLastSeasonRound` (`seasonRoundContext` truthy + `activeSeason
+=== null`, since `finishDraft` nulls the latter synchronously only on genuine season completion)
+swaps the existing `continueSeason` button's label to "Finish Season" — no new `GameProvider`
+action needed, since `continueSeason` already navigates to the Season Hub, which for a null
+`activeSeason` already shows "Start Season N+1". Verified two ways in the browser: the Seasons
+History entry point via seeded `localStorage` (two completed seasons, confirmed the record
+ribbon/previous-season comparison against real seeded numbers, and that the chip's
+`stopPropagation()` doesn't also expand the card's accordion), and — since the results-page path
+needs real transient `GameProvider` state — by seeding a season at round 15/16 and actually
+playing the real final round through the UI (auto-pick + skip-reveal) to confirm "Finish
+Season"/"Review Season" appear on the genuine final-round results page with correct data, and that
+"Finish Season" lands on the real "Start Season N+1" screen afterward.
 
 **Phase B (Supabase accounts) was explicitly ruled out by the user** — they floated monetizing Season
 Mode behind a paywall in a later session, got a feasibility/legal-risk writeup (payment processing

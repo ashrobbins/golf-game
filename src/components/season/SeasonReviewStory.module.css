@@ -1,0 +1,474 @@
+/* Deliberately its own dark, immersive visual language (like Instagram
+   Stories / Spotify Wrapped), not the app's normal light/dark surface
+   theme — always dark, full-bleed, regardless of the viewer's theme. */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 1000;
+  overflow: hidden;
+  font-family: inherit;
+}
+
+.stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  max-width: 460px;
+  margin: 0 auto;
+}
+
+.slide {
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  color: #fff;
+  padding: 0 26px;
+  text-align: center;
+  overflow: hidden;
+}
+
+.slide.active {
+  display: flex;
+}
+
+.bgLayer {
+  position: absolute;
+  inset: -10%;
+  z-index: 0;
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding-bottom: 40px;
+  transition: opacity 0.2s ease;
+}
+
+.overlay.paused .content {
+  opacity: 0.5;
+}
+
+/* entrance animation per slide */
+.slide.active .content > * {
+  animation: riseIn 0.55s cubic-bezier(0.19, 1, 0.22, 1) both;
+}
+.slide.active .content > *:nth-child(1) {
+  animation-delay: 0.05s;
+}
+.slide.active .content > *:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.slide.active .content > *:nth-child(3) {
+  animation-delay: 0.25s;
+}
+.slide.active .content > *:nth-child(4) {
+  animation-delay: 0.35s;
+}
+.slide.active .content > *:nth-child(5) {
+  animation-delay: 0.45s;
+}
+
+@keyframes riseIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slide.active .content > * {
+    animation: none;
+  }
+  .content {
+    transition: none;
+  }
+}
+
+.progressRow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 5;
+  display: flex;
+  gap: 5px;
+  padding: 14px 14px 0;
+}
+
+.segment {
+  flex: 1;
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.28);
+  overflow: hidden;
+}
+
+.fill {
+  height: 100%;
+  width: 0%;
+  background: #fff;
+  border-radius: 2px;
+}
+
+.fillDone {
+  width: 100%;
+}
+
+.header {
+  position: absolute;
+  top: 26px;
+  left: 0;
+  right: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.iconButton {
+  background: rgba(255, 255, 255, 0.14);
+  border: none;
+  color: #fff;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tapZones {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+}
+
+.zone {
+  flex: 1;
+  touch-action: manipulation;
+}
+
+.navArrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 4;
+  background: rgba(255, 255, 255, 0.12);
+  border: none;
+  color: #fff;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  font-size: 16px;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.navArrowLeft {
+  left: 10px;
+}
+
+.navArrowRight {
+  right: 10px;
+}
+
+@media (min-width: 640px) {
+  .navArrow {
+    display: flex;
+  }
+}
+
+.eyebrow {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+.bigNumber {
+  font-weight: 800;
+  font-size: 88px;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.bigNumber.small {
+  font-size: 64px;
+}
+
+.bigNumber.gold {
+  color: var(--tier-gold);
+  text-shadow: 0 0 40px color-mix(in srgb, var(--tier-gold) 60%, transparent);
+}
+
+.slideTitle {
+  font-size: 22px;
+  font-weight: 800;
+  max-width: 320px;
+}
+
+.slideSub {
+  font-size: 14.5px;
+  opacity: 0.82;
+  max-width: 300px;
+  line-height: 1.5;
+}
+
+.recordRibbon {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 999px;
+  padding: 7px 16px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  backdrop-filter: blur(6px);
+}
+
+/* Slide 1: cover */
+.slide1 .bgLayer {
+  background: radial-gradient(circle at 50% 20%, #2c2560, #0c0b16 65%);
+}
+
+/* 16 rounds -> two even rows of 8 (9 doesn't divide 16 evenly). 1fr
+   columns + justify-items:center spread the dots evenly across the full
+   row width. Any other schedule length just wraps the same way. */
+.roundDots {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  justify-items: center;
+  row-gap: 12px;
+  width: 100%;
+  max-width: 320px;
+}
+
+.dot {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+}
+
+.dot_under {
+  background: var(--tier-green);
+}
+
+.dot_even {
+  background: var(--tier-grey);
+}
+
+.dot_over {
+  background: var(--tier-red);
+}
+
+.dotMajor {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.55);
+}
+
+/* Slide 2: bogey-free */
+.slide2 .bgLayer {
+  background: radial-gradient(circle at 50% 25%, #3f3110, #14100a 65%);
+}
+
+/* Slide 3: best round */
+.slide3 .bgLayer {
+  background: radial-gradient(circle at 50% 25%, #123626, #0a1410 65%);
+}
+
+.courseTag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  opacity: 0.9;
+}
+
+.majorPill {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--tier-gold);
+  border: 1px solid var(--tier-gold);
+  border-radius: 999px;
+  padding: 1px 7px;
+}
+
+/* ScorecardGrid/ScoreMark are styled entirely off CSS custom properties
+   (--text/--bg/--border/--tier-*), so rather than duplicate the grid as a
+   second bespoke component, pin those tokens locally to the app's own
+   real dark-theme values — the grid then always renders in genuine dark
+   mode here, independent of whichever theme the rest of the site is
+   currently in (this overlay is always dark, unlike the rest of the app). */
+.scorecardWrap {
+  --text: #f3f4f6;
+  --bg: #12131a;
+  --border: #2e303a;
+  --tier-gold: #e0b83a;
+  --tier-green: #4caf78;
+  --tier-grey: #565863;
+  --tier-red: #e0645a;
+  width: 100%;
+  max-width: 320px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* Slide 4: top performers */
+.slide4 .bgLayer {
+  background: radial-gradient(circle at 50% 15%, #2a1a3d, #0c0a16 65%);
+}
+
+.performerSection {
+  width: 100%;
+  max-width: 340px;
+  text-align: left;
+}
+
+.performerHeading {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.65;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.playerRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.playerRow:last-child {
+  border-bottom: none;
+}
+
+.rank {
+  width: 18px;
+  font-size: 12px;
+  font-weight: 800;
+  opacity: 0.6;
+  font-variant-numeric: tabular-nums;
+}
+
+.playerName {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13.5px;
+  font-weight: 700;
+}
+
+.playerPoints {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--tier-green);
+  font-variant-numeric: tabular-nums;
+}
+
+.podium {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 300px;
+  margin: 4px auto 0;
+}
+
+.podiumSlot {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.podiumFlag {
+  font-size: 22px;
+}
+
+.podiumBar {
+  width: 100%;
+  border-radius: 8px 8px 0 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.08));
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 6px;
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.podiumSlot.gold .podiumBar {
+  height: 74px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--tier-gold) 55%, transparent), rgba(255, 255, 255, 0.06));
+}
+
+.podiumSlot.silver .podiumBar {
+  height: 54px;
+}
+
+.podiumSlot.bronze .podiumBar {
+  height: 40px;
+  background: linear-gradient(180deg, color-mix(in srgb, #c17a4a 55%, transparent), rgba(255, 255, 255, 0.06));
+}
+
+.podiumName {
+  font-size: 11px;
+  font-weight: 700;
+  opacity: 0.85;
+  text-align: center;
+}
+
+.podiumPoints {
+  font-size: 10px;
+  opacity: 0.6;
+}

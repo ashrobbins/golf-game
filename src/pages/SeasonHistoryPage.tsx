@@ -1,8 +1,11 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import type { CountriesContent, Course } from '../content/types'
 import { CountryFlag } from '../components/picker/CountryFlag'
+import { ReviewSeasonButton } from '../components/season/ReviewSeasonButton'
+import { SeasonReviewStory } from '../components/season/SeasonReviewStory'
 import { Button } from '../components/ui/Button'
 import { ChevronLeftIcon } from '../components/ui/icons'
+import { deriveSeasonReview } from '../game/season/deriveSeasonReview'
 import { deriveSeasonStats } from '../game/season/deriveSeasonStats'
 import type { ActiveSeason, CompletedSeason } from '../game/season/types'
 import { loadStats } from '../game/stats/storage'
@@ -25,6 +28,7 @@ function SeasonCard({
   isActive,
   onResume,
   onOpenRound,
+  onReview,
 }: {
   season: ActiveSeason | CompletedSeason
   rounds: RoundRecord[]
@@ -33,6 +37,7 @@ function SeasonCard({
   isActive: boolean
   onResume?: () => void
   onOpenRound: (record: RoundRecord) => void
+  onReview?: (season: ActiveSeason | CompletedSeason) => void
 }) {
   const [isExpanded, setIsExpanded] = useState(false)
   const stats = deriveSeasonStats(season.id, rounds, countries)
@@ -107,6 +112,15 @@ function SeasonCard({
             <span className={styles.metaStatValue}>{stats.bogeyFreeRounds}</span> bogey-free round
             {stats.bogeyFreeRounds === 1 ? '' : 's'}
           </div>
+          {onReview && !isActive && (
+            <ReviewSeasonButton
+              variant="chip"
+              onClick={(e) => {
+                e.stopPropagation()
+                onReview(season)
+              }}
+            />
+          )}
         </div>
       </div>
       {isActive && onResume && (
@@ -166,6 +180,12 @@ export function SeasonHistoryPage() {
   const { content, activeSeason, seasonArchive, viewSeasons } = useGame()
   const [rounds] = useState(() => loadStats().rounds)
   const { open: openRound } = useRoundDetail()
+  const [reviewSeason, setReviewSeason] = useState<CompletedSeason | null>(null)
+
+  const review = useMemo(() => {
+    if (!reviewSeason || content.status !== 'ready') return null
+    return deriveSeasonReview(reviewSeason, seasonArchive, rounds, content.courses.courses, content.countries)
+  }, [reviewSeason, seasonArchive, rounds, content])
 
   if (content.status !== 'ready') return null
 
@@ -205,10 +225,12 @@ export function SeasonHistoryPage() {
               courseIndex={courseIndex}
               isActive={false}
               onOpenRound={openRound}
+              onReview={(s) => setReviewSeason(s as CompletedSeason)}
             />
           ))}
         </div>
       )}
+      {review && <SeasonReviewStory review={review} onClose={() => setReviewSeason(null)} />}
     </div>
   )
 }
