@@ -10,6 +10,11 @@ const TOP_COUNT = 5
 interface PlayerLeaderboardProps {
   ranking: GolferRanking[]
   countries: CountriesContent
+  // How many rows to show before the "Show all" toggle. Defaults to
+  // TOP_COUNT — the season leaderboard drawer passes a fixed 5 with
+  // showToggle=false for a top-5-only view.
+  limit?: number
+  showToggle?: boolean
 }
 
 function formatPoints(points: number): string {
@@ -59,7 +64,12 @@ function TierBreakdown({ tierCounts }: { tierCounts: GolferRanking['tierCounts']
 // LEADERBOARD_MIN_HOLES_PLAYED in game/stats/deriveStats.ts for the scoring
 // rules) — shows the top 5 by default with a toggle to reveal everyone
 // who's cleared the minimum-holes-played bar.
-export function PlayerLeaderboard({ ranking, countries }: PlayerLeaderboardProps) {
+export function PlayerLeaderboard({
+  ranking,
+  countries,
+  limit = TOP_COUNT,
+  showToggle = true,
+}: PlayerLeaderboardProps) {
   const [showAll, setShowAll] = useState(false)
 
   const golferIndex = useMemo(() => {
@@ -84,7 +94,7 @@ export function PlayerLeaderboard({ ranking, countries }: PlayerLeaderboardProps
     )
   }
 
-  const visible = showAll ? ranking : ranking.slice(0, TOP_COUNT)
+  const visible = showAll ? ranking : ranking.slice(0, limit)
 
   return (
     <>
@@ -114,7 +124,7 @@ export function PlayerLeaderboard({ ranking, countries }: PlayerLeaderboardProps
           )
         })}
       </ol>
-      {ranking.length > TOP_COUNT && (
+      {showToggle && ranking.length > limit && (
         <Button variant="secondary" className={styles.toggle} onClick={() => setShowAll((v) => !v)}>
           {showAll ? 'Show top 5' : `Show all ${ranking.length} players`}
         </Button>

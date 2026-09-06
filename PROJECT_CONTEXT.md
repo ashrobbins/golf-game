@@ -73,6 +73,22 @@ before. Playtested in the browser with a seeded mix of season + Free Play rounds
 golfers/countries/majors to unlock several of these and leave others partially/fully locked (including
 expanding Full House's 125-row panel) before committing.
 
+**Season leaderboard drawer is now also built** — the "Top performer" stat on both the Season Hub
+hero card and each Seasons History card is now tappable, opening a left-side drawer showing the
+top 5 golfers for that season (points + tier-chip breakdown), reusing the Stats page's
+`PlayerLeaderboard.tsx` wholesale (generalized with new optional `limit`/`showToggle` props so the
+drawer can pin it to "top 5, no toggle" while the Stats page keeps its default "top 5 + show all"
+behavior unchanged). `deriveSeasonStats.ts` now also returns the full `ranking: GolferRanking[]`
+array (previously only kept index 0 for `topPerformer`). New drawer state
+(`SeasonLeaderboardContext`/`Provider`/`useSeasonLeaderboard`, mounted once in `App.tsx` alongside
+`SeasonLeaderboardDrawer`) mirrors the existing `RoundDetailContext` pattern exactly. Approved via
+a mockup-first pass (published Artifact, iterated once on a text-wrap layout bug) before being
+built for real — the trigger shows "Top performer" as a 9px muted label stacked above the golfer's
+name + a small `›` chevron, to avoid the wrapping issue the mockup round caught. Seasons History's
+version calls `stopPropagation()` since that card is already a click-to-expand accordion —
+confirmed in the browser it doesn't also toggle the card. Playtested end-to-end with a seeded
+season covering 5+ golfers across different outcome tiers before being called done.
+
 **Phase B (Supabase accounts) was explicitly ruled out by the user** — they floated monetizing Season
 Mode behind a paywall in a later session, got a feasibility/legal-risk writeup (payment processing
 costs, App Store rejection risk, and real legal exposure from charging for a product built on real

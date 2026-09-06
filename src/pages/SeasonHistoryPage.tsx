@@ -9,6 +9,7 @@ import { loadStats } from '../game/stats/storage'
 import type { RoundRecord } from '../game/stats/types'
 import { useGame } from '../state/useGame'
 import { useRoundDetail } from '../state/useRoundDetail'
+import { useSeasonLeaderboard } from '../state/useSeasonLeaderboard'
 import styles from './SeasonHistoryPage.module.css'
 
 function formatToPar(score: number) {
@@ -36,6 +37,7 @@ function SeasonCard({
   const [isExpanded, setIsExpanded] = useState(false)
   const stats = deriveSeasonStats(season.id, rounds, countries)
   const totalScore = season.results.reduce((sum, r) => sum + r.totalStrokesToPar, 0)
+  const { open: openLeaderboard } = useSeasonLeaderboard()
 
   function toggle() {
     setIsExpanded((open) => !open)
@@ -81,9 +83,26 @@ function SeasonCard({
           </div>
         </div>
         <div className={styles.metaStats}>
-          <div className={styles.metaStat}>
-            Top performer <span className={styles.metaStatValue}>{stats.topPerformer?.name ?? '—'}</span>
-          </div>
+          {stats.topPerformer ? (
+            <button
+              type="button"
+              className={styles.tapButton}
+              onClick={(e) => {
+                e.stopPropagation()
+                openLeaderboard(season.id, season.seasonNumber)
+              }}
+            >
+              <span className={styles.tapLabel}>Top performer</span>
+              <span className={styles.tapNameRow}>
+                {stats.topPerformer.name}
+                <span aria-hidden>›</span>
+              </span>
+            </button>
+          ) : (
+            <div className={styles.metaStat}>
+              Top performer <span className={styles.metaStatValue}>—</span>
+            </div>
+          )}
           <div className={styles.metaStat}>
             <span className={styles.metaStatValue}>{stats.bogeyFreeRounds}</span> bogey-free round
             {stats.bogeyFreeRounds === 1 ? '' : 's'}

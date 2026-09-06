@@ -3,6 +3,7 @@ import { HowToPlayDrawer } from './components/nav/HowToPlayDrawer'
 import { MobileNavDrawer } from './components/nav/MobileNavDrawer'
 import { NavBar } from './components/nav/NavBar'
 import { SettingsDrawer } from './components/nav/SettingsDrawer'
+import { SeasonLeaderboardDrawer } from './components/season/SeasonLeaderboardDrawer'
 import { RoundDetailDrawer } from './components/stats/RoundDetailDrawer'
 import { Footer } from './components/ui/Footer'
 import { AchievementsPage } from './pages/AchievementsPage'
@@ -18,6 +19,7 @@ import { StatsPage } from './pages/StatsPage'
 import { GameProvider } from './state/GameProvider'
 import { OverlayProvider } from './state/OverlayProvider'
 import { RoundDetailProvider } from './state/RoundDetailProvider'
+import { SeasonLeaderboardProvider } from './state/SeasonLeaderboardProvider'
 import { useGame } from './state/useGame'
 import styles from './App.module.css'
 
@@ -64,15 +66,18 @@ function App() {
     <OverlayProvider>
       <GameProvider>
         <RoundDetailProvider>
-          <NavBar />
-          <div className={styles.page}>
-            <GameView />
-          </div>
-          <Footer />
-          <HowToPlayDrawer />
-          <SettingsDrawer />
-          <RoundDetailDrawer />
-          <MobileNavDrawer />
+          <SeasonLeaderboardProvider>
+            <NavBar />
+            <div className={styles.page}>
+              <GameView />
+            </div>
+            <Footer />
+            <HowToPlayDrawer />
+            <SettingsDrawer />
+            <RoundDetailDrawer />
+            <SeasonLeaderboardDrawer />
+            <MobileNavDrawer />
+          </SeasonLeaderboardProvider>
         </RoundDetailProvider>
       </GameProvider>
     </OverlayProvider>

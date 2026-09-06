@@ -4,6 +4,7 @@ import { Button } from '../components/ui/Button'
 import { deriveSeasonStats } from '../game/season/deriveSeasonStats'
 import { loadStats } from '../game/stats/storage'
 import { useGame } from '../state/useGame'
+import { useSeasonLeaderboard } from '../state/useSeasonLeaderboard'
 import styles from './SeasonHubPage.module.css'
 
 function formatToPar(score: number) {
@@ -14,6 +15,7 @@ function formatToPar(score: number) {
 export function SeasonHubPage() {
   const { content, activeSeason, seasonArchive, startSeason, startSeasonRound, viewSeasonHistory } = useGame()
   const [rounds] = useState(() => loadStats().rounds)
+  const { open: openLeaderboard } = useSeasonLeaderboard()
 
   if (content.status !== 'ready') return null
   const courseIndex = new Map(content.courses.courses.map((c) => [c.id, c]))
@@ -110,10 +112,23 @@ export function SeasonHubPage() {
           <p className={styles.scoreCardValue}>{formatToPar(totalScore)}</p>
         </div>
         <div className={styles.metaStats}>
-          <div className={styles.metaStat}>
-            Top performer{' '}
-            <span className={styles.metaStatValue}>{stats.topPerformer?.name ?? '—'}</span>
-          </div>
+          {stats.topPerformer ? (
+            <button
+              type="button"
+              className={styles.tapButton}
+              onClick={() => openLeaderboard(activeSeason.id, activeSeason.seasonNumber)}
+            >
+              <span className={styles.tapLabel}>Top performer</span>
+              <span className={styles.tapNameRow}>
+                {stats.topPerformer.name}
+                <span aria-hidden>›</span>
+              </span>
+            </button>
+          ) : (
+            <div className={styles.metaStat}>
+              Top performer <span className={styles.metaStatValue}>—</span>
+            </div>
+          )}
           <div className={styles.metaStat}>
             <span className={styles.metaStatValue}>{stats.bogeyFreeRounds}</span> bogey-free round
             {stats.bogeyFreeRounds === 1 ? '' : 's'}

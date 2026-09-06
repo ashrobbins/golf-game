@@ -67,5 +67,17 @@ describe('deriveSeasonStats', () => {
     const stats = deriveSeasonStats('season-1', [], COUNTRIES)
     expect(stats.topPerformer).toBeNull()
     expect(stats.bogeyFreeRounds).toBe(0)
+    expect(stats.ranking).toEqual([])
+  })
+
+  it('exposes the full points ranking, not just the top entry', () => {
+    const rounds = [
+      round({ holeResults: [hole('usa-woods', 'eagle')] }),
+      round({ holeResults: [hole('usa-nicklaus', 'birdie')] }),
+    ]
+    const stats = deriveSeasonStats('season-1', rounds, COUNTRIES)
+    expect(stats.ranking.map((r) => r.golferId)).toEqual(['usa-woods', 'usa-nicklaus'])
+    expect(stats.ranking[0].points).toBe(4)
+    expect(stats.ranking[1].points).toBe(2)
   })
 })
