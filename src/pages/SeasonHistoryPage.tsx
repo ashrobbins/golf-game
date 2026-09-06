@@ -160,8 +160,15 @@ function SeasonCard({
                     {entry.isMajor && <span className={styles.majorTag}>Major</span>}
                   </span>
                   {result ? (
-                    <span className={result.totalStrokesToPar > 0 ? styles.scoreOver : styles.scoreUnder}>
-                      {formatToPar(result.totalStrokesToPar)}
+                    <span className={styles.scoreWithTrophy}>
+                      {result.isBogeyFreeRound && (
+                        <span className={styles.bogeyFreeIcon} aria-hidden>
+                          🏆
+                        </span>
+                      )}
+                      <span className={result.totalStrokesToPar > 0 ? styles.scoreOver : styles.scoreUnder}>
+                        {formatToPar(result.totalStrokesToPar)}
+                      </span>
                     </span>
                   ) : (
                     <span className={styles.meta}>—</span>

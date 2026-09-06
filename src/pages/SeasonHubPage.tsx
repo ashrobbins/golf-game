@@ -172,8 +172,15 @@ export function SeasonHubPage() {
                 {course && <div className={styles.roundMeta}>Par {course.par}</div>}
               </div>
               {result ? (
-                <span className={result.totalStrokesToPar > 0 ? styles.scoreOver : styles.scoreUnder}>
-                  {formatToPar(result.totalStrokesToPar)}
+                <span className={styles.scoreWithTrophy}>
+                  {result.isBogeyFreeRound && (
+                    <span className={styles.bogeyFreeIcon} aria-hidden>
+                      🏆
+                    </span>
+                  )}
+                  <span className={result.totalStrokesToPar > 0 ? styles.scoreOver : styles.scoreUnder}>
+                    {formatToPar(result.totalStrokesToPar)}
+                  </span>
                 </span>
               ) : isCurrent ? (
                 <button type="button" className={styles.playCta} onClick={startSeasonRound}>

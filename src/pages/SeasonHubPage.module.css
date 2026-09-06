@@ -303,6 +303,18 @@
   margin-top: 1px;
 }
 
+.scoreWithTrophy {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.bogeyFreeIcon {
+  font-size: 10px;
+  line-height: 1;
+}
+
 .scoreOver,
 .scoreUnder {
   flex: 0 0 auto;
