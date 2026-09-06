@@ -102,6 +102,17 @@ export function SeasonReviewStory({ review, onClose }: SeasonReviewStoryProps) {
       onCloseRef.current()
       return
     }
+    // The progress tick writes width as an inline style, which beats the
+    // .fillDone CSS class on specificity alone — so leaving a slide before
+    // its rAF loop reaches 100% (tapping/skipping ahead, or navigating
+    // back) would otherwise leave that segment frozen at whatever partial
+    // width it last painted. Explicitly sync every segment's inline width
+    // to its new done/upcoming state synchronously (not waiting on the
+    // next animation frame) so none of them go stale, even for one frame.
+    fillRefs.current.forEach((fillEl, i) => {
+      if (!fillEl) return
+      fillEl.style.width = i < index ? '100%' : '0%'
+    })
     currentRef.current = index
     setCurrent(index)
     accumulatedMsRef.current = 0
