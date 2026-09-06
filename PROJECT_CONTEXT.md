@@ -94,19 +94,28 @@ season covering 7+ golfers across different outcome tiers before being called do
 **Season Review is now also built** — a full-screen, Instagram-Stories-style recap shown
 automatically-available (not auto-opened) the moment a season's *final* round finishes, and
 re-openable any time from a completed card on Seasons History. Mockup-first as usual (published
-Artifact, iterated through several rounds: podium centering, swapping the CTA's rainbow gradient
-for an indigo→pink one rooted in the app's own `--accent` — explicitly "not the same as
-Instagram" — press-and-hold-to-pause plus an explicit pause button, and fixing the cover slide's
-16-round dot strip to two even rows of 8) before being built for real. New pure derivation,
-`src/game/season/deriveSeasonReview.ts` (`deriveSeasonReview(season, allCompletedSeasons, rounds,
-courses, countries)`), composes entirely from existing logic — `deriveSeasonStats` for bogey-free
-count + full ranking, `findBestRound` (`game/stats/deriveStats.ts`) scoped to the season for the
-standout round, `rankGolfers`'s per-golfer `countryId` summed for a top-3 nations podium — rather
-than re-deriving anything. New `src/components/season/SeasonReviewStory.tsx` renders 4 slides
-(score + round-dot strip, bogey-free count with a "new record" ribbon when it beats every prior
-season, best round via the real `ScorecardGrid` component with its CSS custom properties locally
-pinned to the app's own real dark-theme token values so it renders correctly regardless of the
-viewer's actual theme, top players + nations podium) with its own always-dark "Stories" visual
+Artifact, iterated through many rounds: podium centering, swapping the CTA's rainbow gradient for
+an indigo→pink one rooted in the app's own `--accent` — explicitly "not the same as Instagram" —
+press-and-hold-to-pause plus an explicit pause button, replacing the cover slide's 16-round dot
+strip with a two-column (8-and-8) table of every round's course + score once the user asked to
+"show more of what actually happened," swapping the best-round slide's scorecard for
+`StackedScorecard` — the share card's front-9/back-9 grid — once `ScorecardGrid`'s single
+horizontally-scrolling row turned out to hide most of the round on a static slide that can't
+scroll, and adding a tiny "Best season ever: −N in Season X" caption under the cover slide's score)
+before being built for real. New pure derivation, `src/game/season/deriveSeasonReview.ts`
+(`deriveSeasonReview(season, allCompletedSeasons, rounds, courses, countries)`), composes entirely
+from existing logic — `deriveSeasonStats` for bogey-free count + full ranking, `findBestRound`
+(`game/stats/deriveStats.ts`) scoped to the season for the standout round, `rankGolfers`'s
+per-golfer `countryId` summed for a top-3 nations podium — rather than re-deriving anything. It also
+computes `bestSeasonEver`/`isBestSeasonEver` (lowest score-to-par across every completed season
+including this one, ties won by the earlier season) — when the reviewed season *is* the record, the
+cover slide suppresses its "N strokes better/worse than Season X" comparison line, since the new
+"Best season ever" caption already says so; that comparison line only shows for a season that isn't
+the all-time best. New `src/components/season/SeasonReviewStory.tsx` renders 4 slides (score +
+best-ever caption + per-round course/score table, bogey-free count with a "new record" ribbon when
+it beats every prior season, best round via `StackedScorecard` with its CSS custom properties
+locally pinned to the app's own real dark-theme token values so it renders correctly regardless of
+the viewer's actual theme, top players + nations podium) with its own always-dark "Stories" visual
 language deliberately distinct from the rest of the app's light/dark surfaces — the timer/pause
 state is entirely ref-driven (not React state) so the `requestAnimationFrame` progress-bar loop
 never causes a 60fps re-render. `ReviewSeasonButton.tsx` is the shared CTA (`variant: 'button' |

@@ -190,7 +190,7 @@ describe('deriveSeasonReview', () => {
     ])
   })
 
-  it('classifies round-dot outcomes from schedule + results, including majors', () => {
+  it('classifies each round with its course name, score, and outcome, including majors', () => {
     const currentSeason = completedSeason({
       id: 'season-a',
       seasonNumber: 1,
@@ -201,9 +201,57 @@ describe('deriveSeasonReview', () => {
       ],
     })
     const review = deriveSeasonReview(currentSeason, [currentSeason], [], COURSES, COUNTRIES)
-    expect(review.roundDots).toEqual([
-      { roundNumber: 1, isMajor: true, outcome: 'under' },
-      { roundNumber: 2, isMajor: false, outcome: 'over' },
+    expect(review.rounds).toEqual([
+      { roundNumber: 1, courseName: 'Augusta National', isMajor: true, totalStrokesToPar: -2, outcome: 'under' },
+      { roundNumber: 2, courseName: 'Carnoustie', isMajor: false, totalStrokesToPar: 1, outcome: 'over' },
     ])
+  })
+
+  it('flags the reviewed season as the all-time best when it beats every other season', () => {
+    const priorSeason = completedSeason({
+      id: 'season-a',
+      seasonNumber: 1,
+      results: [resultEntry({ roundNumber: 1, totalStrokesToPar: -3 }), resultEntry({ roundNumber: 2, totalStrokesToPar: 0 })],
+    })
+    const currentSeason = completedSeason({
+      id: 'season-b',
+      seasonNumber: 2,
+      results: [resultEntry({ roundNumber: 1, totalStrokesToPar: -5 }), resultEntry({ roundNumber: 2, totalStrokesToPar: -2 })],
+    })
+    const review = deriveSeasonReview(currentSeason, [priorSeason, currentSeason], [], COURSES, COUNTRIES)
+    expect(review.bestSeasonEver).toEqual({ seasonNumber: 2, totalStrokesToPar: -7 })
+    expect(review.isBestSeasonEver).toBe(true)
+  })
+
+  it('does not flag the reviewed season as the all-time best when another season did better', () => {
+    const priorSeason = completedSeason({
+      id: 'season-a',
+      seasonNumber: 1,
+      results: [resultEntry({ roundNumber: 1, totalStrokesToPar: -10 }), resultEntry({ roundNumber: 2, totalStrokesToPar: -10 })],
+    })
+    const currentSeason = completedSeason({
+      id: 'season-b',
+      seasonNumber: 2,
+      results: [resultEntry({ roundNumber: 1, totalStrokesToPar: -1 }), resultEntry({ roundNumber: 2, totalStrokesToPar: 0 })],
+    })
+    const review = deriveSeasonReview(currentSeason, [priorSeason, currentSeason], [], COURSES, COUNTRIES)
+    expect(review.bestSeasonEver).toEqual({ seasonNumber: 1, totalStrokesToPar: -20 })
+    expect(review.isBestSeasonEver).toBe(false)
+  })
+
+  it('breaks a tied best score in favor of the earlier season', () => {
+    const priorSeason = completedSeason({
+      id: 'season-a',
+      seasonNumber: 1,
+      results: [resultEntry({ roundNumber: 1, totalStrokesToPar: -2 }), resultEntry({ roundNumber: 2, totalStrokesToPar: -2 })],
+    })
+    const currentSeason = completedSeason({
+      id: 'season-b',
+      seasonNumber: 2,
+      results: [resultEntry({ roundNumber: 1, totalStrokesToPar: -2 }), resultEntry({ roundNumber: 2, totalStrokesToPar: -2 })],
+    })
+    const review = deriveSeasonReview(currentSeason, [priorSeason, currentSeason], [], COURSES, COUNTRIES)
+    expect(review.bestSeasonEver).toEqual({ seasonNumber: 1, totalStrokesToPar: -4 })
+    expect(review.isBestSeasonEver).toBe(false)
   })
 })

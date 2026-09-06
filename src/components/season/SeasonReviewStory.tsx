@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import type { SeasonReview, SeasonReviewNation } from '../../game/season/deriveSeasonReview'
+import type { SeasonReview, SeasonReviewNation, SeasonReviewRound } from '../../game/season/deriveSeasonReview'
 import { CountryFlag } from '../picker/CountryFlag'
 import { Confetti } from '../scorecard/Confetti'
 import { StackedScorecard } from '../share/StackedScorecard'
@@ -22,6 +22,20 @@ function formatToPar(score: number) {
 
 function formatPoints(points: number) {
   return points > 0 ? `+${points}` : String(points)
+}
+
+const COURSE_SCORE_CLASS: Record<SeasonReviewRound['outcome'], string> = {
+  under: styles.courseScoreUnder,
+  even: styles.courseScoreEven,
+  over: styles.courseScoreOver,
+}
+
+// 16 rounds -> two columns of 8 (9 doesn't divide 16 evenly — 8 is the
+// closest even split, same reasoning as StackedScorecard's front-9/back-9
+// split for holes).
+function buildCourseColumns(rounds: SeasonReviewRound[]) {
+  const half = rounds.length / 2
+  return [rounds.slice(0, half), rounds.slice(half)]
 }
 
 // Reorders 1st/2nd/3rd into the podium's visual left-to-right layout
@@ -257,19 +271,31 @@ export function SeasonReviewStory({ review, onClose }: SeasonReviewStoryProps) {
             <p className={styles.eyebrow}>
               Season {review.seasonNumber} · Complete
             </p>
-            <div className={styles.bigNumber}>{formatToPar(review.totalStrokesToPar)}</div>
-            <p className={styles.slideTitle}>to par across all {review.roundDots.length} rounds</p>
-            <div className={styles.roundDots}>
-              {review.roundDots.map((dot) => (
-                <span
-                  key={dot.roundNumber}
-                  className={[styles.dot, styles[`dot_${dot.outcome}`], dot.isMajor && styles.dotMajor]
-                    .filter(Boolean)
-                    .join(' ')}
-                />
+            <div className={`${styles.bigNumber} ${styles.medium}`}>{formatToPar(review.totalStrokesToPar)}</div>
+            <p className={styles.bestEverCaption}>
+              Best season ever: {formatToPar(review.bestSeasonEver.totalStrokesToPar)} in Season{' '}
+              {review.bestSeasonEver.seasonNumber}
+            </p>
+            <p className={styles.slideTitle}>to par across all {review.rounds.length} rounds</p>
+            <div className={styles.courseTable}>
+              {buildCourseColumns(review.rounds).map((column, colIndex) => (
+                <div key={colIndex} className={styles.courseCol}>
+                  {column.map((r) => (
+                    <div
+                      key={r.roundNumber}
+                      className={r.isMajor ? `${styles.courseRow} ${styles.isMajor}` : styles.courseRow}
+                    >
+                      <span className={styles.courseRoundNum}>{r.roundNumber}</span>
+                      <span className={styles.courseName}>{r.courseName}</span>
+                      <span className={`${styles.courseScore} ${COURSE_SCORE_CLASS[r.outcome]}`}>
+                        {formatToPar(r.totalStrokesToPar)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
               ))}
             </div>
-            {previousDiff !== null && review.previousSeason && (
+            {!review.isBestSeasonEver && previousDiff !== null && review.previousSeason && (
               <p className={styles.slideSub}>
                 {previousDiff < 0
                   ? `Your best season yet — ${Math.abs(previousDiff)} strokes better than Season ${review.previousSeason.seasonNumber}.`

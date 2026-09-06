@@ -76,6 +76,9 @@
 .slide.active .content > *:nth-child(5) {
   animation-delay: 0.45s;
 }
+.slide.active .content > *:nth-child(6) {
+  animation-delay: 0.55s;
+}
 
 @keyframes riseIn {
   from {
@@ -233,9 +236,21 @@
   font-size: 64px;
 }
 
+.bigNumber.medium {
+  font-size: 56px;
+}
+
 .bigNumber.gold {
   color: var(--tier-gold);
   text-shadow: 0 0 40px color-mix(in srgb, var(--tier-gold) 60%, transparent);
+}
+
+.bestEverCaption {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  opacity: 0.6;
+  margin-top: -6px;
 }
 
 .slideTitle {
@@ -271,38 +286,72 @@
   background: radial-gradient(circle at 50% 20%, #2c2560, #0c0b16 65%);
 }
 
-/* 16 rounds -> two even rows of 8 (9 doesn't divide 16 evenly). 1fr
-   columns + justify-items:center spread the dots evenly across the full
-   row width. Any other schedule length just wraps the same way. */
-.roundDots {
+/* 16 rounds -> two columns of 8 (9 doesn't divide 16 evenly — 8 is the
+   closest even split). Left column = rounds 1-8, right = 9-16. */
+.courseTable {
   display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  justify-items: center;
-  row-gap: 12px;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 14px;
   width: 100%;
-  max-width: 320px;
+  max-width: 340px;
 }
 
-.dot {
-  width: 13px;
-  height: 13px;
-  border-radius: 50%;
+.courseCol {
+  display: flex;
+  flex-direction: column;
 }
 
-.dot_under {
-  background: var(--tier-green);
+.courseRow {
+  display: grid;
+  grid-template-columns: 13px 1fr auto;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.dot_even {
-  background: var(--tier-grey);
+.courseRow:last-child {
+  border-bottom: none;
 }
 
-.dot_over {
-  background: var(--tier-red);
+.courseRoundNum {
+  font-size: 8px;
+  font-weight: 700;
+  opacity: 0.5;
+  font-variant-numeric: tabular-nums;
 }
 
-.dotMajor {
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.55);
+.courseName {
+  font-size: 9.5px;
+  font-weight: 600;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.courseRow.isMajor .courseName {
+  color: var(--tier-gold);
+  font-weight: 800;
+}
+
+.courseScore {
+  font-size: 10.5px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.courseScoreUnder {
+  color: var(--tier-green);
+}
+
+.courseScoreEven {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.courseScoreOver {
+  color: var(--tier-red);
 }
 
 /* Slide 2: bogey-free */

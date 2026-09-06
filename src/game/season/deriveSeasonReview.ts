@@ -9,9 +9,11 @@ import type { CompletedSeason } from './types'
 const TOP_PLAYERS_COUNT = 5
 const TOP_NATIONS_COUNT = 3
 
-export interface SeasonReviewRoundDot {
+export interface SeasonReviewRound {
   roundNumber: number
+  courseName: string
   isMajor: boolean
+  totalStrokesToPar: number
   outcome: 'under' | 'even' | 'over'
 }
 
@@ -45,7 +47,9 @@ export interface SeasonReview {
   seasonNumber: number
   totalStrokesToPar: number
   previousSeason: { seasonNumber: number; totalStrokesToPar: number } | null
-  roundDots: SeasonReviewRoundDot[]
+  bestSeasonEver: { seasonNumber: number; totalStrokesToPar: number }
+  isBestSeasonEver: boolean
+  rounds: SeasonReviewRound[]
   bogeyFreeRounds: number
   isBogeyFreeRecord: boolean
   priorBestBogeyFreeRounds: number
@@ -79,18 +83,38 @@ export function deriveSeasonReview(
   countries: CountriesContent,
 ): SeasonReview {
   const otherSeasons = allCompletedSeasons.filter((s) => s.id !== season.id)
+  const courseIndex = new Map(courses.map((c) => [c.id, c]))
 
   const previousSeasonEntry = otherSeasons.find((s) => s.seasonNumber === season.seasonNumber - 1)
   const previousSeason = previousSeasonEntry
     ? { seasonNumber: previousSeasonEntry.seasonNumber, totalStrokesToPar: seasonTotal(previousSeasonEntry) }
     : null
 
-  const roundDots: SeasonReviewRoundDot[] = season.schedule.map((entry) => {
+  // The record for best season score to par, across every completed season
+  // including this one — ties go to whichever season set the score first,
+  // so a repeat performance doesn't quietly dethrone the original record.
+  const bestSeasonEver = [season, ...otherSeasons].reduce(
+    (best, s) => {
+      const total = seasonTotal(s)
+      if (total < best.totalStrokesToPar) return { seasonNumber: s.seasonNumber, totalStrokesToPar: total }
+      if (total === best.totalStrokesToPar && s.seasonNumber < best.seasonNumber) {
+        return { seasonNumber: s.seasonNumber, totalStrokesToPar: total }
+      }
+      return best
+    },
+    { seasonNumber: season.seasonNumber, totalStrokesToPar: seasonTotal(season) },
+  )
+  const isBestSeasonEver = bestSeasonEver.seasonNumber === season.seasonNumber
+
+  const seasonRoundReviews: SeasonReviewRound[] = season.schedule.map((entry) => {
     const result = season.results.find((r) => r.roundNumber === entry.roundNumber)
+    const totalStrokesToPar = result?.totalStrokesToPar ?? 0
     return {
       roundNumber: entry.roundNumber,
+      courseName: courseIndex.get(entry.courseId)?.name ?? entry.courseId,
       isMajor: entry.isMajor,
-      outcome: result ? classifyOutcome(result.totalStrokesToPar) : 'even',
+      totalStrokesToPar,
+      outcome: result ? classifyOutcome(totalStrokesToPar) : 'even',
     }
   })
 
@@ -104,7 +128,6 @@ export function deriveSeasonReview(
 
   const seasonRounds = rounds.filter((r) => r.seasonId === season.id)
   const bestRoundRecord = findBestRound(seasonRounds)
-  const courseIndex = new Map(courses.map((c) => [c.id, c]))
   const bestRoundCourse = bestRoundRecord ? courseIndex.get(bestRoundRecord.courseId) : undefined
   const bestRound: SeasonReviewBestRound | null =
     bestRoundRecord && bestRoundCourse
@@ -152,7 +175,9 @@ export function deriveSeasonReview(
     seasonNumber: season.seasonNumber,
     totalStrokesToPar: seasonTotal(season),
     previousSeason,
-    roundDots,
+    bestSeasonEver,
+    isBestSeasonEver,
+    rounds: seasonRoundReviews,
     bogeyFreeRounds,
     isBogeyFreeRecord,
     priorBestBogeyFreeRounds,
