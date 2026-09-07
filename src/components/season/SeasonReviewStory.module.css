@@ -358,6 +358,55 @@
   background: radial-gradient(circle at 50% 25%, #3f3110, #14100a 65%);
 }
 
+.bogeyFreeList {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 300px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  padding: 4px 14px;
+}
+
+.bogeyFreeRow {
+  display: grid;
+  grid-template-columns: 26px 1fr auto;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.bogeyFreeRow:last-child {
+  border-bottom: none;
+}
+
+.bogeyFreeRoundNum {
+  font-size: 10px;
+  font-weight: 700;
+  opacity: 0.5;
+  font-variant-numeric: tabular-nums;
+}
+
+.bogeyFreeCourse {
+  font-size: 12.5px;
+  font-weight: 600;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.bogeyFreeMore {
+  font-size: 11px;
+  font-weight: 600;
+  opacity: 0.6;
+  text-align: center;
+  padding: 6px 0 2px;
+}
+
 /* Slide 3: best round */
 .slide3 .bgLayer {
   background: radial-gradient(circle at 50% 25%, #123626, #0a1410 65%);

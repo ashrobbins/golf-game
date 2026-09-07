@@ -15,6 +15,7 @@ export interface SeasonReviewRound {
   isMajor: boolean
   totalStrokesToPar: number
   outcome: 'under' | 'even' | 'over'
+  isBogeyFreeRound: boolean
 }
 
 export interface SeasonReviewBestRound {
@@ -115,6 +116,7 @@ export function deriveSeasonReview(
       isMajor: entry.isMajor,
       totalStrokesToPar,
       outcome: result ? classifyOutcome(totalStrokesToPar) : 'even',
+      isBogeyFreeRound: result?.isBogeyFreeRound ?? false,
     }
   })
 

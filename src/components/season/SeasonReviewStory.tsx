@@ -9,6 +9,10 @@ import styles from './SeasonReviewStory.module.css'
 const TOTAL_SLIDES = 4
 const SLIDE_DURATION_MS = 6000
 const HOLD_THRESHOLD_MS = 180
+// Caps how many bogey-free rounds the slide lists by name before falling
+// back to a "+N more" line — a season that went bogey-free at every one of
+// its 16 rounds (Course Slam territory) shouldn't overflow the slide.
+const MAX_BOGEY_FREE_ROUNDS_SHOWN = 8
 
 interface SeasonReviewStoryProps {
   review: SeasonReview
@@ -329,6 +333,25 @@ export function SeasonReviewStory({ review, onClose }: SeasonReviewStoryProps) {
               round{review.bogeyFreeRounds === 1 ? '' : 's'} without a single bogey
             </p>
             {review.isBogeyFreeRecord && <div className={styles.recordRibbon}>🏅 New personal record</div>}
+            {review.bogeyFreeRounds > 0 && (
+              <div className={styles.bogeyFreeList}>
+                {review.rounds
+                  .filter((r) => r.isBogeyFreeRound)
+                  .slice(0, MAX_BOGEY_FREE_ROUNDS_SHOWN)
+                  .map((r) => (
+                    <div key={r.roundNumber} className={styles.bogeyFreeRow}>
+                      <span className={styles.bogeyFreeRoundNum}>R{r.roundNumber}</span>
+                      <span className={styles.bogeyFreeCourse}>{r.courseName}</span>
+                      {r.isMajor && <span className={styles.majorPill}>Major</span>}
+                    </div>
+                  ))}
+                {review.bogeyFreeRounds > MAX_BOGEY_FREE_ROUNDS_SHOWN && (
+                  <p className={styles.bogeyFreeMore}>
+                    +{review.bogeyFreeRounds - MAX_BOGEY_FREE_ROUNDS_SHOWN} more
+                  </p>
+                )}
+              </div>
+            )}
             {review.priorBestBogeyFreeRounds > 0 && (
               <p className={styles.slideSub}>
                 {review.isBogeyFreeRecord

@@ -202,9 +202,37 @@ describe('deriveSeasonReview', () => {
     })
     const review = deriveSeasonReview(currentSeason, [currentSeason], [], COURSES, COUNTRIES)
     expect(review.rounds).toEqual([
-      { roundNumber: 1, courseName: 'Augusta National', isMajor: true, totalStrokesToPar: -2, outcome: 'under' },
-      { roundNumber: 2, courseName: 'Carnoustie', isMajor: false, totalStrokesToPar: 1, outcome: 'over' },
+      {
+        roundNumber: 1,
+        courseName: 'Augusta National',
+        isMajor: true,
+        totalStrokesToPar: -2,
+        outcome: 'under',
+        isBogeyFreeRound: false,
+      },
+      {
+        roundNumber: 2,
+        courseName: 'Carnoustie',
+        isMajor: false,
+        totalStrokesToPar: 1,
+        outcome: 'over',
+        isBogeyFreeRound: false,
+      },
     ])
+  })
+
+  it('flags which rounds were bogey-free', () => {
+    const currentSeason = completedSeason({
+      id: 'season-a',
+      seasonNumber: 1,
+      schedule: [scheduleEntry(1, 'augusta-national', true), scheduleEntry(2, 'carnoustie', false)],
+      results: [
+        resultEntry({ roundNumber: 1, isMajor: true, isBogeyFreeRound: true }),
+        resultEntry({ roundNumber: 2, isBogeyFreeRound: false }),
+      ],
+    })
+    const review = deriveSeasonReview(currentSeason, [currentSeason], [], COURSES, COUNTRIES)
+    expect(review.rounds.map((r) => r.isBogeyFreeRound)).toEqual([true, false])
   })
 
   it('flags the reviewed season as the all-time best when it beats every other season', () => {
