@@ -30,6 +30,13 @@ export function ScorecardGrid({ holes, holeResults, revealedCount }: ScorecardGr
   )
 
   const wrapperRef = useRef<HTMLDivElement>(null)
+  const tableRef = useRef<HTMLTableElement>(null)
+  // Cumulative horizontal shift applied to the table via transform, in
+  // pixels (0 or negative — the table only ever moves left). Tracked in a
+  // ref rather than read back from the DOM each time, since a mid-flight
+  // CSS transition means the transform's current computed value doesn't
+  // necessarily match the target we last set.
+  const translateXRef = useRef(0)
 
   // While a round is being revealed hole-by-hole, keep the most recently
   // played hole in view automatically instead of leaving it up to the user
@@ -38,17 +45,37 @@ export function ScorecardGrid({ holes, holeResults, revealedCount }: ScorecardGr
   // land. Once the round is complete (revealedCount stops being passed at
   // all, on the final results/history view), the grid unlocks and this
   // effect never fires again.
+  //
+  // Deliberately shifts the table via a CSS transform rather than the
+  // wrapper's native scrollLeft. Two problems with native scroll here: (1)
+  // cell.scrollIntoView() walks every scrollable ancestor, including the
+  // page itself, and was yanking the whole page's vertical scroll position
+  // back up to the scorecard every time a new hole landed; (2) even scoped
+  // to just this element (wrapper.scrollTo/scrollLeft), the wrapper's own
+  // overflow-x:hidden while locked (see .locked below) turns out to block
+  // programmatic scrolling too in some browsers, not just user-driven
+  // scrolling — a transform sidesteps both, since it never touches any
+  // ancestor's scroll position and works regardless of overflow mode.
   useEffect(() => {
-    if (!isLiveReveal || !wrapperRef.current) return
+    if (!isLiveReveal || !wrapperRef.current || !tableRef.current) return
     const currentHoleNumber = holes[revealed - 1]?.number
     if (currentHoleNumber === undefined) return
-    const cell = wrapperRef.current.querySelector<HTMLElement>(`[data-hole="${currentHoleNumber}"]`)
-    cell?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })
+    const wrapper = wrapperRef.current
+    const table = tableRef.current
+    const cell = wrapper.querySelector<HTMLElement>(`[data-hole="${currentHoleNumber}"]`)
+    if (!cell) return
+    const wrapperRect = wrapper.getBoundingClientRect()
+    const cellRect = cell.getBoundingClientRect()
+    const delta = cellRect.left + cellRect.width / 2 - (wrapperRect.left + wrapperRect.width / 2)
+    const minTranslate = -(table.scrollWidth - wrapper.clientWidth)
+    const next = Math.min(0, Math.max(minTranslate, translateXRef.current - delta))
+    translateXRef.current = next
+    table.style.transform = `translateX(${next}px)`
   }, [isLiveReveal, revealed, holes])
 
   return (
     <div ref={wrapperRef} className={isLiveReveal ? `${styles.wrapper} ${styles.locked}` : styles.wrapper}>
-      <table className={styles.table}>
+      <table ref={tableRef} className={isLiveReveal ? `${styles.table} ${styles.sliding}` : styles.table}>
         <thead>
           <tr>
             <th className={styles.rowLabel} scope="col">

@@ -6,11 +6,11 @@
   max-width: 100%;
 }
 
-/* During a live reveal the grid drives its own scroll position (see the
-   auto-scroll effect in ScorecardGrid.tsx) — overflow:hidden stops the user
-   from fighting it with a manual scroll/swipe while still allowing the
-   programmatic scrollIntoView calls to work. Reverts to plain .wrapper
-   (freely scrollable) once the round is complete. */
+/* During a live reveal the grid drives its own horizontal position via a
+   transform on .table (see ScorecardGrid.tsx), not native scrolling —
+   overflow:hidden just clips the table to the wrapper and stops the user
+   from dragging/swiping it out of sync with that transform. Reverts to
+   plain .wrapper (freely, natively scrollable) once the round is complete. */
 .wrapper.locked {
   overflow-x: hidden;
   -webkit-overflow-scrolling: auto;
@@ -20,6 +20,20 @@
   border-collapse: collapse;
   font-size: 13px;
   width: max-content;
+}
+
+/* Applied only during a live reveal, alongside .wrapper.locked — the auto-
+   scroll effect (ScorecardGrid.tsx) shifts this via a transform, not the
+   wrapper's scrollLeft, so this transition animates that shift smoothly
+   instead of it jumping instantly to each new hole. */
+.table.sliding {
+  transition: transform 0.3s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .table.sliding {
+    transition: none;
+  }
 }
 
 .table th,
