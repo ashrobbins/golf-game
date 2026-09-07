@@ -9,6 +9,13 @@
   z-index: 1000;
   overflow: hidden;
   font-family: inherit;
+  /* The press-and-hold-to-pause gesture on the tap zones otherwise reads
+     to the browser as a long-press text/element selection (and, on iOS,
+     triggers the copy/lookup callout menu) — this is a Stories-style
+     control surface, not selectable text. */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
 }
 
 .stage {
