@@ -216,7 +216,7 @@ export function SeasonReviewStory({ review, onClose }: SeasonReviewStoryProps) {
     review.previousSeason !== null ? review.totalStrokesToPar - review.previousSeason.totalStrokesToPar : null
 
   return (
-    <div className={isPaused ? `${styles.overlay} ${styles.paused}` : styles.overlay} role="dialog" aria-modal="true" aria-label="Season Review">
+    <div className={styles.overlay} role="dialog" aria-modal="true" aria-label="Season Review">
       <div className={styles.stage}>
         <div className={styles.progressRow}>
           {Array.from({ length: TOTAL_SLIDES }, (_, i) => (

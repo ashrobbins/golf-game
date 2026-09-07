@@ -50,11 +50,6 @@
   justify-content: center;
   gap: 14px;
   padding-bottom: 40px;
-  transition: opacity 0.2s ease;
-}
-
-.overlay.paused .content {
-  opacity: 0.5;
 }
 
 /* entrance animation per slide */
@@ -94,9 +89,6 @@
 @media (prefers-reduced-motion: reduce) {
   .slide.active .content > * {
     animation: none;
-  }
-  .content {
-    transition: none;
   }
 }
 
