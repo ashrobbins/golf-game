@@ -1,17 +1,42 @@
+/* Three side-by-side pieces rather than one wide table with sticky
+   left/right columns: a fixed label column, a scrollable/transformable
+   middle strip for the 18 hole columns, and a fixed total column. A
+   `transform` on any ancestor of a `position: sticky` element breaks its
+   containing-block math (it starts sticking relative to the transformed
+   ancestor instead of the actual scroll viewport) — since the middle
+   strip needs a transform during a live reveal (see ScorecardGrid.tsx),
+   sticky columns just aren't reliable here. Splitting into separate,
+   never-transformed pieces sidesteps that entirely: the label/total
+   columns are simply never inside the thing that moves. */
 .wrapper {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
+  display: flex;
+  align-items: stretch;
   border: 1px solid var(--border);
   border-radius: 10px;
+  overflow: hidden;
   max-width: 100%;
+}
+
+.pinnedTable {
+  flex: 0 0 auto;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.scrollArea {
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* During a live reveal the grid drives its own horizontal position via a
    transform on .table (see ScorecardGrid.tsx), not native scrolling —
-   overflow:hidden just clips the table to the wrapper and stops the user
+   overflow:hidden just clips the table to this area and stops the user
    from dragging/swiping it out of sync with that transform. Reverts to
-   plain .wrapper (freely, natively scrollable) once the round is complete. */
-.wrapper.locked {
+   plain .scrollArea (freely, natively scrollable) once the round is
+   complete. */
+.scrollArea.locked {
   overflow-x: hidden;
   -webkit-overflow-scrolling: auto;
 }
@@ -22,10 +47,10 @@
   width: max-content;
 }
 
-/* Applied only during a live reveal, alongside .wrapper.locked — the auto-
-   scroll effect (ScorecardGrid.tsx) shifts this via a transform, not the
-   wrapper's scrollLeft, so this transition animates that shift smoothly
-   instead of it jumping instantly to each new hole. */
+/* Applied only during a live reveal, alongside .scrollArea.locked — the
+   auto-scroll effect (ScorecardGrid.tsx) shifts this via a transform, so
+   this transition animates that shift smoothly instead of it jumping
+   instantly to each new hole. */
 .table.sliding {
   transition: transform 0.3s ease;
 }
@@ -36,6 +61,8 @@
   }
 }
 
+.pinnedTable th,
+.pinnedTable td,
 .table th,
 .table td {
   padding: 8px 6px;
@@ -44,6 +71,7 @@
   border-bottom: 1px solid var(--border);
 }
 
+.pinnedTable thead th,
 .table thead th {
   background: color-mix(in srgb, var(--text) 88%, var(--bg) 12%);
   color: var(--bg);
@@ -52,9 +80,6 @@
 }
 
 .rowLabel {
-  position: sticky;
-  left: 0;
-  z-index: 2;
   text-align: left;
   padding-left: 10px;
   background: var(--bg);
@@ -71,9 +96,6 @@ thead .rowLabel {
    "–" while pending during a live reveal vs. a real 1-3 digit total once
    revealed, and the "Total" header text itself. */
 .totalCell {
-  position: sticky;
-  right: 0;
-  z-index: 2;
   width: 56px;
   min-width: 56px;
   background: var(--bg);
