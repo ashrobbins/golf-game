@@ -310,7 +310,7 @@ export function SeasonReviewStory({ review, onClose }: SeasonReviewStoryProps) {
                 </div>
               ))}
             </div>
-            {!review.isBestSeasonEver && previousDiff !== null && review.previousSeason && (
+            {review.isBestSeasonEver && previousDiff !== null && review.previousSeason && (
               <p className={styles.slideSub}>
                 {previousDiff < 0
                   ? `Your best season yet — ${Math.abs(previousDiff)} strokes better than Season ${review.previousSeason.seasonNumber}.`
