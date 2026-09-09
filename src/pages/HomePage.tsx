@@ -5,22 +5,23 @@ import { useGame } from '../state/useGame'
 import { useHowToPlay } from '../state/useHowToPlay'
 import styles from './HomePage.module.css'
 
-function formatToPar(score: number) {
-  if (score === 0) return 'E'
-  return score > 0 ? `+${score}` : `${score}`
-}
-
 export function HomePage() {
-  const { activeSeason, goFreePlay, viewSeasons } = useGame()
+  const { content, activeSeason, seasonArchive, goFreePlay, viewSeasons } = useGame()
   const { open } = useHowToPlay()
 
-  const seasonProgress = activeSeason
-    ? (() => {
-        const roundNumber = activeSeason.results.length + 1
-        const total = activeSeason.results.reduce((sum, r) => sum + r.totalStrokesToPar, 0)
-        return `Round ${roundNumber} of ${activeSeason.schedule.length} · ${formatToPar(total)}`
-      })()
-    : undefined
+  let seasonProgressLabel: string | undefined
+  let seasonProgressValue: string | undefined
+
+  if (activeSeason && content.status === 'ready') {
+    const nextEntry = activeSeason.schedule[activeSeason.results.length]
+    const courseName = content.courses.courses.find((c) => c.id === nextEntry?.courseId)?.name
+    if (nextEntry && courseName) {
+      seasonProgressLabel = 'Up next'
+      seasonProgressValue = `Round ${nextEntry.roundNumber} · ${courseName}`
+    }
+  } else if (!activeSeason && seasonArchive.length > 0) {
+    seasonProgressValue = 'Season complete'
+  }
 
   return (
     <div className={styles.wrapper}>
@@ -46,7 +47,8 @@ export function HomePage() {
           icon="🏆"
           title="Seasons"
           description="16 rounds, 16 courses, one running score to par. Every 4th round is a major."
-          progress={seasonProgress}
+          progressLabel={seasonProgressLabel}
+          progressValue={seasonProgressValue}
           tone="gold"
           onClick={viewSeasons}
         />

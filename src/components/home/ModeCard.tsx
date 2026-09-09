@@ -5,7 +5,11 @@ interface ModeCardProps {
   icon: ReactNode
   title: string
   description: string
-  progress?: string
+  // progressLabel is optional on its own — the "Season complete" state has
+  // no label above it, just the value — but progressValue is required
+  // whenever either is passed, since a label with no value renders nothing.
+  progressLabel?: string
+  progressValue?: string
   tone?: 'accent' | 'gold'
   onClick: () => void
 }
@@ -14,7 +18,15 @@ interface ModeCardProps {
 // border/radius/shadow, hover lift, focus ring, 560px mobile breakpoint) —
 // deliberately a separate component rather than reusing CourseCard itself,
 // since CourseCard's props are tightly course-shaped (par/flag/location).
-export function ModeCard({ icon, title, description, progress, tone = 'accent', onClick }: ModeCardProps) {
+export function ModeCard({
+  icon,
+  title,
+  description,
+  progressLabel,
+  progressValue,
+  tone = 'accent',
+  onClick,
+}: ModeCardProps) {
   return (
     <button
       type="button"
@@ -26,10 +38,10 @@ export function ModeCard({ icon, title, description, progress, tone = 'accent', 
       </span>
       <h2 className={styles.title}>{title}</h2>
       <p className={styles.description}>{description}</p>
-      {progress && (
+      {progressValue && (
         <span className={styles.progress}>
-          <span className={styles.progressLabel}>Season in progress</span>
-          <span className={styles.progressValue}>{progress}</span>
+          {progressLabel && <span className={styles.progressLabel}>{progressLabel}</span>}
+          <span className={styles.progressValue}>{progressValue}</span>
         </span>
       )}
     </button>
