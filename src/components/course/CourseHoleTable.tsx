@@ -21,7 +21,7 @@ function HoleRow({ hole }: { hole: Hole }) {
         {/* Shown only on narrow viewports, in place of the dropped Archetype
             column — see .archetypeMobile / .archetypeCell in the CSS. */}
         <div className={styles.archetypeMobile}>
-          <ArchetypeBadge tag={hole.archetype} />
+          <ArchetypeBadge tag={hole.archetype} size="compact" />
         </div>
       </td>
       <td className={styles.numberCell}>{hole.par}</td>

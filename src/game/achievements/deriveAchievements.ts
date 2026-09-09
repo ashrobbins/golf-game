@@ -205,6 +205,20 @@ export interface Achievement {
   // (Full House's 125 golfers, a country's 5-14), unlike Grand Slam/Major
   // Slam's small 4-6 entry rosters, which read fine inline.
   compactRoster?: boolean
+  // Which course(s)/countries this achievement is thematically or
+  // mechanically tied to — powers the Course Preview page's Achievement
+  // Checklist (deriveCourseAchievementChecklist below), which surfaces
+  // "things you could try on this round" without needing to re-derive that
+  // linkage from names/descriptions. Left unset for achievements with no
+  // single-course/country tie (career milestones like Full House, and
+  // season-total achievements like Century Men) — those simply never
+  // appear on the checklist. relatedCountryIds is thematic, not a strict
+  // completion requirement: a Sweep achievement can technically be
+  // progressed at any course in the world, but it's tagged to its
+  // country's own course(s) since that's where it's most relevant to
+  // suggest.
+  relatedCourseIds?: string[]
+  relatedCountryIds?: string[]
 }
 
 function isBogeyFreeAt(rounds: RoundRecord[], courseId: string): boolean {
@@ -600,6 +614,7 @@ export function deriveAchievements(
       description: `Go bogey-free through all 18 holes at ${course.name}.`,
       section: 'course',
       isUnlocked: isBogeyFreeAt(rounds, course.id),
+      relatedCourseIds: [course.id],
     })
     achievements.push({
       id: `break-60-${course.id}`,
@@ -607,6 +622,7 @@ export function deriveAchievements(
       description: `Shoot under 60 strokes at ${course.name}.`,
       section: 'course',
       isUnlocked: hasBroken60At(rounds, course),
+      relatedCourseIds: [course.id],
     })
     const birdiedHoleNumbers = birdieOrBetterHoleNumbersAt(rounds, course.id)
     achievements.push({
@@ -619,6 +635,7 @@ export function deriveAchievements(
         holeNumber: h.number,
         achieved: birdiedHoleNumbers.has(h.number),
       })),
+      relatedCourseIds: [course.id],
     })
   }
 
@@ -770,6 +787,7 @@ export function deriveAchievements(
       },
       roster: countryRoster,
       compactRoster: true,
+      relatedCountryIds: [country.id],
     })
   }
 
@@ -813,6 +831,7 @@ export function deriveAchievements(
       },
       roster: homeRoster,
       compactRoster: true,
+      relatedCountryIds: [country.id],
     })
   }
 
@@ -854,6 +873,7 @@ export function deriveAchievements(
       target: majorSlamRoster.length,
     },
     roster: majorSlamRoster,
+    relatedCourseIds: MAJOR_COURSE_IDS,
   })
 
   // Deliberately a superset of Major Slam — every one of the 16 real
@@ -876,6 +896,7 @@ export function deriveAchievements(
     },
     roster: courseSlamRoster,
     compactRoster: true,
+    relatedCourseIds: courses.map((course) => course.id),
   })
 
   const CENTURY_TARGET_UNDER_PAR = 100
@@ -975,6 +996,7 @@ export function deriveAchievements(
     isUnlocked: hasBirdieAt(rounds, IMPOSSIBLE_CHIP_COURSE_ID, IMPOSSIBLE_CHIP_HOLE_NUMBER, IMPOSSIBLE_CHIP_GOLFER_ID),
     trivia:
       "Tiger Woods holed a chip on Augusta's 16th during the final round of the 2005 Masters — the ball paused on the lip just long enough for the Nike swoosh to face the camera before dropping.",
+    relatedCourseIds: [IMPOSSIBLE_CHIP_COURSE_ID],
   })
   achievements.push({
     id: 'amen-corner-answered',
@@ -984,6 +1006,7 @@ export function deriveAchievements(
     isUnlocked: hasPlayedAmenCornerUnderPar(rounds),
     trivia:
       "Sportswriter Herbert Warren Wind coined \"Amen Corner\" in 1958, naming Augusta's 11th, 12th, and 13th after the jazz record \"Shoutin' in that Amen Corner.\"",
+    relatedCourseIds: [AMEN_CORNER_COURSE_ID],
   })
   achievements.push({
     id: 'golden-bear',
@@ -992,6 +1015,7 @@ export function deriveAchievements(
     section: 'iconic',
     isUnlocked: hasGoneBogeyFreeWithGolferAt(rounds, GOLDEN_BEAR_COURSE_ID, GOLDEN_BEAR_GOLFER_ID),
     trivia: 'Jack Nicklaus — golf\'s "Golden Bear" — won a record six Masters titles at Augusta National, from 1963 to 1986.',
+    relatedCourseIds: [GOLDEN_BEAR_COURSE_ID],
   })
   achievements.push({
     id: 'pebble-beach-runaway',
@@ -1006,6 +1030,7 @@ export function deriveAchievements(
     ),
     trivia:
       'Tiger Woods won the 2000 US Open at Pebble Beach by a record 15 strokes, finishing 12 under par — the largest margin of victory in major championship history.',
+    relatedCourseIds: [PEBBLE_BEACH_RUNAWAY_COURSE_ID],
   })
   achievements.push({
     id: 'ace-island-green',
@@ -1015,6 +1040,7 @@ export function deriveAchievements(
     isUnlocked: hasHoleInOneAt(rounds, ISLAND_GREEN_COURSE_ID, ISLAND_GREEN_HOLE_NUMBER),
     trivia:
       "TPC Sawgrass's par-3 17th is almost entirely surrounded by water, making it one of the most recognizable — and feared — holes in golf.",
+    relatedCourseIds: [ISLAND_GREEN_COURSE_ID],
   })
   achievements.push({
     id: 'postcard-perfect',
@@ -1024,6 +1050,7 @@ export function deriveAchievements(
     isUnlocked: hasHoleInOneAt(rounds, POSTCARD_PERFECT_COURSE_ID, POSTCARD_PERFECT_HOLE_NUMBER),
     trivia:
       "Pebble Beach's par-3 7th plays as short as 100 yards but sits perched above the Pacific, making it one of the most photographed holes in golf.",
+    relatedCourseIds: [POSTCARD_PERFECT_COURSE_ID],
   })
   achievements.push({
     id: 'miracle-at-medinah',
@@ -1038,6 +1065,7 @@ export function deriveAchievements(
     ),
     trivia:
       "Ian Poulter birdied his final five holes during the 2012 Ryder Cup's Saturday four-balls, part of a run that fired up Europe's historic comeback from 10-6 down.",
+    relatedCourseIds: [MIRACLE_AT_MEDINAH_COURSE_ID],
   })
   achievements.push({
     id: 'cup-clincher',
@@ -1047,6 +1075,7 @@ export function deriveAchievements(
     isUnlocked: hasBirdieAt(rounds, CUP_CLINCHER_COURSE_ID, CUP_CLINCHER_HOLE_NUMBER, CUP_CLINCHER_GOLFER_ID),
     trivia:
       "Rory McIlroy beat Sam Burns 3&1 in the final Sunday singles match of the 2023 Ryder Cup — decided on the 17th green — sealing Europe's Cup-winning point at Marco Simone.",
+    relatedCourseIds: [CUP_CLINCHER_COURSE_ID],
   })
   achievements.push({
     id: 'scheffler-gold',
@@ -1061,6 +1090,7 @@ export function deriveAchievements(
     ),
     trivia:
       'Scottie Scheffler closed with a final-round 62 at Le Golf National to win the gold medal at the 2024 Paris Olympics.',
+    relatedCourseIds: [SCHEFFLER_GOLD_COURSE_ID],
   })
   achievements.push({
     id: 'faldos-redemption',
@@ -1075,6 +1105,7 @@ export function deriveAchievements(
     ),
     trivia:
       "Nick Faldo closed with a 67 in the final round of the 1996 Masters, completing one of golf's greatest comebacks as Greg Norman's six-shot lead collapsed behind him.",
+    relatedCourseIds: [FALDOS_REDEMPTION_COURSE_ID],
   })
   achievements.push({
     id: 'lawrie-comeback',
@@ -1089,6 +1120,7 @@ export function deriveAchievements(
     ),
     trivia:
       "Paul Lawrie came from 10 shots back in the final round to win the 1999 Open Championship at Carnoustie, closing with a 4-under 67 after Jean van de Velde's collapse at the 18th forced a playoff.",
+    relatedCourseIds: [LAWRIE_COMEBACK_COURSE_ID],
   })
   achievements.push({
     id: 'stenson-finale',
@@ -1104,6 +1136,7 @@ export function deriveAchievements(
     ),
     trivia:
       'Henrik Stenson — nicknamed "The Iceman" for his cool composure under pressure — closed with a 64 to win the 2013 DP World Tour Championship, and the Race to Dubai title with it, at Jumeirah Golf Estates\' Earth Course.',
+    relatedCourseIds: [STENSON_ICEMAN_COURSE_ID],
   })
   achievements.push({
     id: 'seves-home-course',
@@ -1113,6 +1146,7 @@ export function deriveAchievements(
     isUnlocked: hasGoneBogeyFreeWithGolferAt(rounds, SEVES_HOME_COURSE_COURSE_ID, SEVES_HOME_COURSE_GOLFER_ID),
     trivia:
       'Seve Ballesteros designed Valderrama himself, then captained Europe to its first-ever Ryder Cup win on Spanish soil there in 1997.',
+    relatedCourseIds: [SEVES_HOME_COURSE_COURSE_ID],
   })
   achievements.push({
     id: 'kiwi-closer',
@@ -1121,6 +1155,7 @@ export function deriveAchievements(
     section: 'iconic',
     isUnlocked: hasBirdieAt(rounds, KIWI_CLOSER_COURSE_ID, KIWI_CLOSER_HOLE_NUMBER, KIWI_CLOSER_GOLFER_ID),
     trivia: 'Ryan Fox is one of New Zealand\'s most successful modern golfers, a multiple-time DP World Tour winner known for his power off the tee.',
+    relatedCourseIds: [KIWI_CLOSER_COURSE_ID],
   })
   achievements.push({
     id: 'jimenez-escape',
@@ -1130,6 +1165,7 @@ export function deriveAchievements(
     isUnlocked: hasJimenezEscape(rounds),
     trivia:
       "In the 2010 Open Championship, Miguel Ángel Jiménez's tee shot on the Road Hole came to rest against the stone boundary wall — and he still escaped with a par.",
+    relatedCourseIds: [JIMENEZ_ESCAPE_COURSE_ID],
   })
   achievements.push({
     id: 'garcia-home-soil',
@@ -1144,6 +1180,7 @@ export function deriveAchievements(
     ),
     trivia:
       'Sergio García fired a second-round 64 at Valderrama on his way to winning the 2018 Andalucía Valderrama Masters on home soil in Spain.',
+    relatedCourseIds: [GARCIA_HOME_SOIL_COURSE_ID],
   })
   achievements.push({
     id: 'spirit-of-seve',
@@ -1158,6 +1195,13 @@ export function deriveAchievements(
     ),
     trivia:
       "As golf lore has it, Seve Ballesteros drove the green on The Belfry's short, daring par-4 10th during a practice round — the kind of audacious play that made him a Ryder Cup legend across five appearances for Europe.",
+    // relatedCountryIds deliberately omitted despite the "any Spanish
+    // golfer" requirement — that's a constraint on which golfer scores it,
+    // not on where it can be scored. The hole itself only exists at
+    // Brabazon, so relatedCourseIds alone is the correct/complete tie;
+    // adding the country here would wrongly surface this on every other
+    // Spanish course too (e.g. Valderrama).
+    relatedCourseIds: [SPIRIT_OF_SEVE_COURSE_ID],
   })
   achievements.push({
     id: 'harringtons-survival',
@@ -1172,7 +1216,89 @@ export function deriveAchievements(
     ),
     trivia:
       'Padraig Harrington won the 2008 Open Championship at Royal Birkdale in brutal wind and rain, closing at 3-over-par — the highest winning score at The Open in almost two decades.',
+    relatedCourseIds: [HARRINGTONS_SURVIVAL_COURSE_ID],
   })
 
   return achievements
+}
+
+// Section priority for the Course Preview page's Achievement Checklist —
+// Iconic Moments (the named, flavorful ones) lead, since they're the most
+// fun to spot at a glance; standard per-course goals and country-flavored
+// ones follow; season goals (Major/Course Slam) come last since they only
+// ever appear for a season round anyway.
+const CHECKLIST_SECTION_ORDER: Record<AchievementSection, number> = {
+  iconic: 0,
+  course: 1,
+  career: 2,
+  season: 3,
+}
+
+// Id prefix shared by every per-country "Sweep" achievement — exported so
+// both AchievementsPage (splits them into their own labeled sub-section)
+// and deriveCourseAchievementChecklist below (treats them as always
+// relevant, never course/country-gated) key off the same string.
+export const COUNTRY_SWEEP_ID_PREFIX = 'birdie-country-'
+
+export interface CourseAchievementChecklistContext {
+  courseId: string
+  // The course's own home country, if it has one (Course.countryIsoCode) —
+  // used to surface that country's Home Town Heroes achievement as
+  // relevant, since that one genuinely requires playing on home soil.
+  countryIsoCode?: string
+  isSeasonRound: boolean
+  isMajor: boolean
+}
+
+// Not-yet-completed achievements relevant to the round about to be played —
+// powers the Course Preview page's Achievement Checklist. Built mostly from
+// relatedCourseIds/relatedCountryIds above, with three exceptions pure
+// string-matching can't express:
+//  - Country Sweeps (birdie-country-*) are achievable with a birdie at any
+//    course in the world, not just their own country's — so they're always
+//    relevant, everywhere, unlike Home Town Heroes (which genuinely
+//    requires home soil, and stays gated to that country's course(s)).
+//  - Major Slam only counts a bogey-free round played as an actual major
+//    (see isBogeyFreeAsMajorAt) — shown only on a season's major round, and
+//    only for courses whose own roster slot isn't already ticked off, so
+//    finishing Augusta's major drops Major Slam off Augusta's checklist
+//    even while the achievement as a whole stays open for the other 3.
+//  - Course Slam is the same idea for every course as a season round (see
+//    isBogeyFreeAsSeasonRoundAt), not just the 4 majors.
+// Deliberately excludes season achievements with no single-course tie
+// (Century Men's season-total score, First Season, Back-to-Back, All-Star
+// Season) — those simply have no relatedCourseIds/relatedCountryIds to
+// match on, so they never appear here even though they share the same
+// 'season' section as Major/Course Slam.
+export function deriveCourseAchievementChecklist(
+  achievements: Achievement[],
+  rounds: RoundRecord[],
+  countries: CountriesContent,
+  context: CourseAchievementChecklistContext,
+): Achievement[] {
+  const country = context.countryIsoCode
+    ? countries.countries.find((c) => c.isoCode === context.countryIsoCode)
+    : undefined
+
+  return achievements
+    .filter((a) => {
+      if (a.isUnlocked) return false
+
+      if (a.id === 'major-slam') {
+        return (
+          context.isSeasonRound &&
+          context.isMajor &&
+          !isBogeyFreeAsMajorAt(rounds, context.courseId)
+        )
+      }
+      if (a.id === 'course-slam') {
+        return context.isSeasonRound && !isBogeyFreeAsSeasonRoundAt(rounds, context.courseId)
+      }
+      if (a.id.startsWith(COUNTRY_SWEEP_ID_PREFIX)) return true
+
+      const courseMatch = a.relatedCourseIds?.includes(context.courseId) ?? false
+      const countryMatch = country ? (a.relatedCountryIds?.includes(country.id) ?? false) : false
+      return courseMatch || countryMatch
+    })
+    .sort((a, b) => CHECKLIST_SECTION_ORDER[a.section] - CHECKLIST_SECTION_ORDER[b.section])
 }

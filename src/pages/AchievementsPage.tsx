@@ -1,9 +1,7 @@
 import { useMemo, useState } from 'react'
-import { AchievementHoleDots } from '../components/achievements/AchievementHoleDots'
-import { AchievementProgress } from '../components/achievements/AchievementProgress'
-import { AchievementRoster } from '../components/achievements/AchievementRoster'
-import { deriveAchievements } from '../game/achievements/deriveAchievements'
-import type { Achievement, AchievementSection } from '../game/achievements/deriveAchievements'
+import { AchievementCard } from '../components/achievements/AchievementCard'
+import { COUNTRY_SWEEP_ID_PREFIX, deriveAchievements } from '../game/achievements/deriveAchievements'
+import type { AchievementSection } from '../game/achievements/deriveAchievements'
 import { loadStats } from '../game/stats/storage'
 import { useGame } from '../state/useGame'
 import styles from './AchievementsPage.module.css'
@@ -17,12 +15,6 @@ const TABS: Array<{ section: AchievementSection; label: string }> = [
   { section: 'course', label: 'Course' },
   { section: 'season', label: 'Seasons' },
 ]
-
-// Id prefix used by the per-country "Sweep" achievements (see
-// deriveAchievements.ts) — split out of the flat career list into their own
-// labeled sub-section below, since 19 of them would otherwise drown the
-// dozen-or-so other career milestones in one undifferentiated list.
-const COUNTRY_SWEEP_ID_PREFIX = 'birdie-country-'
 
 // Split out of the flat career list the same way COUNTRY_SWEEP_ID_PREFIX
 // is, for the same reason — 7 "birdie on home soil" achievements would
@@ -136,39 +128,6 @@ export function AchievementsPage() {
         won't carry over to another device or browser, and will disappear if you clear your
         browsing data or use a private/incognito window.
       </p>
-    </div>
-  )
-}
-
-function AchievementCard({ achievements }: { achievements: Achievement[] }) {
-  return (
-    <div className={styles.card}>
-      <ul className={styles.list}>
-        {achievements.map((achievement) => {
-          const rowClasses = [styles.row, achievement.isUnlocked && styles.unlocked]
-            .filter(Boolean)
-            .join(' ')
-          return (
-            <li key={achievement.id} className={rowClasses}>
-              <span className={styles.trophy} aria-hidden>
-                🏆
-              </span>
-              <div className={styles.body}>
-                <div className={styles.name}>{achievement.name}</div>
-                <p className={styles.desc}>{achievement.description}</p>
-                {achievement.roster && !achievement.compactRoster && (
-                  <AchievementRoster roster={achievement.roster} />
-                )}
-                {achievement.progress && (
-                  <AchievementProgress {...achievement.progress} roster={achievement.roster} />
-                )}
-                {achievement.holeProgress && <AchievementHoleDots holes={achievement.holeProgress} />}
-                {achievement.trivia && <p className={styles.trivia}>{achievement.trivia}</p>}
-              </div>
-            </li>
-          )
-        })}
-      </ul>
     </div>
   )
 }

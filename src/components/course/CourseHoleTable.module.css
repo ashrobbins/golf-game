@@ -13,16 +13,16 @@
 .table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 14px;
+  font-size: 13px;
   background: var(--surface);
 }
 
 .headCell {
   text-align: left;
-  padding: 12px 16px;
+  padding: 8px 16px;
   background: var(--accent);
   color: var(--accent-contrast);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -34,7 +34,7 @@
 }
 
 .row td {
-  padding: 10px 16px;
+  padding: 6px 16px;
   border-bottom: 1px solid var(--border);
 }
 
@@ -45,7 +45,7 @@
 .holeCell {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
 }
 
 .holeMain {
@@ -61,7 +61,7 @@
 }
 
 .holeName {
-  font-size: 12px;
+  font-size: 11px;
   opacity: 0.6;
   font-style: italic;
 }
@@ -82,9 +82,9 @@
 }
 
 .subtotalRow td {
-  padding: 8px 16px;
+  padding: 5px 16px;
   font-weight: 700;
-  font-size: 12px;
+  font-size: 11px;
   background: color-mix(in srgb, var(--text) 6%, var(--surface));
   border-bottom: 1px solid var(--border);
   text-transform: uppercase;
@@ -92,9 +92,9 @@
 }
 
 .totalRow td {
-  padding: 12px 16px;
+  padding: 8px 16px;
   font-weight: 800;
-  font-size: 14px;
+  font-size: 13px;
   background: var(--text);
   color: var(--bg);
   text-transform: uppercase;
