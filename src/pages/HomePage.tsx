@@ -17,7 +17,7 @@ export function HomePage() {
     const courseName = content.courses.courses.find((c) => c.id === nextEntry?.courseId)?.name
     if (nextEntry && courseName) {
       seasonProgressLabel = 'Up next'
-      seasonProgressValue = `Round ${nextEntry.roundNumber} · ${courseName}`
+      seasonProgressValue = `Season ${activeSeason.seasonNumber} · Round ${nextEntry.roundNumber} · ${courseName}`
     }
   } else if (!activeSeason && seasonArchive.length > 0) {
     seasonProgressValue = 'Season complete'
